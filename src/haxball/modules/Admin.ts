@@ -25,7 +25,7 @@ export class AdminModule {
       player.reply({ message: "[PV] ⚠️ Você já é administrador.", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification });
       return;
     }
-    if (!this.hasAdmin() || ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 ADMINISTRADOR"].includes(player.settings.role)) {
+    if (!this.hasAdmin() || ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 Administrador"].includes(player.settings.role)) {
       player.admin = true;
       player.reply({ message: "[PV] ✅ Você virou administrador.", color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
       return;
@@ -60,7 +60,7 @@ export class AdminModule {
   @Event
   onPlayerAdminChange(changedPlayer: Player, byPlayer?: Player): void {
     if (!byPlayer || changedPlayer.id === byPlayer.id) return;
-    const hierarchy: Record<string, number> = { "👨‍💼 ADMINISTRADOR": 5, "👮‍♂️ capitão": 4, "💂 sub-capitão": 3, "⚽ jogador": 2, admin: 1 };
+    const hierarchy: Record<string, number> = { "👨‍💼 Administrador": 5, "👮‍♂️ capitão": 4, "💂 sub-capitão": 3, "⚽ jogador": 2, admin: 1 };
     const actorRole = byPlayer.settings.role || "admin";
     const targetRole = changedPlayer.settings.role || "admin";
     if ((hierarchy[actorRole] || 0) <= (hierarchy[targetRole] || 0) && actorRole !== "admin") {
