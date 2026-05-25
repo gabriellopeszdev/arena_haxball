@@ -258,26 +258,34 @@ npm start
 
 <div align="center">
 
-| 🎯 Comando | 📖 Descrição | 🎭 Cargos |
+| 🎯 Comando | 📖 Descrição | 🎭 Acesso |
 |:---|---:|:---:|
-| `!admin` | Dar/remover admin de um jogador | 👮‍♂️ Capitão |
-| `!ban` | Banir jogador da sala | 👮‍♂️ Capitão |
-| `!kick` | Kickar jogador da sala | 👮‍♂️ Capitão |
-| `!mute` | Mutar jogador temporariamente | 👮‍♂️ Capitão |
-| `!unmute` | Desmutar jogador | 👮‍♂️ Capitão |
-| `!password` | Alterar senha da sala | 👮‍♂️ Capitão |
-| `!camp` | Trocar lado do campo | 👮‍♂️ Capitão |
-| `!swap` | Trocar de time com alguém | 👮‍♂️ Capitão |
-| `!reset` | Resetar bola ao centro | 👮‍♂️ Capitão |
-| `!radius` | Kickar jogadores fora do raio | 👮‍♂️ Capitão |
-| `!spec` | Mover jogador para espectador | 👮‍♂️ Capitão |
-| `!ball` | Mover bola para posição | ⚽ Jogador |
+| `!adm` | Virar administrador da sala (se não houver) | 👤 Todos |
+| `!cargo` | Definir cargo por senha (capitão/sub/jogador) | 👤 Todos |
+| `!ban` | Banir jogador da sala | 👮‍♂️ Capitão / 💂 Sub |
+| `!kick` | Kickar jogador da sala | 👮‍♂️ Capitão / 💂 Sub |
+| `!mute` | Mutar jogador temporariamente | 👮‍♂️ Capitão / 💂 Sub |
+| `!unmute` | Desmutar jogador | 👮‍♂️ Capitão / 💂 Sub |
+| `!password` | Alterar senha da sala | 👮‍♂️ Capitão / 💂 Sub |
+| `!camp` | Trocar lado do campo | 👮‍♂️ Capitão / 💂 Sub |
+| `!swap` | Trocar de time com alguém | 👮‍♂️ Capitão / 💂 Sub |
+| `!reset` | Resetar bola ao centro | 👮‍♂️ Capitão / 💂 Sub |
+| `!radius` | Kickar jogadores fora do raio | 👮‍♂️ Capitão / 💂 Sub |
+| `!spec` | Mover jogador para espectador | 👮‍♂️ Capitão / 💂 Sub |
+| `!ball` | Mover bola para posição | 👮‍♂️ Capitão / 💂 Sub |
+| `!uniform` | Alterar uniforme do time | 👮‍♂️ Capitão / 💂 Sub |
+| `!chat` | Ativar/desativar chat | 👮‍♂️ Capitão / 💂 Sub |
 | `!avatar` | Alterar avatar | ⚽ Jogador |
 | `!afk` | Marcar-se como ausente | ⚽ Jogador |
-| `!uniform` | Alterar uniforme do time | 👮‍♂️ Capitão |
-| `!eval` | Executar código na sala | 🔧 Admin |
+| `!hackban` | Banir jogador por ID | 👮‍♂️ Capitão |
+| `!hackclearbans` | Limpar todos os bans | 👮‍♂️ Capitão |
+| `!eval` | Executar código JavaScript | 👮‍♂️ Capitão |
 
 </div>
+
+> **Hierarquia de cargos:** 👮‍♂️ **Capitão** (maior) → 💂 **Sub-capitão** → ⚽ **Jogador** (menor)
+>
+> **Administrador da sala** (`!adm`) é um conceito separado dos cargos — qualquer um pode se tornar admin via `!adm` quando não houver nenhum presente.
 
 <br>
 

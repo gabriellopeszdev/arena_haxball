@@ -5,7 +5,7 @@ export function evalCommand(room: Room): void {
     name: "eval",
     desc: "Executa código JavaScript.",
     usage: "eval <código>",
-    roles: ["admin"],
+    roles: ["👮‍♂️ capitão"],
     deleteMessage: false,
     func: ($: CommandExecInfo) => {
       try {

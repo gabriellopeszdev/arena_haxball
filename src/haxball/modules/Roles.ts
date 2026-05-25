@@ -6,7 +6,7 @@ export class RolesModule {
   constructor(private room: Room) {}
 
   private roleHierarchy: Record<string, number> = {
-    "👨‍💼 administrador": 0, "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3,
+    "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3,
   };
 
   private passwordMap: Record<string, string> = {};
@@ -16,12 +16,11 @@ export class RolesModule {
       [process.env.JOGADOR || ""]: "⚽ jogador",
       [process.env.CAP || ""]: "👮‍♂️ capitão",
       [process.env.SUBCAP || ""]: "💂 sub-capitão",
-      [process.env.ADMIN || ""]: "👨‍💼 administrador",
     };
   }
 
   private roleToDb(role: string): string {
-    const map: Record<string, string> = { "⚽ jogador": "jogador", "👮‍♂️ capitão": "capitao", "💂 sub-capitão": "sub-capitao", "👨‍💼 administrador": "administrador" };
+    const map: Record<string, string> = { "⚽ jogador": "jogador", "👮‍♂️ capitão": "capitao", "💂 sub-capitão": "sub-capitao" };
     return map[role] || "";
   }
 
@@ -77,7 +76,7 @@ export class RolesModule {
     aliases: ["hackbanir"],
     desc: "Banir um jogador por ID.",
     usage: "hackban <ID>",
-    roles: ["👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👮‍♂️ capitão"],
     deleteMessage: true,
   })
   public hackban(execInfo: CommandExecInfo): void {
@@ -87,7 +86,7 @@ export class RolesModule {
     if (isNaN(id)) { player.reply({ message: "[PV] ⚠️ ID inválido.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
     const target = room.players[id];
     if (!target) { player.reply({ message: `[PV] ⚠️ Jogador ${id} não encontrado.`, color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
-    if (["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"].includes(target.settings.role)) {
+    if (["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"].includes(target.settings.role)) {
       player.reply({ message: "[PV] ❌ Não pode banir este jogador.", color: Colors.Orange, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
     target.ban("🔴 !hackban");
     const { bansDb } = require("../../database/Database");
@@ -98,7 +97,7 @@ export class RolesModule {
     aliases: ["hackclearbans", "hacklimparbans", "hackcb"],
     desc: "Limpar todos os bans do banco de dados.",
     usage: "hackclearbans",
-    roles: ["👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👮‍♂️ capitão"],
     deleteMessage: true,
   })
   public hackclearbans(execInfo: CommandExecInfo): void {
