@@ -46,9 +46,9 @@
 
 ## ✨ **Visão Geral**
 
-**Arena Vincere** é uma plataforma robusta para criação e gerenciamento de salas de **Haxball** (🔴🔵) com suporte total via **Discord**. O sistema permite controlar múltiplas salas simultaneamente, gerenciar cargos, aplicar bans/mutes, alternar mapas, e muito mais — tudo diretamente do seu servidor Discord.
+**Arena Vincere** é uma plataforma robusta para criação e gerenciamento de salas de **Haxball** (🔴🔵) com suporte total via **Discord**. O sistema permite controlar múltiplas salas simultaneamente, gerenciar cargos, aplicar bans/mutes, alternar mapas, e muito mais - tudo diretamente do seu servidor Discord.
 
-> 🇧🇷 **Servidores localizados em São Paulo, Brasil** — latência mínima para jogadores brasileiros. Ambas as salas são principais.
+> 🇧🇷 **Servidores localizados em São Paulo, Brasil** - latência mínima para jogadores brasileiros. Ambas as salas são principais.
 
 <br>
 
@@ -94,7 +94,7 @@ CLIENT_ID=seu_client_id_aqui
 GUILD_ID=seu_guild_id_aqui
 TEAM_NAME=Fnatic
 
-# ─── Geo (Brasil — 🇧🇷 São Paulo) ───────
+# ─── Geo (Brasil - 🇧🇷 São Paulo) ───────
 GEO_CODE=BR
 GEO_LAT=-23.5167
 GEO_LON=-46.6463
@@ -273,7 +273,7 @@ npm start
 
 > **Hierarquia de cargos:** 👮‍♂️ **Capitão** (maior) → 💂 **Sub-capitão** → ⚽ **Jogador** → 👨‍💼 **Administrador** (menor)
 >
-> **Administrador da sala** (`!adm`) é um conceito separado dos cargos — qualquer um pode se tornar admin via `!adm` quando não houver nenhum presente. O cargo `👨‍💼 administrador` é definido via senha no `!cargo`.
+> **Administrador da sala** (`!adm`) é um conceito separado dos cargos - qualquer um pode se tornar admin via `!adm` quando não houver nenhum presente. O cargo `👨‍💼 administrador` é definido via senha no `!cargo`.
 
 <br>
 
@@ -360,7 +360,7 @@ O sistema de clipes captura automaticamente lances de gol e gera vídeos utiliza
 ## 🌍 **Geo-Localização**
 
 ```
-🇧🇷 Brasil — São Paulo
+🇧🇷 Brasil - São Paulo
 ├── Latitude:  -23.5167
 ├── Longitude: -46.6463
 └── Código:    BR
