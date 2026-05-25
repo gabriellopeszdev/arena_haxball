@@ -7,17 +7,10 @@ const rooms = new Map<string, Room>();
 
 const roomMetadata = new Map<string, { number: number; proxy?: string }>();
 
-function getRoomEmoji(roomNumber: number): string {
-  return roomNumber === 1 ? "🥃" : roomNumber === 2 ? "👑" : "🟡";
-}
-
 function generateRoomName(roomNumber: number, customName?: string): string {
   if (customName) return customName;
-  const emoji = getRoomEmoji(roomNumber);
-  if (roomNumber === 1) return `${emoji} ARENA TERQUILA ⚫🟠`;
-  if (roomNumber === 2) return `${emoji} ARENA GIU ⚫🟠`;
   const exp = roomNumber.toString().split("").map(d => ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"][parseInt(d)]).join("");
-  return `🟡 ARENA${exp} ⚫🟠`;
+  return `Sala ${roomNumber}${exp}`;
 }
 
 function getProxyForRoom(roomNumber: number): string | undefined {

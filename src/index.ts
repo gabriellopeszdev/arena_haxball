@@ -3,7 +3,7 @@ import { startAllRooms } from "./room/RoomManager";
 import { initializeDiscordBot } from "./discord/Client";
 
 async function main() {
-  console.log("🚀 Iniciando ARENA TERQUILA | ARENA GIU...");
+  console.log("🚀 Iniciando Arena Vincere...");
 
   try {
     initializeDatabase();
