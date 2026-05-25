@@ -20,7 +20,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const player: Player | undefined = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   if (player.admin === status) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${player.name} já ${status ? "é admin" : "é player"}.`, user)], flags: MessageFlags.Ephemeral }); return; }
-  if (["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 Administrador"].includes(player.settings.role)) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${player.name} é ${player.settings.role}.`, user)], flags: MessageFlags.Ephemeral }); return; }
+  if (["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"].includes(player.settings.role)) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${player.name} é ${player.settings.role}.`, user)], flags: MessageFlags.Ephemeral }); return; }
   player.admin = status;
   await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Admin de [${player.id}] ${player.name} alterado para ${status}.`, user)] });
 }
