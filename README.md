@@ -254,25 +254,32 @@ npm start
 | 🎯 Comando | 📖 Descrição | 🎭 Acesso |
 |:---|---:|:---:|
 | `!adm` | Virar administrador da sala (se não houver) | 👤 Todos |
-| `!cargo` | Definir cargo por senha (capitão/sub/jogador) | 👤 Todos |
-| `!ban` | Banir jogador da sala | 👮‍♂️ Capitão / 💂 Sub |
-| `!kick` | Kickar jogador da sala | 👮‍♂️ Capitão / 💂 Sub |
-| `!mute` | Mutar jogador temporariamente | 👮‍♂️ Capitão / 💂 Sub |
-| `!unmute` | Desmutar jogador | 👮‍♂️ Capitão / 💂 Sub |
-| `!password` | Alterar senha da sala | 👮‍♂️ Capitão / 💂 Sub |
-| `!camp` | Trocar lado do campo | 👮‍♂️ Capitão / 💂 Sub |
-| `!swap` | Trocar de time com alguém | 👮‍♂️ Capitão / 💂 Sub |
-| `!reset` | Resetar bola ao centro | 👮‍♂️ Capitão / 💂 Sub |
-| `!radius` | Alterar tamanho do jogador | 👮‍♂️ Capitão / 💂 Sub |
-| `!spec` | Mover jogador para espectador | 👮‍♂️ Capitão / 💂 Sub |
-| `!ball` | Mover bola para posição | 👮‍♂️ Capitão / 💂 Sub |
-| `!uniform` | Alterar uniforme do time | 👮‍♂️ Capitão / 💂 Sub |
-| `!chat` | Ativar/desativar chat | 👮‍♂️ Capitão / 💂 Sub |
-| `!avatar` | Alterar avatar | ⚽ Jogador |
-| `!afk` | Marcar-se como ausente | ⚽ Jogador |
-| `!hackban` | Banir jogador por ID | 👮‍♂️ Capitão |
-| `!hackclearbans` | Limpar todos os bans | 👮‍♂️ Capitão |
-| `!eval` | Executar código JavaScript | 👮‍♂️ Capitão |
+| `!cargo` | Definir cargo por senha | 👤 Todos |
+| `!rr` / `!reset` | Reiniciar a partida | 🏆 Admin/Cap/Sub/Jog |
+| `!banall` / `!banred` / `!banblue` / `!banspec` | Banir todos/time/espectadores | 👮‍♂️ Cap / 💂 Sub |
+| `!clearbans` | Limpar todos os bans | 🏆 Admin/Cap/Sub/Jog |
+| `!kickall` / `!kickred` / `!kickblue` / `!kickspec` | Kickar todos/time/espectadores | 👮‍♂️ Cap / 💂 Sub |
+| `!fechar` / `!abrir` | Fechar/abrir sala com senha | 🏆 Admin/Cap/Sub |
+| `!mute` / `!unmute` | Mutar/desmutar jogador | 🏆 Admin/Cap/Sub |
+| `!camp` / `!firmo` | Ativar/confirmar modo campeonato | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!swap` | Inverter times red/blue | 🏆 Admin/Cap/Sub/Jog |
+| `!radius` | Alterar tamanho do jogador | 🏆 Admin/Cap/Sub |
+| `!puxarbola` / `!pararbola` | Puxar/parar a bola | 🏆 Admin/Cap/Sub |
+| `!tp` | Teleportar bola para posição | 🏆 Admin/Cap/Sub |
+| `!chaton` / `!chatoff` | Ativar/desativar chat | 🏆 Admin/Cap/Sub |
+| `!specon` / `!specoff` | Ativar/desativar chat de spec | 🏆 Admin/Cap/Sub |
+| `!uniform` | Alterar uniforme | 🏆 Admin/Cap/Sub/Jog |
+| `!avatar` | Alterar avatar | 🏆 Admin/Cap/Sub/Jog |
+| `!afk` | Marcar como ausente | 👤 Todos |
+| `!kickrate` | Configurar kickrate | 🏆 Admin/Cap/Sub |
+| `!pausar` / `!despausar` | Pausar/despausar partida | 🏆 Admin/Cap/Sub/Jog |
+| `!pv` / `!t` | Mensagem privada / chat do time | 👤 Todos |
+| `!bb` / `!leave` | Sair da sala | 👤 Todos |
+| `!help` | Mostrar ajuda | 👤 Todos |
+| `!x3` / `!x4` / `!lvk` / `!rs` / `!penal` | Trocar mapa | 🏆 Admin/Cap/Sub/Jog |
+| `!hackban` | Banir jogador por ID | 👮‍♂️ Cap |
+| `!hackclearbans` | Limpar bans do banco de dados | 👮‍♂️ Cap |
+| `!eval` | Executar código JavaScript | 👮‍♂️ Cap |
 
 </div>
 
@@ -308,7 +315,7 @@ npm start
 | `/pausar` | ⏸️ Pausar a partida |
 | `/players` | 👥 Listar todos os jogadores na sala |
 | `/radius` | 📐 Alterar tamanho do jogador |
-| `/reiniciar` | 🔄 Reiniciar a sala |
+| `/reiniciar` | 🔄 Reiniciar a partida |
 | `/senha` | 🔑 Alterar a senha da sala |
 | `/time` | 🔵🔴 Mover jogador para um time |
 | `/trocar` | 🔄 Trocar de campo (lado) |
