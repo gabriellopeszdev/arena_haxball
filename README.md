@@ -3,8 +3,6 @@
 
 # 🏟️ **ARENA VINCERE**
 
-### 🥃 **ARENA TERQUILA** &nbsp;|&nbsp; 👑 **ARENA GIU**
-
 > 🎮 Sistema completo de gerenciamento de salas **Haxball** com integração **Discord**, renderização de clipes e banco de dados SQLite.
 
 <br>
@@ -17,11 +15,9 @@
 
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)
-![Status](https://img.shields.io/badge/status-em%20produção-blue?style=flat-square)
+![Status](https://img.shields.io/badge/status-active-brightgreen?style=flat-square)
 
 <br>
-
-<img src="https://img.icons8.com/fluency/96/haxball.png" width="64" height="64" alt="Haxball"/>
 
 ---
 
@@ -418,7 +414,7 @@ of this software and associated documentation files...
 
 <div align="center">
 
-**Feito com** ❤️ **pelos criadores da 🥃 ARENA TERQUILA e 👑 ARENA GIU**
+**Feito por Fusion** ❤️
 
 [![Discord](https://img.shields.io/badge/Discord-ARENA%20VINCERE-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/arena)
 
