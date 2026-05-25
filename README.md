@@ -94,24 +94,29 @@ CLIENT_ID=seu_client_id_aqui
 GUILD_ID=seu_guild_id_aqui
 TEAM_NAME=Fnatic
 
-# ─── Geo (Brasil - 🇧🇷 São Paulo) ───────
+# ─── Geo (Brazil - 🇧🇷 São Paulo) ───────
 GEO_CODE=BR
 GEO_LAT=-23.5167
 GEO_LON=-46.6463
 
-# ─── Salas ───────────────────────────────
+# ─── Rooms (max 2 per IP without proxy) ─────
 ROOM1_TOKEN=token_sala_1
-ROOM1_NAME=🥃 ARENA TERQUILA
+ROOM1_NAME=🫄🏻 ARENA TERQUILA 🫄🏻
 ROOM2_TOKEN=token_sala_2
-ROOM2_NAME=👑 ARENA GIU
+ROOM2_NAME=🦉 ARENA GIU 🦉
 
-# ─── Senhas dos Cargos ──────────────────
+# Proxy for rooms 3+
+# ROOM3_TOKEN=token_sala_3
+# ROOM3_PROXY=http://127.0.0.1:9050
+
+# ─── Role Passwords ──────────────────
 CAP=senha_capitao
 SUBCAP=senha_subcapitao
 JOGADOR=senha_jogador
+ADMIN=senha_administrador
 SENHA_PADRAO=fncpass
 
-# ─── Webhooks ────────────────────────────
+# ─── Discord Webhooks ───────────────────
 ADMIN_WEBHOOK=url_admin
 CONFIRMACAO_WEBHOOK=url_confirmacao
 ENTRADA_WEBHOOK=url_entrada
