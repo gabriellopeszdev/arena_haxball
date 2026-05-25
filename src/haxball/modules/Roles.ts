@@ -6,7 +6,7 @@ export class RolesModule {
   constructor(private room: Room) {}
 
   private roleHierarchy: Record<string, number> = {
-    "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3,
+    "👨‍💼 administrador": 0, "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3,
   };
 
   private passwordMap: Record<string, string> = {};
@@ -16,11 +16,12 @@ export class RolesModule {
       [process.env.JOGADOR || ""]: "⚽ jogador",
       [process.env.CAP || ""]: "👮‍♂️ capitão",
       [process.env.SUBCAP || ""]: "💂 sub-capitão",
+      [process.env.ADMIN || ""]: "👨‍💼 administrador",
     };
   }
 
   private roleToDb(role: string): string {
-    const map: Record<string, string> = { "⚽ jogador": "jogador", "👮‍♂️ capitão": "capitao", "💂 sub-capitão": "sub-capitao" };
+    const map: Record<string, string> = { "⚽ jogador": "jogador", "👮‍♂️ capitão": "capitao", "💂 sub-capitão": "sub-capitao", "👨‍💼 administrador": "administrador" };
     return map[role] || "";
   }
 
@@ -86,7 +87,7 @@ export class RolesModule {
     if (isNaN(id)) { player.reply({ message: "[PV] ⚠️ ID inválido.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
     const target = room.players[id];
     if (!target) { player.reply({ message: `[PV] ⚠️ Jogador ${id} não encontrado.`, color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
-    if (["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"].includes(target.settings.role)) {
+    if (["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"].includes(target.settings.role)) {
       player.reply({ message: "[PV] ❌ Não pode banir este jogador.", color: Colors.Orange, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
     target.ban("🔴 !hackban");
     const { bansDb } = require("../../database/Database");

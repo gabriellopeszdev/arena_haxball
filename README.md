@@ -283,9 +283,9 @@ npm start
 
 </div>
 
-> **Hierarquia de cargos:** 👮‍♂️ **Capitão** (maior) → 💂 **Sub-capitão** → ⚽ **Jogador** (menor)
+> **Hierarquia de cargos:** 👮‍♂️ **Capitão** (maior) → 💂 **Sub-capitão** → ⚽ **Jogador** → 👨‍💼 **Administrador** (menor)
 >
-> **Administrador da sala** (`!adm`) é um conceito separado dos cargos — qualquer um pode se tornar admin via `!adm` quando não houver nenhum presente.
+> **Administrador da sala** (`!adm`) é um conceito separado dos cargos — qualquer um pode se tornar admin via `!adm` quando não houver nenhum presente. O cargo `👨‍💼 administrador` é definido via senha no `!cargo`.
 
 <br>
 
