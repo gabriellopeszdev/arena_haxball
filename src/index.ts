@@ -3,14 +3,13 @@ import { startAllRooms } from "./room/RoomManager";
 import { initializeDiscordBot } from "./discord/Client";
 
 async function main() {
-  console.log("🚀 Iniciando Arena Vincere...");
+  console.log("🚀 Iniciando sistema de salas...");
 
   try {
     initializeDatabase();
     console.log("✅ Banco de dados SQLite inicializado.");
 
     await startAllRooms();
-    console.log("✅ Salas iniciadas.");
 
     await initializeDiscordBot();
     console.log("✅ Discord bot inicializado.");

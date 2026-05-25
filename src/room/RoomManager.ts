@@ -26,6 +26,8 @@ export async function startRoom(roomNumber: number, customName?: string): Promis
     const name = generateRoomName(roomNumber, customName);
     const proxy = config.proxy || getProxyForRoom(roomNumber);
 
+    console.log(`🚀 Iniciando ${name}...`);
+
     const room = await initializeHaxballRoom(HBInit, {
       roomName: name,
       maxPlayers: 30,
