@@ -31,7 +31,7 @@ export async function startRoom(roomNumber: number, customName?: string): Promis
     const room = await initializeHaxballRoom(HBInit, {
       roomName: name,
       maxPlayers: 30,
-      public: false,
+      public: config.public,
       token: config.token,
       geo: {
         code: process.env.GEO_CODE || "CY",

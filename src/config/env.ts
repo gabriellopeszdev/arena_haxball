@@ -6,14 +6,18 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 let promptedToken: string | null = null;
 
-function promptForToken(roomNumber: number): Promise<string> {
+function question(query: string): Promise<string> {
   return new Promise((resolve) => {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    rl.question(`🎫 Token da Sala ${roomNumber} (cole aqui): `, (answer) => {
+    rl.question(query, (answer) => {
       rl.close();
       resolve(answer.trim());
     });
   });
+}
+
+async function promptForToken(roomNumber: number): Promise<string> {
+  return question(`🎫 Token da Sala ${roomNumber} (cole aqui): `);
 }
 
 async function getOrPromptToken(roomNumber: number): Promise<string> {
@@ -22,6 +26,20 @@ async function getOrPromptToken(roomNumber: number): Promise<string> {
   if (promptedToken) return promptedToken;
   promptedToken = await promptForToken(roomNumber);
   return promptedToken;
+}
+
+async function promptRoomVisibility(roomNumber: number): Promise<boolean> {
+  const envPublic = process.env[`ROOM${roomNumber}_PUBLIC`];
+  if (envPublic !== undefined) return envPublic === "true";
+
+  console.log(`\n╔══════════════════════════════════════╗`);
+  console.log(`║   🌐 Sala ${roomNumber} — Visibilidade      ║`);
+  console.log(`╠══════════════════════════════════════╣`);
+  console.log(`║  1. 🌍 Pública (padrão)              ║`);
+  console.log(`║  2. 🔒 Privada                       ║`);
+  console.log(`╚══════════════════════════════════════╝`);
+  const answer = await question(`Escolha [1]: `);
+  return answer.trim() !== "2";
 }
 
 export function getEnv(key: string, required = true): string {
@@ -36,11 +54,13 @@ export async function getRoomConfig(roomNumber: number): Promise<{
   token: string;
   name: string;
   proxy?: string;
+  public: boolean;
 }> {
   const token = await getOrPromptToken(roomNumber);
   const name = getEnv(`ROOM${roomNumber}_NAME`, false) || `Arena ${roomNumber}`;
   const proxy = getEnv(`ROOM${roomNumber}_PROXY`, false) || undefined;
-  return { token, name, proxy };
+  const isPublic = await promptRoomVisibility(roomNumber);
+  return { token, name, proxy, public: isPublic };
 }
 
 export function getActiveRoomCount(): number {
