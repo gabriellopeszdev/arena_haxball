@@ -6,7 +6,7 @@ export class RolesModule {
   constructor(private room: Room) {}
 
   private roleHierarchy: Record<string, number> = {
-    "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3, "👨‍💼 administrador": 4,
+    "👨‍💼 administrador": 0, "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3,
   };
 
   private passwordMap: Record<string, string> = {};

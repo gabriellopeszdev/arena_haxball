@@ -60,7 +60,7 @@ export class AdminModule {
   @Event
   onPlayerAdminChange(changedPlayer: Player, byPlayer?: Player): void {
     if (!byPlayer || changedPlayer.id === byPlayer.id) return;
-    const hierarchy: Record<string, number> = { "👨‍💼 administrador": 5, "👮‍♂️ capitão": 4, "💂 sub-capitão": 3, "⚽ jogador": 2, admin: 1 };
+    const hierarchy: Record<string, number> = { "👨‍💼 administrador": 0, "👮‍♂️ capitão": 4, "💂 sub-capitão": 3, "⚽ jogador": 2, admin: 1 };
     const actorRole = byPlayer.settings.role || "admin";
     const targetRole = changedPlayer.settings.role || "admin";
     if ((hierarchy[actorRole] || 0) <= (hierarchy[targetRole] || 0) && actorRole !== "admin") {
