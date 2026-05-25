@@ -1,7 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Module, ModuleCommand, type Player, type Room } from "haxball-extended-room";
 import FutsalX3 from "../../../maps/Futsal X3 by Bazinga.json";
 import FutsalX4 from "../../../maps/Futsal X4 by Bazinga.json";
-import FutsalX4Urun from "../../../maps/Futsal X4 URUN 2.0 CFU.json";
 import LVK from "../../../maps/LVK.json";
 import RealSoccerRevolution from "../../../maps/Real Soccer Revolution.json";
 import Penaltis from "../../../maps/Penaltis.json";
@@ -34,7 +33,6 @@ export class StadiumModule {
     this.commands = [
       new StadiumCommand(room, FutsalX3, "Futsal X3"),
       new StadiumCommand(room, FutsalX4, "Futsal X4"),
-      new StadiumCommand(room, FutsalX4Urun, "Futsal X4 [URUN]"),
       new StadiumCommand(room, LVK, "X1 LVK"),
       new StadiumCommand(room, RealSoccerRevolution, "Real Soccer Revolution"),
       new StadiumCommand(room, Penaltis, "Pênaltis"),
@@ -48,15 +46,12 @@ export class StadiumModule {
   @ModuleCommand({ aliases: ["bazingax4", "x4bazinga", "futsalx4"], desc: "Carrega Futsal X4 by Bazinga.", usage: "x4", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public x4(execInfo: CommandExecInfo) { this.commands[1].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["urunx4", "futsalurun", "x4urun"], desc: "Carrega Futsal X4 URUN.", usage: "x4urun", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
-  public x4urun(execInfo: CommandExecInfo) { this.commands[2].execute(execInfo); }
-
   @ModuleCommand({ aliases: ["x1", "x1lvk"], desc: "Carrega LVK.", usage: "lvk", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
-  public lvk(execInfo: CommandExecInfo) { this.commands[3].execute(execInfo); }
+  public lvk(execInfo: CommandExecInfo) { this.commands[2].execute(execInfo); }
 
   @ModuleCommand({ aliases: ["rsr", "realsoccer", "rs"], desc: "Carrega Real Soccer Revolution.", usage: "rs", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
-  public rs(execInfo: CommandExecInfo) { this.commands[4].execute(execInfo); }
+  public rs(execInfo: CommandExecInfo) { this.commands[3].execute(execInfo); }
 
   @ModuleCommand({ aliases: ["penalti", "penaltis", "penal"], desc: "Carrega Pênaltis.", usage: "penal", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
-  public penal(execInfo: CommandExecInfo) { this.commands[5].execute(execInfo); }
+  public penal(execInfo: CommandExecInfo) { this.commands[4].execute(execInfo); }
 }

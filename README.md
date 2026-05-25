@@ -46,17 +46,9 @@
 
 ## ✨ **Visão Geral**
 
-**Arena Vincere** é uma plataforma robusta para criação e gerenciamento de salas de **Haxball** (🔴🔵) com suporte total via **Discord**. O sistema permite controlar múltiplas salas simultaneamente, gerenciar cargos, aplicar bans/mutes, alternar mapas, e muito mais — tudo directamente do seu servidor Discord.
+**Arena Vincere** é uma plataforma robusta para criação e gerenciamento de salas de **Haxball** (🔴🔵) com suporte total via **Discord**. O sistema permite controlar múltiplas salas simultaneamente, gerenciar cargos, aplicar bans/mutes, alternar mapas, e muito mais — tudo diretamente do seu servidor Discord.
 
-```
-🥃 ARENA TERQUILA  ──────────────────  👑 ARENA GIU
-│  ● Sala Principal                    │  ● Sala Secundária
-│  ● Partidas 5v5 / 4v4               │  ● Partidas Casuais
-│  ● Todos os mapas disponíveis       │  ● Todos os mapas disponíveis
-└─────────────────────────────────────┘  └────────────────────────────────┘
-```
-
-> 🇧🇷 **Servidores localizados em São Paulo, Brasil** — latência mínima para jogadores brasileiros.
+> 🇧🇷 **Servidores localizados em São Paulo, Brasil** — latência mínima para jogadores brasileiros. Ambas as salas são principais.
 
 <br>
 
@@ -266,7 +258,7 @@ npm start
 | `!camp` | Trocar lado do campo | 👮‍♂️ Capitão / 💂 Sub |
 | `!swap` | Trocar de time com alguém | 👮‍♂️ Capitão / 💂 Sub |
 | `!reset` | Resetar bola ao centro | 👮‍♂️ Capitão / 💂 Sub |
-| `!radius` | Kickar jogadores fora do raio | 👮‍♂️ Capitão / 💂 Sub |
+| `!radius` | Alterar tamanho do jogador | 👮‍♂️ Capitão / 💂 Sub |
 | `!spec` | Mover jogador para espectador | 👮‍♂️ Capitão / 💂 Sub |
 | `!ball` | Mover bola para posição | 👮‍♂️ Capitão / 💂 Sub |
 | `!uniform` | Alterar uniforme do time | 👮‍♂️ Capitão / 💂 Sub |
@@ -310,7 +302,7 @@ npm start
 | `/parar` | ⏹️ Parar a partida em andamento |
 | `/pausar` | ⏸️ Pausar a partida |
 | `/players` | 👥 Listar todos os jogadores na sala |
-| `/radius` | 📐 Kickar jogadores fora do raio |
+| `/radius` | 📐 Alterar tamanho do jogador |
 | `/reiniciar` | 🔄 Reiniciar a sala |
 | `/senha` | 🔑 Alterar a senha da sala |
 | `/time` | 🔵🔴 Mover jogador para um time |
@@ -331,9 +323,6 @@ npm start
 |:---|---:|
 | **Futsal X3** | 🏟️ Campo 3x3 |
 | **Futsal X4** | 🏟️ Campo 4x4 |
-| **Futsal X4 URUN** | 🏟️ Campo 4x4 (URUN) |
-| **Futsal X4 Treino** | 🏟️ Campo 4x4 (Treino) |
-| **Real Soccer One** | ⚽ Campo Grande |
 | **Real Soccer Revolution** | ⚽ Campo Grande |
 | **LVK** | 🏟️ Arena LVK |
 | **Penaltis** | 🥅 Treino de pênaltis |
@@ -402,7 +391,7 @@ As salas são hospedadas com servidores otimizados para **América do Sul**, gar
 ```
 MIT License
 
-Copyright © 2025 Arena Vincere
+Copyright © 2026 Arena Vincere
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files...

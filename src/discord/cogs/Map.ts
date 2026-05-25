@@ -3,7 +3,6 @@ import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } f
 import { getRoom } from "../../room/RoomManager";
 import FutsalX3 from "../../../maps/Futsal X3 by Bazinga.json";
 import FutsalX4 from "../../../maps/Futsal X4 by Bazinga.json";
-import FutsalX4Urun from "../../../maps/Futsal X4 URUN 2.0 CFU.json";
 import LVK from "../../../maps/LVK.json";
 import RealSoccerRevolution from "../../../maps/Real Soccer Revolution.json";
 import Penaltis from "../../../maps/Penaltis.json";
@@ -11,7 +10,6 @@ import Penaltis from "../../../maps/Penaltis.json";
 const stadiums: Record<string, object | string> = {
   "Futsal X3": FutsalX3,
   "Futsal X4": FutsalX4,
-  "Futsal X4 URUN": FutsalX4Urun,
   "LVK": LVK,
   "Real Soccer Revolution": RealSoccerRevolution,
   "Penaltis": Penaltis,
@@ -24,7 +22,6 @@ export const data = new SlashCommandBuilder()
   .addStringOption((o) => o.setName("mapa").setDescription("Nome do mapa").setRequired(true).addChoices(
     { name: "Futsal X3", value: "Futsal X3" },
     { name: "Futsal X4", value: "Futsal X4" },
-    { name: "Futsal X4 URUN", value: "Futsal X4 URUN" },
     { name: "LVK", value: "LVK" },
     { name: "Real Soccer Revolution", value: "Real Soccer Revolution" },
     { name: "Penaltis", value: "Penaltis" },
