@@ -132,10 +132,14 @@ export class GoalsModule {
     if (this.isRecording) {
       const rec = this.room.stopRecording();
       if (this.goals.length > 0) {
-        this.room.send({ message: "🎥 A gravação foi enviada.", color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         const webhookUrl = process.env.GRAVACAO_WEBHOOK;
         if (webhookUrl) {
           uploadReplayToTheHax(rec, this.room.name, (theHaxUrl) => {
+            if (theHaxUrl) {
+              this.room.send({ message: `🎥 Replay enviado: ${theHaxUrl}`, color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+            } else {
+              this.room.send({ message: "🎥 A gravação foi enviada.", color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+            }
             const fileName = `HBReplay-${new Date().toISOString().replace(/[:.]/g, "-")}.hbr2`;
             const embed = {
               title: `📝 SÚMULA DA PARTIDA - ${this.room.name}`,
@@ -156,6 +160,8 @@ export class GoalsModule {
             form.append("file", Buffer.from(rec), fileName);
             request(webhookUrl, { method: "POST", headers: form.getHeaders(), body: form }).catch(() => {});
           });
+        } else {
+          this.room.send({ message: "🎥 A gravação foi enviada.", color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         }
       }
     }

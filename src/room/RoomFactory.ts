@@ -1,5 +1,6 @@
 import type { Room } from "haxball-extended-room";
 import { HandleModules, HandleCommands } from "../haxball/handler";
+import { HotReloader } from "../hot/HotReloader";
 
 interface RoomOptions {
   roomName: string;
@@ -35,6 +36,10 @@ export async function initializeHaxballRoom(
   room.lockTeams();
   HandleModules(room);
   HandleCommands(room);
+
+  const reloader = new HotReloader();
+  reloader.setRoom(room);
+  reloader.start();
 
   return room;
 }

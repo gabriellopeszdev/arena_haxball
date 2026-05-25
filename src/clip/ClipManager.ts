@@ -7,7 +7,7 @@ export function clipCommand(room: Room): void {
     aliases: ["clip", "gravar", "replay"],
     desc: "Gera um GIF dos últimos N segundos.",
     usage: "gif <duração> [comentário]",
-    roles: [],
+    roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: async ($: CommandExecInfo) => {
       if ($.arguments.length < 1) {

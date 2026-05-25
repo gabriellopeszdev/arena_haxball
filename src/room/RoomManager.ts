@@ -21,7 +21,7 @@ function getProxyForRoom(roomNumber: number): string | undefined {
 
 export async function startRoom(roomNumber: number, customName?: string): Promise<Room | null> {
   try {
-    const config = getRoomConfig(roomNumber);
+    const config = await getRoomConfig(roomNumber);
     const HBInit = await HaxballJS;
     const name = generateRoomName(roomNumber, customName);
     const proxy = config.proxy || getProxyForRoom(roomNumber);
@@ -35,8 +35,8 @@ export async function startRoom(roomNumber: number, customName?: string): Promis
       token: config.token,
       geo: {
         code: process.env.GEO_CODE || "CY",
-        lat: parseFloat(process.env.GEO_LAT || "-23.5167"),
-        lon: parseFloat(process.env.GEO_LON || "-46.6460"),
+        lat: parseFloat(process.env.GEO_LAT || "-23.5167") + (roomNumber - 1),
+        lon: parseFloat(process.env.GEO_LON || "-46.6460") + (roomNumber - 1),
       },
       proxy,
     });
