@@ -1,0 +1,17 @@
+import { EmbedFactory } from "../EmbedFactory";
+import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { getRoom } from "../../room/RoomManager";
+
+export const data = new SlashCommandBuilder()
+  .setName("camp")
+  .setDescription("Ativa/desativa modo campeonato.")
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true));
+
+export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
+  const sala = interaction.options.getString("sala", true);
+  const room = getRoom(sala);
+  if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: undefined }); return; }
+  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  room.state.campMode = !room.state.campMode;
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Modo campeonato ${room.state.campMode ? "ativado" : "desativado"}.`, user)] });
+}
