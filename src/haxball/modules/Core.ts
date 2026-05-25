@@ -100,7 +100,7 @@ export class CoreModule {
               { name: "IP", value: `\`\`\`fix\n${player.ip}\`\`\``, inline: true },
               { name: "CONN", value: `\`\`\`fix\n${player.conn}\`\`\``, inline: true },
             ],
-            footer: { text: `${new Date().getFullYear()} © Arena Vincere` },
+            footer: { text: `${new Date().getFullYear()} © ARENA TERQUILA | ARENA GIU` },
           }],
         });
       } catch {}
@@ -121,7 +121,7 @@ export class CoreModule {
               { name: "Auth", value: `\`\`\`fix\n${player.auth}\`\`\``, inline: true },
               { name: "IP", value: `\`\`\`fix\n${player.ip}\`\`\``, inline: true },
             ],
-            footer: { text: `${new Date().getFullYear()} © Arena Vincere` },
+            footer: { text: `${new Date().getFullYear()} © ARENA TERQUILA | ARENA GIU` },
           }],
         });
       } catch {}

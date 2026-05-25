@@ -149,7 +149,7 @@ export class GoalsModule {
                 ...(this.goals.length > 0 ? [{ name: "📊 Gols", value: this.goals.map((g) => `⏱️ **[${g.time}]** ${g.teamEmoji} ${g.isOwnGoal ? `Gol contra de \`${g.scorer}\`` : `Gol de \`${g.scorer}\`${g.assister ? ` 🅰️ \`${g.assister}\`` : ""}`}`).join("\n"), inline: false }] : []),
                 ...(theHaxUrl ? [{ name: "Link do Replay", value: `[Clique aqui](${theHaxUrl})`, inline: false }] : []),
               ],
-              footer: { text: `${new Date().getFullYear()} © Arena Vincere` },
+              footer: { text: `${new Date().getFullYear()} © ARENA TERQUILA | ARENA GIU` },
             };
             const form = new FormData();
             form.append("payload_json", JSON.stringify({ embeds: [embed] }));

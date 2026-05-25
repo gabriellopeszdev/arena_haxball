@@ -17,7 +17,7 @@ export function getRoomConfig(roomNumber: number): {
   proxy?: string;
 } {
   const token = getEnv(`ROOM${roomNumber}_TOKEN`);
-  const name = getEnv(`ROOM${roomNumber}_NAME`, false) || `Arena Vincere ${roomNumber}`;
+  const name = getEnv(`ROOM${roomNumber}_NAME`, false) || `Arena ${roomNumber}`;
   const proxy = getEnv(`ROOM${roomNumber}_PROXY`, false) || undefined;
   return { token, name, proxy };
 }
