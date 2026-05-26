@@ -60,14 +60,9 @@ export class CoreModule {
 
     let geo: Record<string, any> = {};
     try {
-      const response = await fetch(`https://ipinfo.io/${player.ip}`);
+      const response = await fetch(`https://proxycheck.io/v2/${player.ip}?vpn=1&asn=1`);
       const result = (await response.json()) as Record<string, any>;
-      if (result.loc) {
-        const [lat, lon] = result.loc.split(",");
-        result.latitude = lat;
-        result.longitude = lon;
-      }
-      geo = result;
+      geo = result[player.ip] || {};
     } catch {}
 
     player.reply({
@@ -84,8 +79,8 @@ export class CoreModule {
       sound: ChatSounds.None,
     });
 
-    const provedora = geo.org || "—";
-    const organizacao = geo.org || "—";
+    const provedora = geo.isp || geo.provider || "—";
+    const organizacao = geo.org || geo.organization || "—";
 
     if (this.entryWebhook) {
       try {
