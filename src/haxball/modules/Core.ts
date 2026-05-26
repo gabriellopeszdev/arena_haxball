@@ -88,7 +88,7 @@ export class CoreModule {
         player.admin = true;
         this.room.send({
           message: `O ${displayName.toUpperCase()} ${player.name} entrou na sala.`,
-          color: Colors.YellowGreen,
+          color: 0x66E7FF,
           style: ChatStyle.Bold,
           sound: ChatSounds.Notification,
         });
@@ -208,7 +208,7 @@ export class CoreModule {
         "⚽ jogador": Colors.MistyRose,
         "👮‍♂️ capitão": Colors.YellowGreen,
         "💂 sub-capitão": Colors.Yellow,
-        "👨‍💼 administrador": Colors.Gold,
+        "👨‍💼 administrador": 0x66E7FF,
       };
       const color = colors[player.settings.role] || Colors.White;
       this.room.send({
