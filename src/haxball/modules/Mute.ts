@@ -23,6 +23,18 @@ type DurationParseResult =
   | { ok: true; seconds: number; consumedArgs: number; label: string }
   | { ok: false; message: string };
 
+type GlobalMuteState = {
+  mutedKeys: Set<string>;
+  timers: Map<string, NodeJS.Timeout>;
+  lastReminderAt: Map<string, number>;
+};
+
+const muteState: GlobalMuteState = ((globalThis as any).__vincereMuteState ??= {
+  mutedKeys: new Set<string>(),
+  timers: new Map<string, NodeJS.Timeout>(),
+  lastReminderAt: new Map<string, number>(),
+});
+
 function canMute(actor: Player, target: Player): boolean {
   const actorRole = actor.settings.role;
   const targetRole = target.settings.role;
@@ -100,13 +112,7 @@ function formatDuration(totalSeconds: number): string {
 
 @Module
 export class MuteModule {
-  private readonly checkInterval: NodeJS.Timeout;
-  private readonly mutedOnline = new Set<string>();
-  private readonly unmuteTimers = new Map<string, NodeJS.Timeout>();
-
-  constructor(private room: Room) {
-    this.checkInterval = setInterval(() => this.cleanExpiredMutes(), 30000);
-  }
+  constructor(private room: Room) {}
 
   @ModuleCommand({
     aliases: ["silenciar", "mutar"],
@@ -156,7 +162,7 @@ export class MuteModule {
     const expiresAt = Math.floor(Date.now() / 1000) + duration.seconds;
     mutesDb.insert(target.ip ?? "", target.auth ?? "", target.name ?? "", player.name ?? "", expiresAt, reason);
     this.clearMuteState(target);
-    this.mutedOnline.add(this.muteKey(target));
+    muteState.mutedKeys.add(this.muteKey(target));
     this.scheduleAutoUnmute(target, duration.seconds);
 
     target.reply({
@@ -216,9 +222,16 @@ export class MuteModule {
     if (!block.blocked) return;
 
     if (block.reason === "mute") {
+      const key = this.muteKey(player);
+      const now = Date.now();
+      const lastReminderAt = muteState.lastReminderAt.get(key) ?? 0;
+      if (now - lastReminderAt < 2500) return false;
+      muteState.lastReminderAt.set(key, now);
+
       const remaining = Math.max(0, block.mute.expires_at - Math.floor(Date.now() / 1000));
+      const reason = block.mute.reason ? ` (${block.mute.reason})` : "";
       player.reply({
-        message: `🔇 Você está mutado ${block.mute.reason ? `(${block.mute.reason})` : ""} por mais ${formatDuration(remaining)}.`,
+        message: `[PV] 🔇 Você está mutado${reason} por mais ${formatDuration(remaining)}.`,
         color: Colors.Red,
         style: ChatStyle.Bold,
         sound: ChatSounds.Notification,
@@ -242,36 +255,22 @@ export class MuteModule {
     return false;
   }
 
-  private cleanExpiredMutes(): void {
-    for (const player of Array.from(this.room.players.values())) {
-      const key = this.muteKey(player);
-      const activeMute = mutesDb.findActive(player.auth ?? "", player.ip ?? "");
-      if (activeMute) {
-        this.mutedOnline.add(key);
-        this.scheduleAutoUnmute(player, Math.max(1, activeMute.expires_at - Math.floor(Date.now() / 1000)));
-        continue;
-      }
-
-      if (!this.mutedOnline.has(key)) continue;
-      this.notifyAutoUnmute(player);
-    }
-    mutesDb.cleanExpired();
-  }
-
   private scheduleAutoUnmute(player: Player, seconds: number): void {
     const key = this.muteKey(player);
-    if (this.unmuteTimers.has(key)) return;
+    const oldTimer = muteState.timers.get(key);
+    if (oldTimer) clearTimeout(oldTimer);
+
     const timer = setTimeout(() => {
       const livePlayer = this.room.players[player.id] as Player | undefined;
       if (livePlayer) this.notifyAutoUnmute(livePlayer);
       else this.clearMuteState(player);
       mutesDb.cleanExpired();
     }, Math.max(1, seconds) * 1000);
-    this.unmuteTimers.set(key, timer);
+    muteState.timers.set(key, timer);
   }
 
   private notifyAutoUnmute(player: Player): void {
-    if (!this.mutedOnline.has(this.muteKey(player))) return;
+    if (!muteState.mutedKeys.has(this.muteKey(player))) return;
     this.clearMuteState(player);
     player.reply({
       message: "[PV] 🔊 Você foi liberado do mute. Se comporte, respira e segue o jogo.",
@@ -283,10 +282,11 @@ export class MuteModule {
 
   private clearMuteState(player: Player): void {
     const key = this.muteKey(player);
-    this.mutedOnline.delete(key);
-    const timer = this.unmuteTimers.get(key);
+    muteState.mutedKeys.delete(key);
+    muteState.lastReminderAt.delete(key);
+    const timer = muteState.timers.get(key);
     if (timer) clearTimeout(timer);
-    this.unmuteTimers.delete(key);
+    muteState.timers.delete(key);
   }
 
   private muteKey(player: Player): string {
