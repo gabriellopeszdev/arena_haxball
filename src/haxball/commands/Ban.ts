@@ -53,7 +53,7 @@ export function banCommands(room: Room): void {
     func: ($) => banCmdFactory((r) => getTeamPlayers(r, Teams.Spectators), "spec", "🟢")($, room),
   });
   room.command({
-    name: "clearbans", aliases: ["cbans", "limparbans", "clear", "cb"], desc: "Limpa todos os bans.", usage: "clearbans", roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"], deleteMessage: true,
+    name: "clearbans", aliases: ["cbans", "limparbans", "clear", "cb"], desc: "Limpa todos os bans.", usage: "clearbans", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"], deleteMessage: true,
     func: ($) => { room.unbanAll(); bansDb.clear(); room.send({ message: `✅ Bans limpos por ${$.player.name}.`, color: Colors.Green, style: ChatStyle.Bold, sound: ChatSounds.Notification }); },
   });
 }
