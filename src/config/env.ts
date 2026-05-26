@@ -6,6 +6,12 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 let promptedToken: string | null = null;
 
+const PLACEHOLDER_PATTERNS = [/^token_sala_\d+$/i, /^seu_token/, /^sua_/, /^url_/];
+
+function isPlaceholder(value: string): boolean {
+  return PLACEHOLDER_PATTERNS.some((p) => p.test(value));
+}
+
 function question(query: string): Promise<string> {
   return new Promise((resolve) => {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -22,7 +28,7 @@ async function promptForToken(roomNumber: number): Promise<string> {
 
 async function getOrPromptToken(roomNumber: number): Promise<string> {
   const envToken = process.env[`ROOM${roomNumber}_TOKEN`];
-  if (envToken) return envToken;
+  if (envToken && !isPlaceholder(envToken)) return envToken;
   if (promptedToken) return promptedToken;
   promptedToken = await promptForToken(roomNumber);
   return promptedToken;
@@ -66,7 +72,8 @@ export async function getRoomConfig(roomNumber: number): Promise<{
 export function getActiveRoomCount(): number {
   let count = 0;
   for (let i = 1; i <= 10; i++) {
-    if (process.env[`ROOM${i}_TOKEN`]) count++;
+    const v = process.env[`ROOM${i}_TOKEN`];
+    if (v && !isPlaceholder(v)) count++;
   }
   return count || 1;
 }
