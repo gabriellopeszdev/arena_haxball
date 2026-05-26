@@ -7,7 +7,6 @@ export function clipCommand(room: Room): void {
     aliases: ["clip", "gravar", "replay"],
     desc: "Gera um GIF dos últimos N segundos.",
     usage: "gif <duração> [comentário]",
-    roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: async ($: CommandExecInfo) => {
       if ($.arguments.length < 1) {
@@ -23,7 +22,6 @@ export function clipCommand(room: Room): void {
 
       const comment = $.arguments.slice(1).map((a) => a.toString()).join(" ");
 
-      // Verificar se tem gravação disponível
       room.send({
         message: `🎥 GIF de ${duration}s solicitado por ${$.player.name}${comment ? ` (${comment})` : ""}. Processando após a partida...`,
         color: Colors.Cyan,
@@ -31,10 +29,8 @@ export function clipCommand(room: Room): void {
         sound: ChatSounds.Notification,
       });
 
-      // Adicionar à fila de processamento
       await clipQueue.add(room.name, $.player.name, duration, comment);
 
-      // Notificar webhook
       const { request } = await import("undici");
       const url = process.env.GRAVACAO_WEBHOOK;
       if (url) {

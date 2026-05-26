@@ -180,7 +180,15 @@ export class CoreModule {
 
   @Event
   onPlayerChat(player: Player, message: string): boolean | undefined {
-    if (message.startsWith("!")) return;
+    if (message.startsWith("!")) {
+      const cmdName = message.slice(1).trim().split(/ +/)[0].toLowerCase();
+      const commands = (this.room as any)._commands;
+      if (commands && !commands.get(cmdName)) {
+        player.reply({ message: `Comando desconhecido: ${message.split(" ")[0]}`, color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+        return false;
+      }
+      return;
+    }
     if (player.settings.role) {
       const colors: Record<string, number> = {
         "⚽ jogador": Colors.MistyRose,

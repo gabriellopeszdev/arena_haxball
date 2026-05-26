@@ -29,7 +29,7 @@ import { passwordCommand } from "./commands/Password";
 import { specCommand } from "./commands/Spec";
 import { swapCommand } from "./commands/Swap";
 import { uniformCommand } from "./commands/Uniform";
-
+import { clipCommand } from "../clip/ClipManager";
 
 export function HandleModules(room: Room): void {
   room.module(CoreModule);
@@ -64,4 +64,5 @@ export function HandleCommands(room: Room): void {
   specCommand(room);
   swapCommand(room);
   uniformCommand(room);
+  clipCommand(room);
 }

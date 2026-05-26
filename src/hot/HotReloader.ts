@@ -3,9 +3,9 @@ import path from "node:path";
 import type { Room } from "haxball-extended-room";
 
 const WATCH_DIRS = [
-  path.resolve(__dirname, "../haxball/modules"),
-  path.resolve(__dirname, "../haxball/commands"),
+  path.resolve(__dirname, "../haxball"),
   path.resolve(__dirname, "../discord/cogs"),
+  path.resolve(__dirname, "../clip"),
 ];
 
 export class HotReloader {
@@ -32,9 +32,17 @@ export class HotReloader {
   private async refresh(): Promise<void> {
     if (!this.room) return;
     try {
-      const haxballDir = path.resolve(__dirname, "../haxball");
+      const clearDirs = [
+        path.resolve(__dirname, "../haxball"),
+        path.resolve(__dirname, "../clip"),
+      ];
       for (const key of Object.keys(require.cache)) {
-        if (key.startsWith(haxballDir)) delete require.cache[key];
+        for (const dir of clearDirs) {
+          if (key.startsWith(dir)) {
+            delete require.cache[key];
+            break;
+          }
+        }
       }
 
       for (const mod of this.room.modules) {
