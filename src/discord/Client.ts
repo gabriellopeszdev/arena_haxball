@@ -65,7 +65,7 @@ export async function initializeDiscordBot(): Promise<void> {
   const clientId = CLIENT_ID();
   const guildId = GUILD_ID();
 
-  client.once("ready", async () => {
+  client.once("clientReady", async () => {
     updateBotInfo(client.user!.username, client.user!.displayAvatarURL({ size: 256 }));
     console.log(`🤖 Logado como ${client.user!.tag}!`);
 

@@ -72,8 +72,10 @@ export async function getRoomConfig(roomNumber: number): Promise<{
 export function getActiveRoomCount(): number {
   let count = 0;
   for (let i = 1; i <= 10; i++) {
-    const v = process.env[`ROOM${i}_TOKEN`];
-    if (v && !isPlaceholder(v)) count++;
+    const token = process.env[`ROOM${i}_TOKEN`];
+    const name = process.env[`ROOM${i}_NAME`];
+    if (token && !isPlaceholder(token)) count++;
+    else if (name) count++;
   }
   return count || 1;
 }
