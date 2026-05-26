@@ -14,9 +14,16 @@ export function clipCommand(room: Room): void {
         return;
       }
 
-      const duration = Number.parseInt($.arguments[0].toString());
+      let raw = $.arguments[0].toString().toLowerCase();
+      if (raw.endsWith("s")) raw = raw.slice(0, -1);
+      const duration = Number.parseInt(raw);
       if (isNaN(duration) || duration < 3 || duration > 15) {
         $.player.reply({ message: "[PV] ⚠️ Duração inválida (3-15 segundos).", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+        return;
+      }
+
+      if (!room.isGameInProgress()) {
+        $.player.reply({ message: "[PV] ❌ Não há partida em andamento para gerar GIF.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         return;
       }
 
@@ -32,7 +39,7 @@ export function clipCommand(room: Room): void {
       await clipQueue.add(room.name, $.player.name, duration, comment);
 
       const { request } = await import("undici");
-      const url = process.env.GRAVACAO_WEBHOOK;
+      const url = process.env.GIFS_WEBHOOK;
       if (url) {
         request(url, {
           method: "POST",

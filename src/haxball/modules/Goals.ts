@@ -3,6 +3,9 @@ import FormData from "form-data";
 import { request } from "undici";
 import { currentStadiumName } from "./Stadium";
 import { client } from "../../discord/Client";
+import { clipQueue } from "../../clip/Queue";
+import fs from "node:fs";
+import path from "node:path";
 
 let playersThatTouchedTheBall = new Set<number>();
 let lastBallPosition: { x: number; y: number } | null = null;
@@ -132,6 +135,21 @@ export class GoalsModule {
     this.hasGameStarted = false;
     if (this.isRecording) {
       const rec = this.room.stopRecording();
+
+      const clipsDir = path.resolve(__dirname, "../../../clips");
+      if (!fs.existsSync(clipsDir)) fs.mkdirSync(clipsDir, { recursive: true });
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const min = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds()).padStart(2, "0");
+      const fileName = `HBReplay-${dd}-${mm}-${yyyy}-${hh}h${min}m${ss}s.hbr2`;
+      fs.writeFileSync(path.join(clipsDir, fileName), Buffer.from(rec));
+
+      clipQueue.processPending();
+
       if (this.goals.length > 0) {
         const webhookUrl = process.env.GRAVACAO_WEBHOOK;
         if (webhookUrl) {
@@ -141,15 +159,6 @@ export class GoalsModule {
             } else {
               this.room.send({ message: "🎥 A gravação foi enviada.", color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
             }
-            const now = new Date();
-            const dd = String(now.getDate()).padStart(2, "0");
-            const mm = String(now.getMonth() + 1).padStart(2, "0");
-            const yyyy = now.getFullYear();
-            const hh = String(now.getHours()).padStart(2, "0");
-            const min = String(now.getMinutes()).padStart(2, "0");
-            const ss = String(now.getSeconds()).padStart(2, "0");
-            const fileName = `HBReplay-${dd}-${mm}-${yyyy}-${hh}h${min}m${ss}s.hbr2`;
-
             const theHaxEmoji = client.emojis.cache.find((e) => e.name === "TheHax");
             const theHaxPrefix = theHaxEmoji ? `${theHaxEmoji} ` : "";
 

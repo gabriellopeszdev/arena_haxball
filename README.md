@@ -121,6 +121,16 @@ ADMIN_WEBHOOK=url_admin
 CONFIRMACAO_WEBHOOK=url_confirmacao
 ENTRADA_WEBHOOK=url_entrada
 SAIDA_WEBHOOK=url_saida
+MENSAGEM_WEBHOOK=url_mensagem
+GRAVACAO_WEBHOOK=url_gravacao
+GIFS_WEBHOOK=url_gifs
+SENHA_WEBHOOK=url_senha
+
+# ─── TheHax API (replay upload) ──────────
+THEHAX_TENANT=seu_tenant
+THEHAX_APIKEY=sua_apikey
+
+# ─── Chromium (Puppeteer/HaxClip) ────────
 CHROMIUM_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe
 ```
 
@@ -276,6 +286,7 @@ npm start
 | `!pv` / `!t` | Mensagem privada / chat do time | 👤 Todos |
 | `!bb` / `!leave` | Sair da sala | 👤 Todos |
 | `!help` | Mostrar ajuda | 👤 Todos |
+| `!gif` / `!clip` / `!gravar` / `!replay` | Gera GIF dos últimos N segundos (3-15s) | 👤 Todos |
 | `!x3` / `!x4` / `!lvk` / `!rs` / `!penal` | Trocar mapa | 🏆 Admin/Cap/Sub/Jog |
 | `!hackban` | Banir jogador por ID | 👮‍♂️ Cap |
 | `!hackclearbans` | Limpar bans do banco de dados | 👮‍♂️ Cap |

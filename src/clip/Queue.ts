@@ -6,16 +6,21 @@ export class ClipQueue {
 
   async add(roomName: string, playerName: string, duration: number, comment: string): Promise<void> {
     clipsDb.insert(roomName, playerName, duration, comment);
-    if (!this.processing) await this.processNext();
+  }
+
+  async processPending(): Promise<void> {
+    if (this.processing) return;
+    this.processing = true;
+    try {
+      await this.processNext();
+    } finally {
+      this.processing = false;
+    }
   }
 
   private async processNext(): Promise<void> {
-    this.processing = true;
     const clip = clipsDb.getNextPending();
-    if (!clip) {
-      this.processing = false;
-      return;
-    }
+    if (!clip) return;
 
     try {
       clipsDb.updateStatus(clip.id, "processing");
