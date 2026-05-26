@@ -6,7 +6,7 @@ export class BanKickModule {
   private banTimers: Map<number, NodeJS.Timeout> = new Map();
 
   constructor(private room: Room) {
-    setInterval(() => this.room.unbanAll(), 30 * 60 * 1000);
+    setInterval(() => { try { this.room.unbanAll(); } catch {} }, 30 * 60 * 1000);
   }
 
   private teamEmoji(p: Player): string {
