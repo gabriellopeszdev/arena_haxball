@@ -1,6 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room, Teams } from "haxball-extended-room";
 
-const afkPlayers = new Map<number, { startTime: number }>();
+const afkPlayers = new Map<number, { startTime: number; wasAdmin: boolean }>();
 const afkPlayerIds = new Set<number>();
 
 export function afkCommand(room: Room): void {
@@ -18,13 +18,14 @@ export function afkCommand(room: Room): void {
         return;
       }
       if (afkPlayers.has(player.id)) {
+        const data = afkPlayers.get(player.id)!;
         afkPlayers.delete(player.id);
         afkPlayerIds.delete(player.id);
         if (player.team === Teams.Spectators) player.team = Teams.Red;
+        player.admin = data.wasAdmin;
         room.send({ message: `💤 ${player.name} não está mais AFK.`, color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
-        player.admin = true;
       } else {
-        afkPlayers.set(player.id, { startTime: Date.now() });
+        afkPlayers.set(player.id, { startTime: Date.now(), wasAdmin: player.admin });
         afkPlayerIds.add(player.id);
         player.admin = false;
         if (player.team !== Teams.Spectators) player.team = Teams.Spectators;

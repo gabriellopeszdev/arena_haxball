@@ -33,15 +33,68 @@ export class WebhookModule {
 
   @Event
   onPlayerRunCommand(player: Player, _command: Command, info: CommandExecInfo): void {
-    this.sendSystem(`:speech_balloon: **COMANDO** — \`${player.name}\` [${player.id}] (${this.teamEmoji(player)}) usou **${info.message}**`);
+    this.sendSystem(`:speech_balloon: **COMANDO** — ${this.teamEmoji(player)} [${player.id}] **${player.name}** usou \`${info.message}\``);
   }
 
   @Event
   onPlayerChat(player: Player, message: string): void {
     const prefix = this.room.prefix || "!";
     if (message.startsWith(prefix)) return;
+    this.sendMsg(`${this.teamEmoji(player)} [${player.id}] **${player.name}**: \`${message}\``);
+  }
+
+  @Event
+  onPlayerJoin(player: Player): void {
+    this.sendSystem(`:inbox_tray: **ENTRADA** — \`[${player.id}] **${player.name}**\` entrou na sala.`);
+  }
+
+  @Event
+  onPlayerLeave(player: Player): void {
+    this.sendSystem(`:outbox_tray: **SAÍDA** — \`[${player.id}] **${player.name}**\` saiu da sala.`);
+  }
+
+  @Event
+  onPlayerTeamChange(changedPlayer: Player, byPlayer?: Player): void {
+    const teamNames: Record<number, string> = { 0: "🟢 Spectators", 1: "🔴 Red", 2: "🔵 Blue" };
+    const team = teamNames[changedPlayer.team] || `Time ${changedPlayer.team}`;
+    const by = byPlayer ? ` por \`[${byPlayer.id}] **${byPlayer.name}**\`` : "";
+    this.sendSystem(`:arrows_counterclockwise: **TIME** — \`[${changedPlayer.id}] **${changedPlayer.name}**\` movido para ${team}.${by}`);
+  }
+
+  @Event
+  onPlayerAdminChange(changedPlayer: Player, byPlayer?: Player): void {
+    const status = changedPlayer.admin ? "recebeu admin" : "perdeu admin";
+    const by = byPlayer ? ` por \`[${byPlayer.id}] **${byPlayer.name}**\`` : "";
+    this.sendSystem(`:crown: **ADMIN** — \`[${changedPlayer.id}] **${changedPlayer.name}**\` ${status}.${by}`);
+  }
+
+  @Event
+  onGamePause(byPlayer?: Player): void {
+    this.sendSystem(`:pause_button: **PAUSA** — Partida pausada${byPlayer ? ` por \`[${byPlayer.id}] **${byPlayer.name}**\`` : ""}.`);
+  }
+
+  @Event
+  onGameUnpause(byPlayer?: Player): void {
+    this.sendSystem(`:arrow_forward: **DESPAUSAR** — Partida despausada${byPlayer ? ` por \`[${byPlayer.id}] **${byPlayer.name}**\`` : ""}.`);
+  }
+
+  @Event
+  onPlayerKicked(kickedPlayer: Player, reason?: string, byPlayer?: Player): void {
+    const by = byPlayer ? ` por \`[${byPlayer.id}] **${byPlayer.name}**\`` : " pelo sistema";
+    const tag = `${this.teamEmoji(kickedPlayer as any)} [${kickedPlayer.id}]`;
+    this.sendSystem(`:boom: **KICK** — \`${kickedPlayer.name}\` ${tag} foi kickingado${by}${reason ? ` (\`${reason}\`)` : ""}.`);
+  }
+
+  @Event
+  onPlayerBanned(bannedPlayer: Player, reason?: string, byPlayer?: Player): void {
+    const by = byPlayer ? ` por \`[${byPlayer.id}] **${byPlayer.name}**\`` : " pelo sistema";
+    const tag = `${this.teamEmoji(bannedPlayer as any)} [${bannedPlayer.id}]`;
+    this.sendSystem(`:no_entry: **BAN** — \`${bannedPlayer.name}\` ${tag} foi banido${by}${reason ? ` (\`${reason}\`)` : ""}.`);
+  }
+
+  private sendMsg(content: string): void {
     const url = process.env.MENSAGEM_WEBHOOK;
     if (!url) return;
-    request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] ${this.teamEmoji(player)} [${player.id}] **${player.name}**: \`${message}\`` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] ${content}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
   }
 }
