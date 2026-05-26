@@ -14,12 +14,12 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const playerId = interaction.options.getNumber("player", true);
   const reason = interaction.options.getString("motivo") || "Banido pelo Discord";
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   player.ban(reason);
   bansDb.insert(player.ip ?? "", player.auth ?? "", player.name ?? "", interaction.user.username, reason ?? "");
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🚫 [${player.id}] ${player.name} foi banido. Motivo: ${reason}`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🚫 \`[${player.id}] **${player.name}**\` foi banido. Motivo: \`${reason}\``, user)] });
 }

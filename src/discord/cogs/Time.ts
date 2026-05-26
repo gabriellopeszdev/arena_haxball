@@ -13,14 +13,14 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const playerId = interaction.options.getNumber("player", true);
   const lado = interaction.options.getString("lado", true);
   const team = lado === "red" ? 1 : lado === "blue" ? 2 : 0;
   const emoji = lado === "red" ? "🔴" : lado === "blue" ? "🔵" : "🟢";
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
-  if (player.team === team) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${player.name} já está no time ${emoji}.`, user)], flags: MessageFlags.Ephemeral }); return; }
+  if (player.team === team) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ \`[${player.id}] **${player.name}**\` já está no time ${emoji}.`, user)], flags: MessageFlags.Ephemeral }); return; }
   player.team = team;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ [${player.id}] ${player.name} movido para ${emoji}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ \`[${player.id}] **${player.name}**\` movido para ${emoji}.`, user)] });
 }

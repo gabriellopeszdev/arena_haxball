@@ -15,7 +15,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const playerId = interaction.options.getNumber("player", true);
   const minutes = interaction.options.getNumber("minutos", true);
   const reason = interaction.options.getString("motivo") || "";
@@ -23,6 +23,6 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   if (!target) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   const expiresAt = Math.floor(Date.now() / 1000) + minutes * 60;
   mutesDb.insert(target.ip ?? "", target.auth ?? "", target.name ?? "", interaction.user.username, expiresAt, reason ?? "");
-  target.reply({ message: `🔇 Você foi mutado por ${minutes}min${reason ? ` (${reason})` : ""}.`, color: 0xFFA500 } as any);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔇 ${target.name} mutado por ${minutes}min.`, user)] });
+  target.reply({ message: `🔇 Você foi mutado por ${minutes}min${reason ? ` (\`${reason}\`)` : ""}.`, color: 0xFFA500 } as any);
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔇 \`[${target.id}] **${target.name}**\` mutado por \`${minutes}min\`.${reason ? ` Motivo: \`${reason}\`` : ""}`, user)] });
 }

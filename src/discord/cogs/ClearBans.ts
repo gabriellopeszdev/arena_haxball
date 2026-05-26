@@ -12,7 +12,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: undefined }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   room.unbanAll();
   bansDb.clear();
   await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed("✅ Todos os bans foram limpos.", user)] });

@@ -13,11 +13,11 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const playerId = interaction.options.getNumber("player", true);
   const size = interaction.options.getNumber("tamanho", true);
   const target = room.players[playerId];
   if (!target) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   target.radius = size;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`📏 Raio de [${target.id}] ${target.name} alterado para ${size}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`📏 Raio de \`[${target.id}] **${target.name}**\` alterado para \`${size}\`.`, user)] });
 }

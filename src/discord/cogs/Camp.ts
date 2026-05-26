@@ -11,7 +11,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: undefined }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   room.state.campMode = !room.state.campMode;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Modo campeonato ${room.state.campMode ? "ativado" : "desativado"}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Modo campeonato \`${room.state.campMode ? "ativado" : "desativado"}\`.`, user)] });
 }

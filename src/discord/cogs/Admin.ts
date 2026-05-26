@@ -14,13 +14,13 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const playerId = interaction.options.getNumber("player", true);
   const status = interaction.options.getBoolean("status", true);
   const player: Player | undefined = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
-  if (player.admin === status) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${player.name} já ${status ? "é admin" : "é player"}.`, user)], flags: MessageFlags.Ephemeral }); return; }
-  if (["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"].includes(player.settings.role)) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${player.name} é ${player.settings.role}.`, user)], flags: MessageFlags.Ephemeral }); return; }
+  if (player.admin === status) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ \`[${player.id}] **${player.name}**\` já ${status ? "é admin" : "é player"}.`, user)], flags: MessageFlags.Ephemeral }); return; }
+  if (["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"].includes(player.settings.role)) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ \`[${player.id}] **${player.name}**\` é \`${player.settings.role}\`.`, user)], flags: MessageFlags.Ephemeral }); return; }
   player.admin = status;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Admin de [${player.id}] ${player.name} alterado para ${status}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Admin de \`[${player.id}] **${player.name}**\` alterado para \`${status}\`.`, user)] });
 }

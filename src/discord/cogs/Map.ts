@@ -31,7 +31,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const mapName = interaction.options.getString("mapa", true);
   if (room.isGameInProgress()) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Partida em andamento.", user)], flags: MessageFlags.Ephemeral }); return; }
   const stadium = stadiums[mapName];

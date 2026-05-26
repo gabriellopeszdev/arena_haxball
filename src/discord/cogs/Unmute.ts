@@ -13,11 +13,11 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const playerId = interaction.options.getNumber("player", true);
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   mutesDb.remove(player.auth ?? "", player.ip ?? "");
   if (player) player.reply({ message: "🔊 Você foi desmutado.", color: 0x00FF00 } as any);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ ${player.name} desmutado.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔊 \`[${player.id}] **${player.name}**\` desmutado.`, user)] });
 }

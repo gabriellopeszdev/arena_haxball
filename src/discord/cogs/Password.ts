@@ -14,7 +14,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const sala = interaction.options.getString("sala", true);
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: undefined }); return; }
-  const user = { name: interaction.user.username, avatarURL: interaction.user.avatarURL() || "" };
+  const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const acao = interaction.options.getString("ação", true);
   if (acao === "fechar") {
     const senha = interaction.options.getString("senha") || process.env.SENHA_PADRAO || "fncpass";
@@ -22,7 +22,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     room.send({ message: `🔒 Sala fechada por ${interaction.user.username}.`, color: 0xFF0000 } as any);
     const url = process.env.SENHA_WEBHOOK;
     if (url) request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] Sala fechada por \`${interaction.user.username}\`. Senha: ${senha}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
-    await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔒 Sala fechada. Senha: ${senha}`, user)] });
+    await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔒 Sala fechada. Senha: \`${senha}\``, user)] });
   } else {
     room.clearPassword();
     room.send({ message: `🔓 Sala aberta por ${interaction.user.username}.`, color: 0x90EE90 } as any);
