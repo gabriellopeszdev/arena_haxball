@@ -6,8 +6,8 @@ import { sanitizeAvatar } from "../../utils/helpers";
 export const data = new SlashCommandBuilder()
   .setName("avatar")
   .setDescription("Define o avatar de um jogador.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador").setRequired(true))
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
   .addStringOption((o) => o.setName("avatar").setDescription("Novo avatar (max 2 letras ou 1 emoji)").setRequired(true).setMaxLength(8));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {

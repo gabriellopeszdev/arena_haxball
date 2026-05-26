@@ -5,10 +5,10 @@ import { getRoom } from "../../room/RoomManager";
 export const data = new SlashCommandBuilder()
   .setName("kickrate")
   .setDescription("Define kick rate.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addNumberOption((o) => o.setName("min").setDescription("Mínimo").setRequired(true))
-  .addNumberOption((o) => o.setName("rate").setDescription("Rate").setRequired(true))
-  .addNumberOption((o) => o.setName("burst").setDescription("Burst").setRequired(true));
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addNumberOption((o) => o.setName("min").setDescription("Mínimo.").setRequired(true))
+  .addNumberOption((o) => o.setName("rate").setDescription("Rate.").setRequired(true))
+  .addNumberOption((o) => o.setName("burst").setDescription("Burst.").setRequired(true));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

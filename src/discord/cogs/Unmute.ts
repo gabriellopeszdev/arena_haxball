@@ -6,8 +6,8 @@ import { mutesDb } from "../../database/Database";
 export const data = new SlashCommandBuilder()
   .setName("desmutar")
   .setDescription("Remove o mute de um jogador.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador").setRequired(true));
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

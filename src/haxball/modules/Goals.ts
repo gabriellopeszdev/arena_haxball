@@ -2,6 +2,7 @@ import { ChatSounds, ChatStyle, Colors, Module, type Player, type Room, Teams, E
 import FormData from "form-data";
 import { request } from "undici";
 import { currentStadiumName } from "./Stadium";
+import { client } from "../../discord/Client";
 
 let playersThatTouchedTheBall = new Set<number>();
 let lastBallPosition: { x: number; y: number } | null = null;
@@ -140,20 +141,32 @@ export class GoalsModule {
             } else {
               this.room.send({ message: "🎥 A gravação foi enviada.", color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
             }
-            const fileName = `HBReplay-${new Date().toISOString().replace(/[:.]/g, "-")}.hbr2`;
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, "0");
+            const mm = String(now.getMonth() + 1).padStart(2, "0");
+            const yyyy = now.getFullYear();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const min = String(now.getMinutes()).padStart(2, "0");
+            const ss = String(now.getSeconds()).padStart(2, "0");
+            const fileName = `HBReplay-${dd}-${mm}-${yyyy}-${hh}h${min}m${ss}s.hbr2`;
+
+            const theHaxEmoji = client.emojis.cache.find((e) => e.name === "TheHax");
+            const theHaxPrefix = theHaxEmoji ? `${theHaxEmoji} ` : "";
+
             const embed = {
-              title: `📝 SÚMULA DA PARTIDA - ${this.room.name}`,
+              title: `📝 \`SÚMULA DA PARTIDA\` - ${this.room.name}`,
               color: this.redScore > this.blueScore ? Colors.Red : this.blueScore > this.redScore ? Colors.LightBlue : Colors.LightGreen,
               fields: [
-                { name: `🔴 RED (${this.redScore})`, value: Array.from(this.room.players.red().values()).map((p) => `🔴 ${p.name}`).join("\n") || "ㅤ", inline: true },
-                { name: "🟢 SPEC", value: Array.from(this.room.players.spectators().values()).map((p) => `🟢 ${p.name}`).join("\n") || "ㅤ", inline: true },
-                { name: `🔵 BLUE (${this.blueScore})`, value: Array.from(this.room.players.blue().values()).map((p) => `🔵 ${p.name}`).join("\n") || "ㅤ", inline: true },
-                { name: "⏳ Tempo", value: this.gameTime, inline: true },
-                { name: "🗺️ Mapa", value: currentStadiumName, inline: true },
-                ...(this.goals.length > 0 ? [{ name: "📊 Gols", value: this.goals.map((g) => `⏱️ **[${g.time}]** ${g.teamEmoji} ${g.isOwnGoal ? `Gol contra de \`${g.scorer}\`` : `Gol de \`${g.scorer}\`${g.assister ? ` 🅰️ \`${g.assister}\`` : ""}`}`).join("\n"), inline: false }] : []),
-                ...(theHaxUrl ? [{ name: "Link do Replay", value: `[Clique aqui](${theHaxUrl})`, inline: false }] : []),
+                { name: `🔴 \`RED\` (${this.redScore})`, value: Array.from(this.room.players.red().values()).map((p) => `🔴 ${p.name}`).join("\n") || "ㅤ", inline: true },
+                { name: "🟢 \`SPEC\`", value: Array.from(this.room.players.spectators().values()).map((p) => `🟢 ${p.name}`).join("\n") || "ㅤ", inline: true },
+                { name: `🔵 \`BLUE\` (${this.blueScore})`, value: Array.from(this.room.players.blue().values()).map((p) => `🔵 ${p.name}`).join("\n") || "ㅤ", inline: true },
+                { name: "⏳ \`Tempo de Jogo\`", value: this.gameTime, inline: true },
+                { name: "🗺️ \`Mapa\`", value: currentStadiumName, inline: true },
+                { name: "📁 \`Nome do Replay\`", value: `\`\`\`fix\n${fileName}\`\`\``, inline: false },
+                ...(this.goals.length > 0 ? [{ name: "📊 \`Estatísticas\`", value: this.goals.map((g) => `⏱️ **[${g.time}]** - ${g.teamEmoji} ${g.isOwnGoal ? `Gol contra de \`${g.scorer}\`` : `Gol de \`${g.scorer}\`${g.assister ? ` 🅰️ Assistência de \`${g.assister}\`` : ""}`}`).join("\n"), inline: false }] : []),
+                ...(theHaxUrl ? [{ name: `${theHaxPrefix}\`Link do Replay\``, value: `[Clique aqui para abrir](${theHaxUrl})`, inline: false }] : []),
               ],
-              footer: { text: `${new Date().getFullYear()} © ${this.room.name}` },
+              footer: { text: `${new Date().getFullYear()} © ${this.room.name} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
             };
             const form = new FormData();
             form.append("payload_json", JSON.stringify({ embeds: [embed] }));

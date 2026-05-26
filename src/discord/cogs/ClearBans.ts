@@ -6,7 +6,7 @@ import { bansDb } from "../../database/Database";
 export const data = new SlashCommandBuilder()
   .setName("limparbans")
   .setDescription("Limpa todos os bans.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true));
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

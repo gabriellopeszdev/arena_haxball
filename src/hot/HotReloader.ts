@@ -5,6 +5,7 @@ import type { Room } from "haxball-extended-room";
 const WATCH_DIRS = [
   path.resolve(__dirname, "../haxball/modules"),
   path.resolve(__dirname, "../haxball/commands"),
+  path.resolve(__dirname, "../discord/cogs"),
 ];
 
 export class HotReloader {
@@ -25,7 +26,7 @@ export class HotReloader {
       });
       this.watchers.push(watcher);
     }
-    console.log("🔄 Hot Reload ativo — alterações em modules/commands serão aplicadas sem reiniciar a sala.");
+    console.log("🔄 Hot Reload ativo — alterações em modules/commands/cogs serão aplicadas sem reiniciar.");
   }
 
   private async refresh(): Promise<void> {

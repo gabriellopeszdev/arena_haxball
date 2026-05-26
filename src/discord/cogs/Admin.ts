@@ -6,9 +6,9 @@ import type { Player } from "haxball-extended-room";
 export const data = new SlashCommandBuilder()
   .setName("admin")
   .setDescription("Altera admin de um jogador.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addNumberOption((o: SlashCommandNumberOption) => o.setName("player").setDescription("ID do jogador").setRequired(true))
-  .addBooleanOption((o: SlashCommandBooleanOption) => o.setName("status").setDescription("Admin true/false").setRequired(true));
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addNumberOption((o: SlashCommandNumberOption) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
+  .addBooleanOption((o: SlashCommandBooleanOption) => o.setName("status").setDescription("Admin true/false.").setRequired(true));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

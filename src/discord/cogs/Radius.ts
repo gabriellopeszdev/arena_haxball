@@ -5,8 +5,8 @@ import { getRoom } from "../../room/RoomManager";
 export const data = new SlashCommandBuilder()
   .setName("radius")
   .setDescription("Altera o tamanho de um jogador.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador").setRequired(true))
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
   .addNumberOption((o) => o.setName("tamanho").setDescription("Novo raio (5-50)").setRequired(true).setMinValue(5).setMaxValue(50));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {

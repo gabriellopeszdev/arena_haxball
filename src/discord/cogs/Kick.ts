@@ -5,9 +5,9 @@ import { getRoom } from "../../room/RoomManager";
 export const data = new SlashCommandBuilder()
   .setName("kickar")
   .setDescription("Kicka um jogador.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador").setRequired(true))
-  .addStringOption((o) => o.setName("motivo").setDescription("Motivo").setRequired(false));
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
+  .addStringOption((o) => o.setName("motivo").setDescription("Motivo.").setRequired(false));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

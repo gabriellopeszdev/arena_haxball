@@ -8,20 +8,20 @@ export const data = new SlashCommandBuilder()
   .addSubcommand(new SlashCommandSubcommandBuilder()
     .setName("geral")
     .setDescription("Envia mensagem para toda a sala.")
-    .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-    .addStringOption((o) => o.setName("mensagem").setDescription("Texto da mensagem").setRequired(true)))
+    .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+    .addStringOption((o) => o.setName("mensagem").setDescription("Texto da mensagem.").setRequired(true)))
   .addSubcommand(new SlashCommandSubcommandBuilder()
     .setName("time")
     .setDescription("Envia mensagem para um time específico.")
-    .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-    .addStringOption((o) => o.setName("time").setDescription("Time alvo").setRequired(true).addChoices({ name: "Red", value: "red" }, { name: "Blue", value: "blue" }, { name: "Spectators", value: "spec" }))
-    .addStringOption((o) => o.setName("mensagem").setDescription("Texto").setRequired(true)))
+    .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+    .addStringOption((o) => o.setName("time").setDescription("Time alvo.").setRequired(true).addChoices({ name: "Red", value: "red" }, { name: "Blue", value: "blue" }, { name: "Spectators", value: "spec" }))
+    .addStringOption((o) => o.setName("mensagem").setDescription("Texto.").setRequired(true)))
   .addSubcommand(new SlashCommandSubcommandBuilder()
     .setName("privada")
     .setDescription("Envia PV para um jogador.")
-    .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-    .addNumberOption((o) => o.setName("player").setDescription("ID do jogador").setRequired(true))
-    .addStringOption((o) => o.setName("mensagem").setDescription("Texto").setRequired(true)));
+    .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+    .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
+    .addStringOption((o) => o.setName("mensagem").setDescription("Texto.").setRequired(true)));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sub = interaction.options.getSubcommand();

@@ -18,8 +18,8 @@ const stadiums: Record<string, object | string> = {
 export const data = new SlashCommandBuilder()
   .setName("mapa")
   .setDescription("Altera o mapa da sala.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addStringOption((o) => o.setName("mapa").setDescription("Nome do mapa").setRequired(true).addChoices(
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addStringOption((o) => o.setName("mapa").setDescription("Nome do mapa.").setRequired(true).addChoices(
     { name: "Futsal X3", value: "Futsal X3" },
     { name: "Futsal X4", value: "Futsal X4" },
     { name: "LVK", value: "LVK" },

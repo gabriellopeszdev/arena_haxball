@@ -9,13 +9,13 @@ export const data = new SlashCommandBuilder()
   .setName("trocar")
   .setDescription("Troca jogadores entre dois times.")
   .addStringOption((o) =>
-    o.setName("sala").setDescription("Nome da sala").setRequired(true),
+    o.setName("sala").setDescription("Nome da sala.").setRequired(true),
   )
   .addStringOption((o) =>
-    o.setName("time1").setDescription("Primeiro time").setRequired(true).setAutocomplete(true),
+    o.setName("time1").setDescription("Primeiro time.").setRequired(true).setAutocomplete(true),
   )
   .addStringOption((o) =>
-    o.setName("time2").setDescription("Segundo time").setRequired(true).setAutocomplete(true),
+    o.setName("time2").setDescription("Segundo time.").setRequired(true).setAutocomplete(true),
   );
 
 export async function autocomplete(interaction: AutocompleteInteraction): Promise<void> {

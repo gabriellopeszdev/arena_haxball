@@ -6,9 +6,9 @@ import { chatEnabled, setChatEnabled, specEnabled, setSpecEnabled } from "../../
 export const data = new SlashCommandBuilder()
   .setName("chat")
   .setDescription("Ativa/desativa chat.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addStringOption((o) => o.setName("tipo").setDescription("Tipo de chat").setRequired(true).addChoices({ name: "Spectators", value: "spec" }, { name: "Red e Blue", value: "players" }))
-  .addStringOption((o) => o.setName("ação").setDescription("Ativar/desativar").setRequired(true).addChoices({ name: "Ativar", value: "on" }, { name: "Desativar", value: "off" }));
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addStringOption((o) => o.setName("tipo").setDescription("Tipo de chat.").setRequired(true).addChoices({ name: "Spectators", value: "spec" }, { name: "Red e Blue", value: "players" }))
+  .addStringOption((o) => o.setName("ação").setDescription("Ativar/desativar.").setRequired(true).addChoices({ name: "Ativar", value: "on" }, { name: "Desativar", value: "off" }));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

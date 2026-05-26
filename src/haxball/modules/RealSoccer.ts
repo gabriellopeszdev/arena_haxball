@@ -11,6 +11,7 @@ export class RealSoccerModule {
   private fieldDiscs: Map<number, any> = new Map();
 
   constructor(private room: Room) {
+    this.room.customEvents.removeAllListeners("realSoccerToggle");
     this.room.customEvents.on("realSoccerToggle", (enabled: boolean) => {
       this.active = enabled;
     });

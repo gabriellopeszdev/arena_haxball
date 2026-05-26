@@ -5,7 +5,7 @@ import { getRoom } from "../../room/RoomManager";
 export const data = new SlashCommandBuilder()
   .setName("players")
   .setDescription("Lista jogadores da sala.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true));
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

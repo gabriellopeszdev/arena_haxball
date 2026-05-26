@@ -6,8 +6,8 @@ import { request } from "undici";
 export const data = new SlashCommandBuilder()
   .setName("senha")
   .setDescription("Gerencia senha da sala.")
-  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala").setRequired(true))
-  .addStringOption((o) => o.setName("ação").setDescription("Abrir ou fechar").setRequired(true).addChoices({ name: "Fechar", value: "fechar" }, { name: "Abrir", value: "abrir" }))
+  .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
+  .addStringOption((o) => o.setName("ação").setDescription("Abrir ou fechar.").setRequired(true).addChoices({ name: "Fechar", value: "fechar" }, { name: "Abrir", value: "abrir" }))
   .addStringOption((o) => o.setName("senha").setDescription("Senha (se fechar)").setRequired(false));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {

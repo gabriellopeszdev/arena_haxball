@@ -28,7 +28,7 @@ export class RolesModule {
   @ModuleCommand({
     aliases: [],
     desc: "Define o cargo do jogador com base na senha.",
-    usage: "!cargo <senha>",
+    usage: "<senha>",
     roles: [],
     deleteMessage: true,
   })
