@@ -4,7 +4,6 @@ import { getRoomConfig } from "../config/env";
 import { initializeHaxballRoom } from "./RoomFactory";
 
 const rooms = new Map<string, Room>();
-
 const roomMetadata = new Map<string, { number: number; proxy?: string }>();
 
 let hbInit: any = null;
