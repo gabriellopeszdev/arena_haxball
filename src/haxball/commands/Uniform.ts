@@ -54,7 +54,7 @@ export function uniformCommand(room: Room): void {
     },
   });
 
-  for (const name of ["v1", "v2", "v3", "v4"]) {
+  for (const name of Object.keys(uniforms)) {
     room.command({
       name,
       aliases: [],
