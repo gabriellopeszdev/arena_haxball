@@ -21,12 +21,12 @@ export function muteCommand(room: Room): void {
     name: "mute",
     aliases: ["mutar", "silenciar"],
     desc: "Muta um jogador por tempo determinado.",
-    usage: "mute <id> <minutos> [motivo]",
+    usage: "mutar #id tempo [motivo]",
     roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length < 2) {
-        $.player.reply({ message: "[PV] ⚠️ Use: mute <id> <minutos> [motivo]", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+        $.player.reply({ message: "[PV] ⚠️ Use: mutar #id tempo [motivo]. Ex: !mutar #11 10s", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         return;
       }
       const targetId = Number.parseInt($.arguments[0].toString().replace("#", ""), 10);

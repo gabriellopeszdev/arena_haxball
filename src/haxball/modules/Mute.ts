@@ -102,6 +102,7 @@ function formatDuration(totalSeconds: number): string {
 export class MuteModule {
   private readonly checkInterval: NodeJS.Timeout;
   private readonly mutedOnline = new Set<string>();
+  private readonly unmuteTimers = new Map<string, NodeJS.Timeout>();
 
   constructor(private room: Room) {
     this.checkInterval = setInterval(() => this.cleanExpiredMutes(), 30000);
@@ -110,7 +111,7 @@ export class MuteModule {
   @ModuleCommand({
     aliases: ["silenciar", "mutar"],
     desc: "Muta um jogador por tempo determinado.",
-    usage: "mute <id> <tempo> [motivo]",
+    usage: "mutar #id tempo [motivo]",
     roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"],
     deleteMessage: true,
   })
@@ -120,7 +121,7 @@ export class MuteModule {
 
     if (args.length < 2) {
       player.reply({
-        message: "[PV] ⚠️ Use: mute <id> <tempo> [motivo]. Ex: !mutar #11 10s ou !mutar #11 1m10s spam",
+        message: "[PV] ⚠️ Use: mutar #id tempo [motivo]. Ex: !mutar #11 10s ou !mutar #11 1m10s spam",
         color: Colors.Yellow,
         style: ChatStyle.Bold,
         sound: ChatSounds.Notification,
@@ -154,7 +155,9 @@ export class MuteModule {
     const reason = args.slice(1 + duration.consumedArgs).join(" ");
     const expiresAt = Math.floor(Date.now() / 1000) + duration.seconds;
     mutesDb.insert(target.ip ?? "", target.auth ?? "", target.name ?? "", player.name ?? "", expiresAt, reason);
+    this.clearMuteState(target);
     this.mutedOnline.add(this.muteKey(target));
+    this.scheduleAutoUnmute(target, duration.seconds);
 
     target.reply({
       message: `[PV] 🔇 Você foi mutado por ${duration.label}${reason ? ` (${reason})` : ""}.`,
@@ -197,7 +200,7 @@ export class MuteModule {
     }
 
     mutesDb.remove(target.auth ?? "", target.ip ?? "");
-    this.mutedOnline.delete(this.muteKey(target));
+    this.clearMuteState(target);
     target.reply({ message: `[PV] 🔊 Você foi desmutado por ${player.name}.`, color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
     this.room.send({
       message: `🔊 ${target.name} foi desmutado por ${player.name}.`,
@@ -245,18 +248,44 @@ export class MuteModule {
       const activeMute = mutesDb.findActive(player.auth ?? "", player.ip ?? "");
       if (activeMute) {
         this.mutedOnline.add(key);
+        this.scheduleAutoUnmute(player, Math.max(1, activeMute.expires_at - Math.floor(Date.now() / 1000)));
         continue;
       }
 
-      if (!this.mutedOnline.delete(key)) continue;
-      this.room.send({
-        message: `🔊 ${player.name} foi desmutado automaticamente.`,
-        color: Colors.LightGreen,
-        style: ChatStyle.Bold,
-        sound: ChatSounds.Notification,
-      });
+      if (!this.mutedOnline.has(key)) continue;
+      this.notifyAutoUnmute(player);
     }
     mutesDb.cleanExpired();
+  }
+
+  private scheduleAutoUnmute(player: Player, seconds: number): void {
+    const key = this.muteKey(player);
+    if (this.unmuteTimers.has(key)) return;
+    const timer = setTimeout(() => {
+      const livePlayer = this.room.players[player.id] as Player | undefined;
+      if (livePlayer) this.notifyAutoUnmute(livePlayer);
+      else this.clearMuteState(player);
+      mutesDb.cleanExpired();
+    }, Math.max(1, seconds) * 1000);
+    this.unmuteTimers.set(key, timer);
+  }
+
+  private notifyAutoUnmute(player: Player): void {
+    this.clearMuteState(player);
+    player.reply({
+      message: "[PV] 🔊 Você foi liberado do mute. Se comporte, respira e segue o jogo.",
+      color: Colors.LightGreen,
+      style: ChatStyle.Bold,
+      sound: ChatSounds.Notification,
+    });
+  }
+
+  private clearMuteState(player: Player): void {
+    const key = this.muteKey(player);
+    this.mutedOnline.delete(key);
+    const timer = this.unmuteTimers.get(key);
+    if (timer) clearTimeout(timer);
+    this.unmuteTimers.delete(key);
   }
 
   private muteKey(player: Player): string {
