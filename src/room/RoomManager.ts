@@ -7,6 +7,13 @@ const rooms = new Map<string, Room>();
 
 const roomMetadata = new Map<string, { number: number; proxy?: string }>();
 
+let hbInit: any = null;
+
+async function getHbInit(): Promise<any> {
+  if (!hbInit) hbInit = await HaxballJS;
+  return hbInit;
+}
+
 function generateRoomName(roomNumber: number, customName?: string): string {
   if (customName) return customName;
   const exp = roomNumber.toString().split("").map(d => ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"][parseInt(d)]).join("");
@@ -22,7 +29,7 @@ function getProxyForRoom(roomNumber: number): string | undefined {
 export async function startRoom(roomNumber: number, customName?: string): Promise<Room | null> {
   try {
     const config = await getRoomConfig(roomNumber);
-    const HBInit = await HaxballJS;
+    const HBInit = await getHbInit();
     const name = generateRoomName(roomNumber, customName);
     const proxy = config.proxy || getProxyForRoom(roomNumber);
 
