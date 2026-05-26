@@ -1,5 +1,5 @@
 import { Module, type Player, type Room, Event, Colors, ChatStyle, ChatSounds } from "haxball-extended-room";
-import { fetch } from "undici";
+import { fetch, request } from "undici";
 import { bansDb, rolesDb } from "../../database/Database";
 import { WebhookClient } from "discord.js";
 import { client } from "../../discord/Client";
@@ -37,6 +37,19 @@ export class CoreModule {
       return `<:${data.emojiName}:${data.id}> ${name}`;
     }
     return name;
+  }
+
+  private teamEmoji(player: Player): string {
+    return player.team === 1 ? "🔴" : player.team === 2 ? "🔵" : "🟢";
+  }
+
+  private sendRoleChatWebhook(player: Player, message: string): void {
+    const url = process.env.MENSAGEM_WEBHOOK;
+    if (!url) return;
+    const role = player.settings.role?.toUpperCase();
+    if (!role) return;
+    const content = `[${this.room.name}] [${role}] [${this.teamEmoji(player)}] \`[${player.id}]\` **${player.name}**: \`${message}\``;
+    request(url, { method: "POST", body: JSON.stringify({ content }), headers: { "Content-Type": "application/json" } }).catch(() => {});
   }
 
   @Event
@@ -204,6 +217,7 @@ export class CoreModule {
         style: ChatStyle.Bold,
         sound: ChatSounds.Normal,
       });
+      this.sendRoleChatWebhook(player, message);
       return false;
     }
   }

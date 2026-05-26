@@ -1,4 +1,4 @@
-import { Module, type Player, type Room, Event } from "haxball-extended-room";
+import { Event, Module, type Player, type Room } from "haxball-extended-room";
 import type { Command, CommandExecInfo } from "haxball-extended-room";
 import { request } from "undici";
 
@@ -33,7 +33,7 @@ export class WebhookModule {
 
   @Event
   onPlayerRunCommand(player: Player, _command: Command, info: CommandExecInfo): void {
-    this.sendSystem(`:speech_balloon: **COMANDO** — ${this.teamEmoji(player)} [${player.id}] **${player.name}** usou \`${info.message}\``);
+    this.sendSystem(`:speech_balloon: **COMANDO** — ${this.teamEmoji(player)} [${player.id}] **${player.name}** usou \`${this.maskCommand(info.message)}\``);
   }
 
   @Event
@@ -63,6 +63,7 @@ export class WebhookModule {
 
   @Event
   onPlayerAdminChange(changedPlayer: Player, byPlayer?: Player): void {
+    if (changedPlayer.settings.role) return;
     const status = changedPlayer.admin ? "recebeu admin" : "perdeu admin";
     const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : "";
     this.sendSystem(`:crown: **ADMIN** — \`[${changedPlayer.id}]\` **${changedPlayer.name}** ${status}.${by}`);
@@ -81,14 +82,14 @@ export class WebhookModule {
   @Event
   onPlayerKicked(kickedPlayer: Player, reason?: string, byPlayer?: Player): void {
     const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : " pelo sistema";
-    const tag = `${this.teamEmoji(kickedPlayer as any)} \`[${kickedPlayer.id}]\``;
+    const tag = `${this.teamEmoji(kickedPlayer)} \`[${kickedPlayer.id}]\``;
     this.sendSystem(`:boom: **KICK** — \`${kickedPlayer.name}\` ${tag} foi kickingado${by}${reason ? ` (\`${reason}\`)` : ""}.`);
   }
 
   @Event
   onPlayerBanned(bannedPlayer: Player, reason?: string, byPlayer?: Player): void {
     const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : " pelo sistema";
-    const tag = `${this.teamEmoji(bannedPlayer as any)} \`[${bannedPlayer.id}]\``;
+    const tag = `${this.teamEmoji(bannedPlayer)} \`[${bannedPlayer.id}]\``;
     this.sendSystem(`:no_entry: **BAN** — \`${bannedPlayer.name}\` ${tag} foi banido${by}${reason ? ` (\`${reason}\`)` : ""}.`);
   }
 
@@ -96,5 +97,11 @@ export class WebhookModule {
     const url = process.env.MENSAGEM_WEBHOOK;
     if (!url) return;
     request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] ${content}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+  }
+
+  private maskCommand(message: string): string {
+    const [command] = message.trim().split(/\s+/);
+    if (command?.toLowerCase() === `${this.room.prefix || "!"}cargo`) return `${command} [senha ocultada]`;
+    return message;
   }
 }

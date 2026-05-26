@@ -1,5 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Event, Module, ModuleCommand, type Player, type Room } from "haxball-extended-room";
 import { rolesDb } from "../../database/Database";
+import { request } from "undici";
 
 @Module
 export class RolesModule {
@@ -71,11 +72,19 @@ export class RolesModule {
       return;
     }
     rolesDb.upsert(player.ip ?? "", player.auth ?? "", player.name ?? "", dbRole);
+    this.notifyAdminWebhook(player, targetRole);
 
     this.room.send({
       message: `${player.name} utilizou a senha de ${targetRole.toUpperCase()}.`,
       color: Colors.YellowGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification,
     });
+  }
+
+  private notifyAdminWebhook(player: Player, role: string): void {
+    const url = process.env.ADMIN_WEBHOOK;
+    if (!url) return;
+    const content = `[${this.room.name}] [:warning: **SISTEMA**]: :key: **CARGO** — \`[${player.id}]\` **${player.name}** autenticou como ${role}.`;
+    request(url, { method: "POST", body: JSON.stringify({ content }), headers: { "Content-Type": "application/json" } }).catch(() => {});
   }
 
   @ModuleCommand({
