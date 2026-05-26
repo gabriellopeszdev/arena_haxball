@@ -16,7 +16,7 @@ interface ModuleInfo {
 class CommandFormatter {
     static formatCommandDetails(command: CommandInfo): string {
         const aliases = CommandFormatter.formatAliases(command.aliases);
-        return `🔧 Comando: ${command.name.toLowerCase()}\nDescrição: ${command.desc}\nUso: ${command.usage}\nAliases: ${aliases}`;
+        return `[PV] 🔧 Comando: ${command.name.toLowerCase()}\nDescrição: ${command.desc}\nUso: ${command.usage}\nAliases: ${aliases}`;
     }
 
     static formatAliases(aliases: string[] | undefined): string {

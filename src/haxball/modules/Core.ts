@@ -105,7 +105,7 @@ export class CoreModule {
 
     if (geo.proxy === "yes") {
       player.reply({
-        message: `🛜 Detectado o uso de VPN ou Proxy!`,
+        message: `[PV] 🛜 Detectado o uso de VPN ou Proxy!`,
         color: Colors.DodgerBlue,
         style: ChatStyle.Bold,
         sound: ChatSounds.Notification,
@@ -113,14 +113,14 @@ export class CoreModule {
     }
 
     player.reply({
-      message: `👋🏼 Eai, ${player.name}! Seja bem-vindo(a) à ${this.room.name}!`,
+      message: `[PV] 👋🏼 Eai, ${player.name}! Seja bem-vindo(a) à ${this.room.name}!`,
       color: Colors.Red,
       style: ChatStyle.Bold,
       sound: ChatSounds.Notification,
     });
 
     player.reply({
-      message: `📜 Para ver a lista de comandos disponíveis, use "!help".`,
+      message: `[PV] 📜 Para ver a lista de comandos disponíveis, use "!help".`,
       color: Colors.Orange,
       style: ChatStyle.Bold,
       sound: ChatSounds.None,
@@ -199,7 +199,7 @@ export class CoreModule {
       const cmdName = message.slice(1).trim().split(/ +/)[0].toLowerCase();
       const commands = (this.room as any)._commands;
       if (commands && !commands.get(cmdName)) {
-        player.reply({ message: `Comando desconhecido: ${message.split(" ")[0]}`, color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+        player.reply({ message: `[PV] ❌ Comando desconhecido: ${message.split(" ")[0]}`, color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         return false;
       }
       return;

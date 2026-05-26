@@ -162,7 +162,7 @@ export function AFKCommand(room: Room) {
         .join("\n");
 
       $.player?.reply({
-        message: `🔹 Jogadores AFK:\n\n${afkMessage}`,
+        message: `[PV] 🔹 Jogadores AFK:\n\n${afkMessage}`,
         color: HaxballColors.CadetBlue,
         style: ChatStyle.SmallItalic,
         sound: ChatSounds.Notification,

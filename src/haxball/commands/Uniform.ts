@@ -41,17 +41,16 @@ export function uniformCommand(room: Room): void {
     name: "uniforme",
     aliases: ["uni", "uniform"],
     desc: "Aplica um uniforme pre-definido.",
-    usage: "uniforme <nome> [red|blue|all]",
+    usage: "uniforme <nome>",
     roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       const name = $.arguments[0]?.toString().toLowerCase();
-      const teamStr = $.arguments[1]?.toString().toLowerCase() || "all";
       if (!name || !uniforms[name]) {
         $.player.reply({ message: `[PV] ⚠️ Uniformes: ${Object.keys(uniforms).join(", ")}`, color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         return;
       }
-      applyUniform(room, $, name, teamStr);
+      applyUniform(room, $, name);
     },
   });
 
@@ -60,19 +59,30 @@ export function uniformCommand(room: Room): void {
       name,
       aliases: [],
       desc: `Aplica o uniforme ${name}.`,
-      usage: `${name} [red|blue|all]`,
+      usage: name,
       roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
       deleteMessage: true,
-      func: ($: CommandExecInfo) => applyUniform(room, $, name, $.arguments[0]?.toString().toLowerCase() || "all"),
+      func: ($: CommandExecInfo) => applyUniform(room, $, name),
     });
   }
 }
 
-function applyUniform(room: Room, execInfo: CommandExecInfo, name: string, teamStr: string): void {
-  const team = teamStr === "red" ? Teams.Red : teamStr === "blue" ? Teams.Blue : "all";
+function applyUniform(room: Room, execInfo: CommandExecInfo, name: string): void {
+  const team = execInfo.player.team;
+  if (team !== Teams.Red && team !== Teams.Blue) {
+    execInfo.player.reply({
+      message: "[PV] ⚠️ Você precisa estar no Red ou Blue para aplicar uniforme.",
+      color: Colors.Yellow,
+      style: ChatStyle.Bold,
+      sound: ChatSounds.Notification,
+    });
+    return;
+  }
+
   room.setTeamColors(team, uniforms[name]);
+  const teamName = team === Teams.Red ? "red" : "blue";
   room.send({
-    message: `🎨 Uniforme ${name} aplicado ${teamStr === "all" ? "em ambos times" : `no time ${teamStr}`} por ${execInfo.player.name}.`,
+    message: `🎨 Uniforme ${name} aplicado no time ${teamName} por ${execInfo.player.name}.`,
     color: Colors.White,
     style: ChatStyle.SmallBold,
     sound: ChatSounds.Notification,
