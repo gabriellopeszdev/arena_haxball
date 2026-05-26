@@ -14,7 +14,7 @@ export function initializeDatabase(): void {
       ip TEXT NOT NULL,
       auth TEXT NOT NULL,
       name TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('jogador', 'capitao', 'sub-capitao')),
+      role TEXT NOT NULL CHECK(role IN ('jogador', 'capitao', 'sub-capitao', 'administrador')),
       created_at INTEGER NOT NULL DEFAULT (unixepoch()),
       PRIMARY KEY (ip, auth)
     );
@@ -55,6 +55,33 @@ export function initializeDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_roles_auth ON roles(auth);
     CREATE INDEX IF NOT EXISTS idx_bans_auth ON bans(auth);
     CREATE INDEX IF NOT EXISTS idx_mutes_expires ON mutes(expires_at);
+  `);
+
+  migrateRolesAdminCheck();
+}
+
+function migrateRolesAdminCheck(): void {
+  const row = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'roles'").get() as { sql: string } | undefined;
+  if (!row || row.sql.includes("'administrador'")) return;
+
+  db.exec(`
+    ALTER TABLE roles RENAME TO roles_old;
+
+    CREATE TABLE roles (
+      ip TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      name TEXT NOT NULL,
+      role TEXT NOT NULL CHECK(role IN ('jogador', 'capitao', 'sub-capitao', 'administrador')),
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      PRIMARY KEY (ip, auth)
+    );
+
+    INSERT OR REPLACE INTO roles (ip, auth, name, role, created_at)
+    SELECT ip, auth, name, role, created_at
+    FROM roles_old
+    WHERE role IN ('jogador', 'capitao', 'sub-capitao', 'administrador');
+
+    DROP TABLE roles_old;
   `);
 }
 

@@ -4,7 +4,7 @@ import { request } from "undici";
 export function passwordCommand(room: Room): void {
   room.command({
     name: "fechar",
-    aliases: ["lock", "trancar"],
+    aliases: ["senha", "lock", "trancar"],
     desc: "Fecha a sala com senha.",
     usage: "fechar <senha>",
     roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão"],

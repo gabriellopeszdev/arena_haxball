@@ -2,7 +2,7 @@ import puppeteer from "puppeteer";
 import type { Page, Frame, ElementHandle } from "puppeteer";
 import path from "node:path";
 import fs from "node:fs";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 const LAUNCH_ARGS = [
   "--no-sandbox",
@@ -12,6 +12,7 @@ const LAUNCH_ARGS = [
   "--disable-gpu",
   "--no-first-run",
 ];
+const GIF_FPS = 20;
 
 export class ClipRenderer {
   async render(duration: number): Promise<string> {
@@ -51,42 +52,22 @@ export class ClipRenderer {
       });
 
       const replayer = await this.waitReplayerFrame(page);
-
       const fileInput = await this.waitFrameSelector(replayer, "#replayerfile", 20000);
       await (fileInput as ElementHandle<HTMLInputElement>).uploadFile(hbr2File);
 
-      await sleep(3000);
+      const replayerPage = await this.waitLoadedReplayFrame(page);
+      await this.closeSettingsIfOpen(replayerPage);
+      await this.pauseReplay(replayerPage);
+      await this.setViewMode(replayerPage, "2");
 
-      const replayerPage = await this.waitReplayerFrame(page);
+      const totalDuration = await this.getTotalDuration(replayerPage);
+      const captureDuration = Math.min(duration, totalDuration);
+      const seekTime = Math.max(0, totalDuration - captureDuration);
 
-      const hasSettings = await replayerPage.evaluate(() => !!document.querySelector('.settings-view [data-hook="close"]'));
-      if (hasSettings) {
-        await replayerPage.evaluate(() => {
-          const btn = document.querySelector('.settings-view [data-hook="close"]') as HTMLButtonElement;
-          if (btn) btn.click();
-        });
-      }
+      await this.seekReplay(replayerPage, seekTime, totalDuration);
 
-      await replayerPage.waitForSelector("canvas", { timeout: 20000 });
-      await sleep(2000);
-
-      await replayerPage.evaluate(() => {
-        const sel = document.querySelector('[data-hook="viewmode"]') as HTMLSelectElement;
-        if (sel) { sel.value = "Full 1x Zoom"; sel.dispatchEvent(new Event("change", { bubbles: true })); }
-      });
-
-      await replayerPage.waitForFunction(() => typeof (window as any).HaxReplay !== "undefined", { timeout: 10000 });
-
-      await replayerPage.evaluate(() => (window as any).HaxReplay.setCamera(1));
-
-      const totalDuration = await replayerPage.evaluate(() => (window as any).HaxReplay.getDuration());
-      const seekTime = Math.max(0, totalDuration - duration);
-
-      await replayerPage.evaluate((t: number) => (window as any).HaxReplay.goToTime(t), seekTime);
-      await sleep(200);
-
-      const fps = 30;
-      const totalFrames = Math.round(duration * fps);
+      const fps = GIF_FPS;
+      const totalFrames = Math.max(1, Math.round(captureDuration * fps));
       const frameDelaySec = 1 / fps;
       const canvas = await replayerPage.$("canvas");
 
@@ -102,31 +83,38 @@ export class ClipRenderer {
         } else {
           await page.screenshot({ path: fp, type: "png" });
         }
+
         const t = seekTime + (i + 1) * frameDelaySec;
-        if (t <= totalDuration) {
-          await replayerPage.evaluate((time: number) => (window as any).HaxReplay.goToTime(time), t);
-          await sleep(15);
-        }
+        if (t <= totalDuration) await this.seekReplay(replayerPage, t, totalDuration);
       }
 
       this.buildGif(framesDir, fps, outputPath);
-      fs.rmSync(framesDir, { recursive: true, force: true });
 
-      console.log(`✅ GIF: ${outputPath}`);
+      console.log(`GIF: ${outputPath}`);
       return outputPath;
     } finally {
+      fs.rmSync(framesDir, { recursive: true, force: true });
       await browser.close();
     }
   }
 
   private async waitReplayerFrame(page: Page): Promise<Frame> {
     for (let attempt = 0; attempt < 30; attempt++) {
-      const frame = page.frames().find((f) => f.url().includes("replayer") || f.name() === "gameframe");
+      const frame = page.frames().find((f) => f.url().includes("/replayer/3/") || f.name() === "gameframe");
       if (frame && frame.url() !== "about:blank") return frame;
       await sleep(500);
     }
     const urls = page.frames().map((f) => `${f.name()}: ${f.url()}`);
     throw new Error(`replayer frame not found. Frames: ${urls.join(" | ")}`);
+  }
+
+  private async waitLoadedReplayFrame(page: Page): Promise<Frame> {
+    const frame = await this.waitReplayerFrame(page);
+    await frame.waitForSelector("canvas", { timeout: 20000 });
+    await frame.waitForSelector('[data-hook="timebar"]', { timeout: 20000 });
+    await frame.waitForSelector('[data-hook="time"]', { timeout: 20000 });
+    await sleep(500);
+    return frame;
   }
 
   private async waitFrameSelector(frame: Frame, selector: string, timeout: number): Promise<ElementHandle> {
@@ -135,8 +123,66 @@ export class ClipRenderer {
     return el;
   }
 
+  private async closeSettingsIfOpen(frame: Frame): Promise<void> {
+    await frame.evaluate(() => {
+      const close = document.querySelector('.settings-view [data-hook="close"]') as HTMLButtonElement | null;
+      close?.click();
+    });
+  }
+
+  private async pauseReplay(frame: Frame): Promise<void> {
+    await frame.evaluate(() => {
+      const playIcon = document.querySelector('[data-hook="playicon"]');
+      const playButton = document.querySelector('[data-hook="play"]') as HTMLButtonElement | null;
+      if (playIcon?.classList.contains("icon-pause")) playButton?.click();
+    });
+    await sleep(150);
+  }
+
+  private async setViewMode(frame: Frame, key: "1" | "2" | "3" | "4"): Promise<void> {
+    await frame.evaluate((viewKey) => {
+      const target = document.querySelector(".game-view") as HTMLElement | null;
+      target?.focus();
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: viewKey, code: `Digit${viewKey}`, bubbles: true }));
+      window.dispatchEvent(new KeyboardEvent("keyup", { key: viewKey, code: `Digit${viewKey}`, bubbles: true }));
+    }, key);
+    await sleep(150);
+  }
+
+  private async getTotalDuration(frame: Frame): Promise<number> {
+    await this.seekReplay(frame, Number.POSITIVE_INFINITY, 1);
+    await sleep(250);
+    const duration = await frame.evaluate(() => {
+      return (document.querySelector('[data-hook="time"]')?.textContent || "").trim();
+    });
+    const seconds = parseClock(duration);
+    if (seconds <= 0) throw new Error(`Could not read replay duration from "${duration}"`);
+    return seconds;
+  }
+
+  private async seekReplay(frame: Frame, timeSeconds: number, totalSeconds: number): Promise<void> {
+    const percent = Number.isFinite(timeSeconds) && totalSeconds > 0
+      ? Math.max(0, Math.min(0.999, timeSeconds / totalSeconds))
+      : 0.999;
+
+    await frame.evaluate((p) => {
+      const timebar = document.querySelector('[data-hook="timebar"]') as HTMLElement | null;
+      if (!timebar) throw new Error("Replay timebar not found");
+
+      const rect = timebar.getBoundingClientRect();
+      const x = rect.left + rect.width * p;
+      const y = rect.top + rect.height / 2;
+      const options = { bubbles: true, cancelable: true, clientX: x, clientY: y };
+
+      timebar.dispatchEvent(new MouseEvent("mousedown", options));
+      timebar.dispatchEvent(new MouseEvent("mouseup", options));
+      timebar.dispatchEvent(new MouseEvent("click", options));
+    }, percent);
+    await sleep(35);
+  }
+
   private findHbr2(dir: string): string {
-    const files = fs.readdirSync(dir).filter(f => f.endsWith(".hbr2")).sort();
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith(".hbr2")).sort();
     if (files.length === 0) throw new Error("Nenhum .hbr2 encontrado em clips/");
     return path.join(dir, files[files.length - 1]);
   }
@@ -145,15 +191,30 @@ export class ClipRenderer {
     const inputPattern = path.join(framesDir, "frame-%05d.png");
     const palettePath = path.join(framesDir, "palette.png");
 
-    execSync(
-      `ffmpeg -y -framerate ${fps} -i "${inputPattern}" -vf "fps=${fps},scale=1280:-1:flags=lanczos,palettegen=stats_mode=diff" "${palettePath}"`,
-      { timeout: 120000, stdio: "pipe" }
-    );
-    execSync(
-      `ffmpeg -y -framerate ${fps} -i "${inputPattern}" -i "${palettePath}" -lavfi "fps=${fps},scale=1280:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer" "${outputPath}"`,
-      { timeout: 120000, stdio: "pipe" }
-    );
+    execFileSync("ffmpeg", [
+      "-y",
+      "-framerate", String(fps),
+      "-i", inputPattern,
+      "-vf", `fps=${fps},scale=1280:-1:flags=lanczos,palettegen=stats_mode=diff`,
+      palettePath,
+    ], { timeout: 120000, stdio: "pipe" });
+    execFileSync("ffmpeg", [
+      "-y",
+      "-framerate", String(fps),
+      "-i", inputPattern,
+      "-i", palettePath,
+      "-lavfi", `fps=${fps},scale=1280:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer`,
+      outputPath,
+    ], { timeout: 120000, stdio: "pipe" });
   }
+}
+
+function parseClock(value: string): number {
+  const parts = value.split(":").map((part) => Number.parseInt(part, 10));
+  if (parts.some((part) => Number.isNaN(part))) return 0;
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 0;
 }
 
 function sleep(ms: number): Promise<void> {

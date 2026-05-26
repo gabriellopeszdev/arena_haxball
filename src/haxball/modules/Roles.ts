@@ -6,7 +6,7 @@ export class RolesModule {
   constructor(private room: Room) {}
 
   private roleHierarchy: Record<string, number> = {
-    "👨‍💼 administrador": 0, "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3,
+    "⚽ jogador": 1, "💂 sub-capitão": 2, "👮‍♂️ capitão": 3, "👨‍💼 administrador": 4,
   };
 
   private passwordMap: Record<string, string> = {};
@@ -65,7 +65,12 @@ export class RolesModule {
 
     player.settings.role = targetRole;
     player.admin = true;
-    rolesDb.upsert(player.ip ?? "", player.auth ?? "", player.name ?? "", this.roleToDb(targetRole));
+    const dbRole = this.roleToDb(targetRole);
+    if (!dbRole) {
+      player.reply({ message: "[PV] ❌ Cargo inválido.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+      return;
+    }
+    rolesDb.upsert(player.ip ?? "", player.auth ?? "", player.name ?? "", dbRole);
 
     this.room.send({
       message: `${player.name} utilizou a senha de ${targetRole.toUpperCase()}.`,

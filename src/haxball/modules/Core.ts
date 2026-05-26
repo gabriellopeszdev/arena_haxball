@@ -67,6 +67,7 @@ export class CoreModule {
         jogador: "⚽ jogador",
         capitao: "👮‍♂️ capitão",
         "sub-capitao": "💂 sub-capitão",
+        administrador: "👨‍💼 administrador",
       };
       const displayName = roleMap[roleName];
       if (displayName) {
@@ -194,6 +195,7 @@ export class CoreModule {
         "⚽ jogador": Colors.MistyRose,
         "👮‍♂️ capitão": Colors.YellowGreen,
         "💂 sub-capitão": Colors.Yellow,
+        "👨‍💼 administrador": Colors.Gold,
       };
       const color = colors[player.settings.role] || Colors.White;
       this.room.send({
