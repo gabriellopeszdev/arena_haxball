@@ -8,7 +8,7 @@ export class KickRateModule {
     aliases: ["kickrate", "kr"],
     desc: "Define o limite de kicks.",
     usage: "kickrate <min> <rate> <burst>",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👮‍♂️ capitão", "💂 sub-capitão"],
     deleteMessage: true,
   })
   public kickrate(execInfo: CommandExecInfo): void {
