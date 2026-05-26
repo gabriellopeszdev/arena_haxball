@@ -2,7 +2,6 @@ import { Module, type Player, type Room, Event, Colors, ChatStyle, ChatSounds } 
 import { fetch } from "undici";
 import { bansDb, rolesDb } from "../../database/Database";
 import { WebhookClient } from "discord.js";
-import { getEnv } from "../../config/env";
 import { getTeamIcon } from "../../utils/helpers";
 
 @Module
@@ -61,17 +60,14 @@ export class CoreModule {
 
     let geo: Record<string, any> = {};
     try {
-      const response = await fetch(`https://proxycheck.io/v2/${player.ip}?vpn=1&asn=1`);
+      const response = await fetch(`https://ipinfo.io/${player.ip}`);
       const result = (await response.json()) as Record<string, any>;
-      geo = result[player.ip] || {};
-      if (geo?.proxy === "yes" || geo?.vpn === "yes") {
-        player.reply({
-          message: "🛜 Detectado o uso de VPN ou Proxy!",
-          color: Colors.DodgerBlue,
-          style: ChatStyle.Bold,
-          sound: ChatSounds.Notification,
-        });
+      if (result.loc) {
+        const [lat, lon] = result.loc.split(",");
+        result.latitude = lat;
+        result.longitude = lon;
       }
+      geo = result;
     } catch {}
 
     player.reply({
@@ -88,8 +84,8 @@ export class CoreModule {
       sound: ChatSounds.None,
     });
 
-    const provedora = geo.isp || geo.provider || "—";
-    const organizacao = geo.org || geo.organization || "—";
+    const provedora = geo.org || "—";
+    const organizacao = geo.org || "—";
 
     if (this.entryWebhook) {
       try {
@@ -110,7 +106,7 @@ export class CoreModule {
               { name: "Cidade", value: `\`${geo.city || "—"}\``, inline: true },
               { name: "Latitude", value: `\`${geo.latitude || "—"}\``, inline: true },
               { name: "Longitude", value: `\`${geo.longitude || "—"}\``, inline: true },
-              { name: "Proxy", value: `\`${geo.proxy === "yes" ? "Sim" : "Não"}\``, inline: true },
+              { name: "Proxy", value: "—", inline: true },
             ],
             footer: { text: `${new Date().getFullYear()} © ${this.room.name}` },
           }],
