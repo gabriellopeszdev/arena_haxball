@@ -34,8 +34,17 @@ export class ClipRenderer {
       const page = await browser.newPage();
       await page.setViewport({ width: 1280, height: 720 });
 
-      page.on("console", (msg) => console.error(`[browser] ${msg.type()}: ${msg.text()}`));
-      page.on("pageerror", (err) => console.error("[browser] uncaught:", err));
+      page.on("console", (msg) => { if (msg.type() === "error") console.error(`[browser] ${msg.text()}`); });
+      page.on("pageerror", () => {});
+
+      await page.setRequestInterception(true);
+      page.on("request", (req) => {
+        if (req.url().includes("cpmstar") || req.url().includes("doubleclick") || req.url().includes("googlesyndication")) {
+          req.abort();
+        } else {
+          req.continue();
+        }
+      });
 
       await page.goto("https://www.haxball.com/replay", {
         waitUntil: "networkidle0",
@@ -47,7 +56,6 @@ export class ClipRenderer {
 
       const closeBtn = await page.waitForSelector('.settings-view [data-hook="close"]', { timeout: 20000 });
       if (closeBtn) await closeBtn.click();
-      else console.warn("settings close button not found, continuing");
 
       await page.waitForSelector("canvas", { timeout: 20000 });
       await sleep(1000);
@@ -100,8 +108,17 @@ export class ClipRenderer {
       const page = await browser.newPage();
       await page.setViewport({ width: 1280, height: 720 });
 
-      page.on("console", (msg) => console.error(`[browser] ${msg.type()}: ${msg.text()}`));
-      page.on("pageerror", (err) => console.error("[browser] uncaught:", err));
+      page.on("console", (msg) => { if (msg.type() === "error") console.error(`[browser] ${msg.text()}`); });
+      page.on("pageerror", () => {});
+
+      await page.setRequestInterception(true);
+      page.on("request", (req) => {
+        if (req.url().includes("cpmstar") || req.url().includes("doubleclick") || req.url().includes("googlesyndication")) {
+          req.abort();
+        } else {
+          req.continue();
+        }
+      });
 
       await page.goto("https://www.haxball.com/replay", {
         waitUntil: "networkidle0",
