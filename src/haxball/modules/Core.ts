@@ -101,7 +101,7 @@ export class CoreModule {
               { name: "Cidade", value: `\`${geo.city || "—"}\``, inline: true },
               { name: "Latitude", value: `\`${geo.latitude || "—"}\``, inline: true },
               { name: "Longitude", value: `\`${geo.longitude || "—"}\``, inline: true },
-              { name: "Proxy", value: "—", inline: true },
+              { name: "Proxy", value: `\`${geo.proxy === "yes" ? "Sim" : "Não"}\``, inline: true },
             ],
             footer: { text: `${new Date().getFullYear()} © ${this.room.name}` },
           }],
