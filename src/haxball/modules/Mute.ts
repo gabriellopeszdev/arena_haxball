@@ -271,6 +271,7 @@ export class MuteModule {
   }
 
   private notifyAutoUnmute(player: Player): void {
+    if (!this.mutedOnline.has(this.muteKey(player))) return;
     this.clearMuteState(player);
     player.reply({
       message: "[PV] 🔊 Você foi liberado do mute. Se comporte, respira e segue o jogo.",
