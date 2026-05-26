@@ -4,7 +4,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { execSync } from "node:child_process";
 
-const REPLAY_PAGE = "https://www.haxball.com/replay";
+const REPLAY_PAGE = "https://www.haxball.com/replay?v=3";
 
 export class ClipRenderer {
   async render(duration: number): Promise<string> {
@@ -29,16 +29,24 @@ export class ClipRenderer {
 
       await page.goto(REPLAY_PAGE, { waitUntil: "networkidle0", timeout: 30000 });
 
-      const fileInput = await page.waitForSelector('input[type="file"]', { timeout: 15000 });
+      const fileInput = await page.waitForSelector('input[data-hook="file"]', { timeout: 20000 });
       if (!fileInput) throw new Error("file input not found");
       await fileInput.uploadFile(hbr2File);
 
+      const settingsClose = await page.waitForSelector('.settings-view [data-hook="close"]', { timeout: 15000 });
+      if (settingsClose) await settingsClose.click();
+      await sleep(300);
+
       await page.waitForSelector("canvas", { timeout: 15000 });
+      await sleep(500);
 
-      await tryClosePopup(page);
-      await sleep(200);
-
-      await this.setViewMode(page);
+      await page.evaluate(() => {
+        const select = document.querySelector('[data-hook="viewmode"]') as HTMLSelectElement;
+        if (select) {
+          select.value = "Full 1x Zoom";
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      });
 
       await page.waitForFunction(() => typeof (window as any).HaxReplay !== "undefined", { timeout: 10000 });
 
@@ -104,16 +112,24 @@ export class ClipRenderer {
 
       await page.goto(REPLAY_PAGE, { waitUntil: "networkidle0", timeout: 30000 });
 
-      const fileInput = await page.waitForSelector('input[type="file"]', { timeout: 15000 });
+      const fileInput = await page.waitForSelector('input[data-hook="file"]', { timeout: 20000 });
       if (!fileInput) throw new Error("file input not found");
       await fileInput.uploadFile(hbr2Path);
 
+      const settingsClose = await page.waitForSelector('.settings-view [data-hook="close"]', { timeout: 15000 });
+      if (settingsClose) await settingsClose.click();
+      await sleep(300);
+
       await page.waitForSelector("canvas", { timeout: 15000 });
+      await sleep(500);
 
-      await tryClosePopup(page);
-      await sleep(200);
-
-      await this.setViewMode(page);
+      await page.evaluate(() => {
+        const select = document.querySelector('[data-hook="viewmode"]') as HTMLSelectElement;
+        if (select) {
+          select.value = "Full 1x Zoom";
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      });
 
       await page.waitForFunction(() => typeof (window as any).HaxReplay !== "undefined", { timeout: 10000 });
 
@@ -159,16 +175,6 @@ export class ClipRenderer {
     }
   }
 
-  private setViewMode(page: Page): Promise<void> {
-    return page.evaluate(() => {
-      const select = document.querySelector('[data-hook="viewmode"]') as HTMLSelectElement;
-      if (select) {
-        select.value = "Full 1x Zoom";
-        select.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-    });
-  }
-
   private findHbr2(dir: string): string {
     const files = fs.readdirSync(dir).filter(f => f.endsWith(".hbr2")).sort();
     if (files.length === 0) throw new Error("Nenhum .hbr2 encontrado em clips/");
@@ -192,9 +198,4 @@ export class ClipRenderer {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
-}
-
-async function tryClosePopup(page: Page): Promise<void> {
-  const closeBtn = await page.$('[data-hook="close"]');
-  if (closeBtn) await closeBtn.click();
 }
