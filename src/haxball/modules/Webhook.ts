@@ -66,7 +66,7 @@ export class WebhookModule {
     if (changedPlayer.settings.role) return;
     const status = changedPlayer.admin ? "recebeu admin" : "perdeu admin";
     const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : "";
-    this.sendSystem(`:crown: **ADMIN** — \`[${changedPlayer.id}]\` **${changedPlayer.name}** ${status}.${by}`);
+    this.sendSystem(`:crown: **ADMIN** — \`[${changedPlayer.id}]\` **${changedPlayer.name}** ${status}${by}`);
   }
 
   @Event
@@ -83,14 +83,22 @@ export class WebhookModule {
   onPlayerKicked(kickedPlayer: Player, reason?: string, byPlayer?: Player): void {
     const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : " pelo sistema";
     const tag = `${this.teamEmoji(kickedPlayer)} \`[${kickedPlayer.id}]\``;
-    this.sendSystem(`:boom: **KICK** — \`${kickedPlayer.name}\` ${tag} foi kickingado${by}${reason ? ` (\`${reason}\`)` : ""}.`);
+    if (byPlayer && !canPunish(byPlayer, kickedPlayer)) {
+      this.sendSystem(`:no_entry: **KICK BLOQUEADO** — \`[${byPlayer.id}]\` **${byPlayer.name}** tentou kickar \`${kickedPlayer.name}\` ${tag} sem permissão`);
+      return;
+    }
+    this.sendSystem(`:boom: **KICK** — \`${kickedPlayer.name}\` ${tag} foi kickingado${by}${reason ? ` (\`${reason}\`)` : ""}`);
   }
 
   @Event
   onPlayerBanned(bannedPlayer: Player, reason?: string, byPlayer?: Player): void {
     const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : " pelo sistema";
     const tag = `${this.teamEmoji(bannedPlayer)} \`[${bannedPlayer.id}]\``;
-    this.sendSystem(`:no_entry: **BAN** — \`${bannedPlayer.name}\` ${tag} foi banido${by}${reason ? ` (\`${reason}\`)` : ""}.`);
+    if (byPlayer && !canPunish(byPlayer, bannedPlayer)) {
+      this.sendSystem(`:no_entry: **BAN BLOQUEADO** — \`[${byPlayer.id}]\` **${byPlayer.name}** tentou banir \`${bannedPlayer.name}\` ${tag} sem permissão`);
+      return;
+    }
+    this.sendSystem(`:no_entry: **BAN** — \`${bannedPlayer.name}\` ${tag} foi banido${by}${reason ? ` (\`${reason}\`)` : ""}`);
   }
 
   private sendMsg(content: string): void {
@@ -104,4 +112,18 @@ export class WebhookModule {
     if (command?.toLowerCase() === `${this.room.prefix || "!"}cargo`) return `${command} [senha ocultada]`;
     return message;
   }
+}
+
+const roleRank: Record<string, number> = {
+  "👮‍♂️ capitão": 4,
+  "💂 sub-capitão": 3,
+  "⚽ jogador": 2,
+  "👨‍💼 administrador": 1,
+};
+
+function canPunish(actor: Player, target: Player): boolean {
+  const targetRank = roleRank[target.settings.role] ?? 0;
+  if (targetRank <= 0) return true;
+  const actorRank = roleRank[actor.settings.role] ?? 0;
+  return actorRank > targetRank;
 }
