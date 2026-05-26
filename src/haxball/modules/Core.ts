@@ -88,6 +88,9 @@ export class CoreModule {
       sound: ChatSounds.None,
     });
 
+    const provedora = geo.isp || geo.provider || "—";
+    const organizacao = geo.org || geo.organization || "—";
+
     if (this.entryWebhook) {
       try {
         await this.entryWebhook.send({
@@ -96,18 +99,18 @@ export class CoreModule {
             title: this.room.name,
             description: `\`${player.name}\` entrou na sala!`,
             fields: [
-              { name: "Nick", value: `\`\`\`fix\n${player.name}\`\`\``, inline: true },
-              { name: "Auth", value: `\`\`\`fix\n${player.auth}\`\`\``, inline: true },
-              { name: "IP", value: `\`\`\`fix\n${player.ip}\`\`\``, inline: true },
-              { name: "CONN", value: `\`\`\`fix\n${player.conn}\`\`\``, inline: true },
-              { name: "Provedora", value: `\`\`\`fix\n${geo.isp || "Desconhecida"}\`\`\``, inline: true },
-              { name: "Organização", value: `\`\`\`fix\n${geo.org || "Desconhecida"}\`\`\``, inline: true },
-              { name: "País", value: `\`\`\`fix\n${geo.country || "Desconhecido"}\`\`\``, inline: true },
-              { name: "Estado", value: `\`\`\`fix\n${geo.region || "Desconhecido"}\`\`\``, inline: true },
-              { name: "Cidade", value: `\`\`\`fix\n${geo.city || "Desconhecida"}\`\`\``, inline: true },
-              { name: "Latitude", value: `\`\`\`fix\n${geo.latitude || "?"}\`\`\``, inline: true },
-              { name: "Longitude", value: `\`\`\`fix\n${geo.longitude || "?"}\`\`\``, inline: true },
-              { name: "Proxy", value: `\`\`\`fix\n${geo.proxy === "yes" ? "Sim" : "Não"}\`\`\``, inline: true },
+              { name: "Nick", value: `\`${player.name}\``, inline: true },
+              { name: "Auth", value: `\`${player.auth}\``, inline: true },
+              { name: "IP", value: `\`${player.ip}\``, inline: true },
+              { name: "CONN", value: `\`${player.conn}\``, inline: true },
+              { name: "Provedora", value: `\`${provedora}\``, inline: true },
+              { name: "Organização", value: `\`${organizacao}\``, inline: true },
+              { name: "País", value: `\`${geo.country || "—"}\``, inline: true },
+              { name: "Estado", value: `\`${geo.region || "—"}\``, inline: true },
+              { name: "Cidade", value: `\`${geo.city || "—"}\``, inline: true },
+              { name: "Latitude", value: `\`${geo.latitude || "—"}\``, inline: true },
+              { name: "Longitude", value: `\`${geo.longitude || "—"}\``, inline: true },
+              { name: "Proxy", value: `\`${geo.proxy === "yes" ? "Sim" : "Não"}\``, inline: true },
             ],
             footer: { text: `${new Date().getFullYear()} © ${this.room.name}` },
           }],
