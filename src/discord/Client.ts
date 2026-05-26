@@ -1,6 +1,7 @@
 import {
   Client,
   GatewayIntentBits,
+  type AutocompleteInteraction,
   type ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
@@ -8,12 +9,13 @@ import path from "node:path";
 import fs from "node:fs";
 import { BOT_TOKEN, CLIENT_ID, GUILD_ID } from "../config/env";
 import { updateBotInfo } from "./EmbedFactory";
-import { registerSlashCommands } from "./registrar";
+import { registerSlashCommands } from "./register";
 import { getRoomList } from "../room/RoomManager";
 
 type Command = {
   data: SlashCommandBuilder;
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
 };
 
 const client = new Client({
@@ -50,7 +52,7 @@ async function loadCommands(): Promise<Command[]> {
     try {
       const mod = await import(path.join(cogsDir, file));
       if (mod.data && mod.execute) {
-        loaded.push({ data: mod.data, execute: mod.execute });
+        loaded.push({ data: mod.data, execute: mod.execute, autocomplete: mod.autocomplete });
         console.log(`✅ Cog carregado: ${mod.data.name}`);
       }
     } catch (err) {
@@ -73,6 +75,14 @@ export async function initializeDiscordBot(): Promise<void> {
     console.log(`📦 ${commands.length} comandos carregados`);
 
     client.on("interactionCreate", async (interaction) => {
+      if (interaction.isAutocomplete()) {
+        const cmd = commands.find((c) => c.data.name === interaction.commandName);
+        if (cmd?.autocomplete) {
+          try { await cmd.autocomplete(interaction); } catch {}
+        }
+        return;
+      }
+
       if (!interaction.isChatInputCommand()) return;
 
       try {
