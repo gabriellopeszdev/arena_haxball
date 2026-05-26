@@ -1,6 +1,7 @@
 import { Event, Module, type Player, type Room } from "haxball-extended-room";
 import type { Command, CommandExecInfo } from "haxball-extended-room";
 import { request } from "undici";
+import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
 
 @Module
 export class WebhookModule {
@@ -40,6 +41,8 @@ export class WebhookModule {
   onPlayerChat(player: Player, message: string): void {
     const prefix = this.room.prefix || "!";
     if (message.startsWith(prefix)) return;
+    if (isSpecialChatMessage(message)) return;
+    if (getPublicChatBlock(this.room, player, message).blocked) return;
     this.sendMsg(`${this.teamEmoji(player)} [${player.id}] **${player.name}**: \`${message}\``);
   }
 

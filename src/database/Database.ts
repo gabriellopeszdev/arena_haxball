@@ -131,6 +131,9 @@ export const mutesDb = {
   cleanExpired() {
     db.prepare("DELETE FROM mutes WHERE expires_at <= unixepoch()").run();
   },
+  getExpired() {
+    return db.prepare("SELECT * FROM mutes WHERE expires_at <= unixepoch()").all() as { ip: string; auth: string; name: string; muted_by: string; reason: string; expires_at: number }[];
+  },
   getAllActive() {
     return db.prepare("SELECT * FROM mutes WHERE expires_at > unixepoch()").all() as { ip: string; auth: string; name: string; muted_by: string; reason: string; expires_at: number }[];
   },

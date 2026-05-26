@@ -3,6 +3,7 @@ import { fetch, request } from "undici";
 import { bansDb, rolesDb } from "../../database/Database";
 import { WebhookClient } from "discord.js";
 import { client } from "../../discord/Client";
+import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
 
 const emojiMap: Record<string, { id: string; emojiName: string }> = {
   Nick: { id: "1508652143605846096", emojiName: "Nick" },
@@ -203,6 +204,8 @@ export class CoreModule {
       }
       return;
     }
+    if (isSpecialChatMessage(message)) return;
+    if (getPublicChatBlock(this.room, player, message).blocked) return;
     if (player.settings.role) {
       const colors: Record<string, number> = {
         "⚽ jogador": Colors.MistyRose,
