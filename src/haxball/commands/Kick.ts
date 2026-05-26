@@ -1,10 +1,12 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room, Teams } from "haxball-extended-room";
 
+const protectedRoles = ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"];
+
 function kickPlayers(room: Room, ids: number[], reason: string): number {
   let count = 0;
   for (const id of ids) {
     const p = room.players[id];
-    if (p) { p.kick(reason); count++; }
+    if (p && !protectedRoles.includes(p.settings.role)) { p.kick(reason); count++; }
   }
   return count;
 }
