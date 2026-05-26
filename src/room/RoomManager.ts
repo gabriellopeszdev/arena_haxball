@@ -29,7 +29,7 @@ export async function startRoom(roomNumber: number, customName?: string): Promis
   try {
     const config = await getRoomConfig(roomNumber);
     const HBInit = await getHbInit();
-    const name = generateRoomName(roomNumber, customName);
+    const name = config.name || generateRoomName(roomNumber, customName);
     const proxy = config.proxy || getProxyForRoom(roomNumber);
 
     console.log(`🚀 Iniciando ${name}...`);

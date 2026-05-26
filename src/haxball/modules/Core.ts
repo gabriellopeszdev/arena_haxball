@@ -59,11 +59,12 @@ export class CoreModule {
       }
     }
 
+    let geo: Record<string, any> = {};
     try {
       const response = await fetch(`https://proxycheck.io/v2/${player.ip}?vpn=1&asn=1`);
       const result = (await response.json()) as Record<string, any>;
-      const status = result[player.ip];
-      if (status?.proxy === "yes" || status?.vpn === "yes") {
+      geo = result[player.ip] || {};
+      if (geo?.proxy === "yes" || geo?.vpn === "yes") {
         player.reply({
           message: "🛜 Detectado o uso de VPN ou Proxy!",
           color: Colors.DodgerBlue,
@@ -99,6 +100,14 @@ export class CoreModule {
               { name: "Auth", value: `\`\`\`fix\n${player.auth}\`\`\``, inline: true },
               { name: "IP", value: `\`\`\`fix\n${player.ip}\`\`\``, inline: true },
               { name: "CONN", value: `\`\`\`fix\n${player.conn}\`\`\``, inline: true },
+              { name: "Provedora", value: `\`\`\`fix\n${geo.isp || "Desconhecida"}\`\`\``, inline: true },
+              { name: "Organização", value: `\`\`\`fix\n${geo.org || "Desconhecida"}\`\`\``, inline: true },
+              { name: "País", value: `\`\`\`fix\n${geo.country || "Desconhecido"}\`\`\``, inline: true },
+              { name: "Estado", value: `\`\`\`fix\n${geo.region || "Desconhecido"}\`\`\``, inline: true },
+              { name: "Cidade", value: `\`\`\`fix\n${geo.city || "Desconhecida"}\`\`\``, inline: true },
+              { name: "Latitude", value: `\`\`\`fix\n${geo.latitude || "?"}\`\`\``, inline: true },
+              { name: "Longitude", value: `\`\`\`fix\n${geo.longitude || "?"}\`\`\``, inline: true },
+              { name: "Proxy", value: `\`\`\`fix\n${geo.proxy === "yes" ? "Sim" : "Não"}\`\`\``, inline: true },
             ],
             footer: { text: `${new Date().getFullYear()} © ${this.room.name}` },
           }],
