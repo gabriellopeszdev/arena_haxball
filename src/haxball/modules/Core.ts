@@ -79,8 +79,8 @@ export class CoreModule {
       sound: ChatSounds.None,
     });
 
-    const provedora = geo.isp || geo.provider || "—";
-    const organizacao = geo.org || geo.organization || "—";
+    const provedora = geo.provider || geo.isp || "—";
+    const organizacao = geo.organisation || geo.organization || geo.org || "—";
 
     if (this.entryWebhook) {
       try {
