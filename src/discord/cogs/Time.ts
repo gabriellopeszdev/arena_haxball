@@ -1,13 +1,16 @@
-import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
+import { playerAutocomplete } from "../autocomplete";
+import { EmbedFactory } from "../EmbedFactory";
 
 export const data = new SlashCommandBuilder()
   .setName("time")
   .setDescription("Move um jogador de time.")
   .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
-  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
+  .addNumberOption((o) => o.setName("player").setDescription("Jogador da sala.").setRequired(true).setAutocomplete(true))
   .addStringOption((o) => o.setName("lado").setDescription("Novo time.").setRequired(true).addChoices({ name: "Red", value: "red" }, { name: "Blue", value: "blue" }, { name: "Spectators", value: "spectators" }));
+
+export const autocomplete = playerAutocomplete;
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

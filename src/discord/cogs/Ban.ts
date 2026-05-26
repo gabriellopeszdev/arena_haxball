@@ -2,13 +2,16 @@ import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
 import { bansDb } from "../../database/Database";
+import { playerAutocomplete } from "../autocomplete";
 
 export const data = new SlashCommandBuilder()
   .setName("banir")
   .setDescription("Bane um jogador da sala.")
   .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
-  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
+  .addNumberOption((o) => o.setName("player").setDescription("Jogador da sala.").setRequired(true).setAutocomplete(true))
   .addStringOption((o) => o.setName("motivo").setDescription("Motivo do ban.").setRequired(false));
+
+export const autocomplete = playerAutocomplete;
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

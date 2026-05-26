@@ -1,13 +1,16 @@
-import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
-import { getRoom } from "../../room/RoomManager";
 import { mutesDb } from "../../database/Database";
+import { getRoom } from "../../room/RoomManager";
+import { playerAutocomplete } from "../autocomplete";
+import { EmbedFactory } from "../EmbedFactory";
 
 export const data = new SlashCommandBuilder()
   .setName("desmutar")
   .setDescription("Remove o mute de um jogador.")
   .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
-  .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true));
+  .addNumberOption((o) => o.setName("player").setDescription("Jogador da sala.").setRequired(true).setAutocomplete(true));
+
+export const autocomplete = playerAutocomplete;
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);
@@ -18,6 +21,6 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   mutesDb.remove(player.auth ?? "", player.ip ?? "");
-  if (player) player.reply({ message: "🔊 Você foi desmutado.", color: 0x00FF00 } as any);
+  player.reply({ message: "🔊 Você foi desmutado.", color: 0x00FF00 } as any);
   await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔊 \`[${player.id}] **${player.name}**\` desmutado.`, user)] });
 }

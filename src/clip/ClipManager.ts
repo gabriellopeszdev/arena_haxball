@@ -2,11 +2,19 @@ import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room } from "
 import { clipQueue } from "./Queue";
 
 export function clipCommand(room: Room): void {
+  let gifsThisGame = 0;
+  const previousOnGameStart = (room as any).onGameStart;
+  (room as any).onGameStart = (...args: unknown[]) => {
+    gifsThisGame = 0;
+    if (typeof previousOnGameStart === "function") previousOnGameStart(...args);
+  };
+
   room.command({
     name: "gif",
     aliases: ["clip", "gravar", "replay"],
     desc: "Gera um GIF dos últimos N segundos.",
     usage: "gif [duração] [comentário]",
+    roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: async ($: CommandExecInfo) => {
       const args = $.arguments.map((a) => a.toString());
@@ -25,10 +33,16 @@ export function clipCommand(room: Room): void {
         return;
       }
 
+      if (gifsThisGame >= 4) {
+        $.player.reply({ message: "[PV] ❌ Limite de 4 GIFs por partida atingido.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+        return;
+      }
+
       const comment = args.slice(hasDurationArg ? 1 : 0).join(" ");
+      gifsThisGame++;
 
       room.send({
-        message: `🎥 GIF de ${duration}s solicitado por ${$.player.name}${comment ? ` (${comment})` : ""}. Processando após a partida...`,
+        message: `🎥 GIF ${gifsThisGame}/4 de ${duration}s solicitado por ${$.player.name}${comment ? ` (${comment})` : ""}. Processando após a partida...`,
         color: Colors.Cyan,
         style: ChatStyle.Bold,
         sound: ChatSounds.Notification,

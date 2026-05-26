@@ -2,13 +2,16 @@ import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, type SlashCommandNumberOption, type SlashCommandBooleanOption } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
 import type { Player } from "haxball-extended-room";
+import { playerAutocomplete } from "../autocomplete";
 
 export const data = new SlashCommandBuilder()
   .setName("admin")
   .setDescription("Altera admin de um jogador.")
   .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
-  .addNumberOption((o: SlashCommandNumberOption) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
+  .addNumberOption((o: SlashCommandNumberOption) => o.setName("player").setDescription("Jogador da sala.").setRequired(true).setAutocomplete(true))
   .addBooleanOption((o: SlashCommandBooleanOption) => o.setName("status").setDescription("Admin true/false.").setRequired(true));
+
+export const autocomplete = playerAutocomplete;
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sala = interaction.options.getString("sala", true);

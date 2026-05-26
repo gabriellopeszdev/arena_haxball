@@ -1,11 +1,8 @@
-
 <div align="center">
 
-# 🏟️ **ARENA VINCERE**
+# Arena Vincere
 
-> 🎮 Sistema completo de gerenciamento de salas **Haxball** com integração **Discord**, renderização de clipes e banco de dados SQLite.
-
-<br>
+Sistema de salas HaxBall com bot Discord, cargos persistentes, automações de moderação, replay upload e geração de GIFs.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
@@ -13,421 +10,254 @@
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white)
 
-![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)
-![Status](https://img.shields.io/badge/status-active-brightgreen?style=flat-square)
-
-<br>
-
----
+**HaxBall + Discord + SQLite + clipes automáticos**
 
 </div>
 
-<br>
+---
 
-## 📋 **Sumário**
+## Visão Geral
 
-&nbsp;&nbsp;▸ &nbsp;[✨ Visão Geral](#-visão-geral)  
-&nbsp;&nbsp;▸ &nbsp;[📦 Tecnologias](#-tecnologias)  
-&nbsp;&nbsp;▸ &nbsp;[⚙️ Configuração](#️-configuração)  
-&nbsp;&nbsp;▸ &nbsp;[🚀 Execução](#-execução)  
-&nbsp;&nbsp;▸ &nbsp;[🏗️ Estrutura do Projeto](#️-estrutura-do-projeto)  
-&nbsp;&nbsp;▸ &nbsp;[🎮 Funcionalidades Haxball](#-funcionalidades-haxball)  
-&nbsp;&nbsp;▸ &nbsp;[💬 Funcionalidades Discord](#-funcionalidades-discord)  
-&nbsp;&nbsp;▸ &nbsp;[🗺️ Mapas Disponíveis](#️-mapas-disponíveis)  
-&nbsp;&nbsp;▸ &nbsp;[🎬 Sistema de Clipes](#-sistema-de-clipes)  
-&nbsp;&nbsp;▸ &nbsp;[🌍 Geo-Localização](#-geo-localização)  
-&nbsp;&nbsp;▸ &nbsp;[🤝 Contribuição](#-contribuição)  
-&nbsp;&nbsp;▸ &nbsp;[📄 Licença](#-licença)
+Arena Vincere centraliza a operação de uma ou mais salas HaxBall com:
 
-<br>
+- comandos in-game com cargos persistentes;
+- comandos slash no Discord;
+- webhooks para entrada, saída, mensagens, bans e gravações;
+- replays enviados ao TheHax;
+- GIFs dos últimos segundos da partida;
+- banco SQLite local para cargos, bans, mutes e fila de clips;
+- hot reload para módulos e comandos.
 
 ---
 
-## ✨ **Visão Geral**
+## Cargos
 
-**Arena Vincere** é uma plataforma robusta para criação e gerenciamento de salas de **Haxball** (🔴🔵) com suporte total via **Discord**. O sistema permite controlar múltiplas salas simultaneamente, gerenciar cargos, aplicar bans/mutes, alternar mapas, e muito mais - tudo diretamente do seu servidor Discord.
+Hierarquia dos cargos do sistema:
 
-> 🇧🇷 **Servidores localizados em São Paulo, Brasil** - latência mínima para jogadores brasileiros. Ambas as salas são principais.
+```text
+👮‍♂️ Capitão > 💂 Sub-capitão > ⚽ Jogador > 👨‍💼 Administrador > 👑 Admin da sala > Membro comum
+```
 
-<br>
+Notas importantes:
 
----
-
-## 📦 **Tecnologias**
-
-<div align="center">
-
-| 🔧 Tecnologia | 📌 Versão | 📖 Descrição |
-|:---|:---:|---|
-| **TypeScript** | `^5.x` | Linguagem principal com tipagem estática |
-| **Node.js** | `^20.x` | Runtime JavaScript |
-| **Discord.js** | `^14.x` | Framework de integração com Discord |
-| **Haxball.js** | `^1.x` | Conexão com a API Headless do Haxball |
-| **Better-SQLite3** | `^11.x` | Banco de dados local embarcado |
-| **Puppeteer** | `~23.x` | Renderização de clipes headless |
-| **Dotenv** | `^16.x` | Gerenciamento de variáveis de ambiente |
-
-</div>
-
-<br>
+- `👑 Admin da sala` é o `player.admin` nativo do HaxBall.
+- `👨‍💼 Administrador` é cargo do sistema, obtido via `!cargo`.
+- `player.admin` sozinho não é o cargo `👨‍💼 Administrador`.
+- Cargos persistem no SQLite por auth/IP.
 
 ---
 
-## ⚙️ **Configuração**
+## Comandos In-Game
 
-### 📄 **Variáveis de Ambiente**
+| Comando | Descrição | Acesso |
+|:--|:--|:--|
+| `!adm` | Vira admin da sala quando não há admin presente | 👤 Todos |
+| `!cargo <senha>` | Define cargo persistente por senha | 👤 Todos |
+| `!rr` / `!reset` | Reinicia a partida | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!fechar` / `!senha` | Fecha a sala com senha | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
+| `!abrir` | Remove a senha da sala | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
+| `!clearbans` | Limpa bans do HaxBall e banco | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!banall` / `!banred` / `!banblue` / `!banspec` | Bane grupos de jogadores | 👮‍♂️ Cap / 💂 Sub |
+| `!kickall` / `!kickred` / `!kickblue` / `!kickspec` | Kicka grupos de jogadores | 👮‍♂️ Cap / 💂 Sub |
+| `!mute` / `!unmute` | Muta ou desmuta jogador | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!camp` / `!firmo` | Ativa campeonato e confirma presença | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!swap` | Troca times entre red, blue e spec | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!radius` | Altera o raio de um jogador | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
+| `!puxarbola` / `!pararbola` / `!tp` | Controle avançado da bola | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!chaton` / `!chatoff` | Liga/desliga chat de jogadores | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
+| `!specon` / `!specoff` | Liga/desliga chat de espectadores | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
+| `!uniform` | Altera uniforme do time | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!avatar` | Altera avatar de jogador | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!pausar` / `!despausar` | Pausa ou despausa a partida | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!pv` / `!t` | Mensagem privada ou chat de time | 👤 Todos |
+| `!afk` / `!afks` | Marca AFK ou lista AFKs | 👤 Todos |
+| `!bb` / `!leave` | Sai da sala | 👤 Todos |
+| `!help` | Mostra comandos disponíveis | 👤 Todos |
+| `!gif` / `!clip` / `!gravar` / `!replay` | Gera GIF dos últimos segundos | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!x3` / `!x4` / `!lvk` / `!rs` / `!penal` | Troca o mapa | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!hackban` | Bane jogador por ID | 👮‍♂️ Cap |
+| `!hackclearbans` | Limpa bans do banco | 👮‍♂️ Cap |
+| `!eval` | Executa JavaScript | 👮‍♂️ Cap |
 
-Copie o arquivo de exemplo e preencha com suas credenciais:
+---
+
+## Sistema de GIFs
+
+O comando `!gif` gera um GIF dos últimos segundos da partida.
+
+Regras:
+
+- acesso apenas para `👮‍♂️ Capitão`, `💂 Sub-capitão` e `⚽ Jogador`;
+- duração permitida: `3` a `15` segundos;
+- sem duração informada, o padrão é `15s`;
+- máximo de `4` GIFs por partida;
+- o GIF é enviado no Discord via `GIFS_WEBHOOK`;
+- depois de enviado com sucesso, o arquivo local é apagado;
+- se o envio falhar, o arquivo local permanece salvo em `clips/`.
+
+Exemplos:
+
+```text
+!gif
+!gif 5
+!clip 10 gola bonito
+!replay 3 defesa final
+```
+
+O embed enviado no Discord inclui sala, duração, solicitante, comentário e o GIF anexado.
+
+---
+
+## Discord
+
+Os comandos slash controlam a sala pelo Discord.
+
+| Comando | Função |
+|:--|:--|
+| `/admin` | Dá ou remove admin nativo da sala |
+| `/avatar` | Altera avatar de jogador |
+| `/banir` | Bane jogador |
+| `/kickar` | Kicka jogador |
+| `/mutar` / `/desmutar` | Muta ou desmuta jogador |
+| `/players` | Lista jogadores da sala |
+| `/time` | Move jogador de time |
+| `/radius` | Altera raio de jogador |
+| `/mensagem geral` | Envia mensagem para a sala |
+| `/mensagem time` | Envia mensagem para um time |
+| `/mensagem privada` | Envia PV para jogador |
+| `/mapa` | Troca mapa |
+| `/senha` | Altera senha da sala |
+| `/iniciar` / `/parar` / `/pausar` / `/despausar` / `/reiniciar` | Controle de partida |
+| `/limparbans` | Limpa bans |
+| `/kickrate` | Ajusta kickrate |
+| `/uniforme` | Altera uniforme |
+
+### Autocomplete
+
+O campo `sala` recebe as salas ativas automaticamente.
+
+Nos comandos com campo `player`, depois de escolher a sala, o Discord sugere os jogadores daquela sala no formato:
+
+```text
+[id] nome
+```
+
+Assim você escolhe o jogador direto na lista, sem precisar usar `/players` antes.
+
+---
+
+## Configuração
+
+Crie o `.env` a partir do exemplo:
 
 ```bash
 cp .env.example .env
 ```
 
-<details>
-<summary><b>🔍 Clique para ver o conteúdo do <code>.env.example</code></b></summary>
+Variáveis principais:
 
-```
-# ─── Discord Bot ────────────────────────
-TOKEN_BOT=seu_token_discord_aqui
-CLIENT_ID=seu_client_id_aqui
-GUILD_ID=seu_guild_id_aqui
-TEAM_NAME=Fnatic
+```env
+TOKEN_BOT=
+CLIENT_ID=
+GUILD_ID=
 
-# ─── Geo (Brazil - 🇧🇷 São Paulo) ───────
-GEO_CODE=BR
-GEO_LAT=-23.5167
-GEO_LON=-46.6463
+ROOM1_TOKEN=
+ROOM1_NAME=
+ROOM1_PUBLIC=true
 
-# ─── Rooms (max 2 per IP without proxy) ─────
-ROOM1_TOKEN=token_sala_1
-ROOM1_NAME=🫄🏻 ARENA TERQUILA 🫄🏻
-ROOM2_TOKEN=token_sala_2
-ROOM2_NAME=🦉 ARENA GIU 🦉
-
-# Proxy for rooms 3+
-# ROOM3_TOKEN=token_sala_3
-# ROOM3_PROXY=http://127.0.0.1:9050
-
-# ─── Role Passwords ──────────────────
-CAP=senha_capitao
-SUBCAP=senha_subcapitao
-JOGADOR=senha_jogador
-ADMIN=senha_administrador
+CAP=
+SUBCAP=
+JOGADOR=
+ADMIN=
 SENHA_PADRAO=fncpass
 
-# ─── Discord Webhooks ───────────────────
-ADMIN_WEBHOOK=url_admin
-CONFIRMACAO_WEBHOOK=url_confirmacao
-ENTRADA_WEBHOOK=url_entrada
-SAIDA_WEBHOOK=url_saida
-MENSAGEM_WEBHOOK=url_mensagem
-GRAVACAO_WEBHOOK=url_gravacao
-GIFS_WEBHOOK=url_gifs
-SENHA_WEBHOOK=url_senha
+ADMIN_WEBHOOK=
+CONFIRMACAO_WEBHOOK=
+ENTRADA_WEBHOOK=
+SAIDA_WEBHOOK=
+MENSAGEM_WEBHOOK=
+GRAVACAO_WEBHOOK=
+GIFS_WEBHOOK=
+SENHA_WEBHOOK=
 
-# ─── TheHax API (replay upload) ──────────
-THEHAX_TENANT=seu_tenant
-THEHAX_APIKEY=sua_apikey
-
-# ─── Chromium (Puppeteer/HaxClip) ────────
-CHROMIUM_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe
+THEHAX_TENANT=
+THEHAX_APIKEY=
+CHROMIUM_PATH=
 ```
 
-</details>
+---
 
-### 📦 **Instalação de Dependências**
+## Instalação
 
 ```bash
 npm install
 ```
 
-<br>
-
 ---
 
-## 🚀 **Execução**
-
-### 🛠️ **Modo Desenvolvimento**
+## Execução
 
 ```bash
-npm run dev
+npm run start
 ```
 
-> 🔄 Recarrega automaticamente com `tsx watch`
-
-### ⚡ **Modo Produção**
+Build:
 
 ```bash
 npm run build
-npm start
 ```
-
-<br>
 
 ---
 
-## 🏗️ **Estrutura do Projeto**
+## Estrutura
 
+```text
+src/
+  clip/        Renderização e envio de GIFs
+  config/      Leitura de variáveis de ambiente
+  database/    SQLite
+  discord/     Bot e comandos slash
+  haxball/     Comandos e módulos in-game
+  room/        Inicialização e gerenciamento de salas
+  utils/       Helpers
+maps/          Mapas HaxBall
+clips/         Replays e GIFs temporários
 ```
-📦 src/
- ┣ 📂 clip/              🎬 Sistema de renderização de clipes
- ┃ ┣ 📜 ClipManager.ts   ─ Gerenciador de eventos e gravação
- ┃ ┣ 📜 Queue.ts         ─ Fila de renderização
- ┃ ┗ 📜 Renderer.ts      ─ Renderizador Puppeteer
- ┣ 📂 config/            ⚙️ Configurações
- ┃ ┗ 📜 env.ts           ─ Leitura de variáveis de ambiente
- ┣ 📂 database/          🗄️ Banco de dados SQLite
- ┃ ┗ 📜 Database.ts      ─ Inicialização e conexão
- ┣ 📂 discord/           💬 Bot Discord
- ┃ ┣ 📜 Client.ts        ─ Inicialização do cliente
- ┃ ┣ 📜 EmbedFactory.ts  ─ Fábrica de embeds
- ┃ ┣ 📜 registrar.ts     ─ Registro de comandos slash
- ┃ ┗ 📂 cogs/            🧩 Comandos do bot
- ┃   ┣ 📜 Admin.ts       ─ Dar/remover admin
- ┃   ┣ 📜 Avatar.ts      ─ Alterar avatar
- ┃   ┣ 📜 Banir.ts       ─ Banir jogador
- ┃   ┣ 📜 Camp.ts        ─ Trocar de campo
- ┃   ┣ 📜 Chat.ts        ─ Ativar/desativar chat
- ┃   ┣ 📜 Desmutar.ts    ─ Desmutar jogador
- ┃   ┣ 📜 Despausar.ts   ─ Despausar partida
- ┃   ┣ 📜 Iniciar.ts     ─ Iniciar partida
- ┃   ┣ 📜 Kickar.ts      ─ Kickar jogador
- ┃   ┣ 📜 Kickrate.ts    ─ Configurar kickrate
- ┃   ┣ 📜 Limparbans.ts  ─ Limpar bans
- ┃   ┣ 📜 Mapa.ts        ─ Trocar mapa
- ┃   ┣ 📜 Mensagem.ts    ─ Enviar mensagem global
- ┃   ┣ 📜 MensagemPrivada.ts  ─ Mensagem privada
- ┃   ┣ 📜 MensagemTime.ts     ─ Mensagem para time
- ┃   ┣ 📜 Mutar.ts       ─ Mutar jogador
- ┃   ┣ 📜 Parar.ts       ─ Parar partida
- ┃   ┣ 📜 Pausar.ts      ─ Pausar partida
- ┃   ┣ 📜 Players.ts     ─ Listar jogadores
- ┃   ┣ 📜 Radius.ts      ─ Kick por raio
- ┃   ┣ 📜 Reiniciar.ts   ─ Reiniciar sala
- ┃   ┣ 📜 Senha.ts       ─ Alterar senha
- ┃   ┣ 📜 Time.ts        ─ Mover para time
- ┃   ┣ 📜 Trocar.ts      ─ Trocar de time
- ┃   ┗ 📜 Uniforme.ts    ─ Alterar uniforme
- ┣ 📂 haxball/           🎮 Módulos Haxball
- ┃ ┣ 📜 handler.ts       ─ Roteador de comandos
- ┃ ┣ 📂 commands/        ⌨️ Comandos in-game (!)
- ┃ ┃ ┣ 📜 AFK.ts
- ┃ ┃ ┣ 📜 Avatar.ts
- ┃ ┃ ┣ 📜 Ball.ts
- ┃ ┃ ┣ 📜 Ban.ts
- ┃ ┃ ┣ 📜 Camp.ts
- ┃ ┃ ┣ 📜 Chat.ts
- ┃ ┃ ┣ 📜 Eval.ts
- ┃ ┃ ┣ 📜 Kick.ts
- ┃ ┃ ┣ 📜 Mute.ts
- ┃ ┃ ┣ 📜 Password.ts
- ┃ ┃ ┣ 📜 Radius.ts
- ┃ ┃ ┣ 📜 Reset.ts
- ┃ ┃ ┣ 📜 Spec.ts
- ┃ ┃ ┣ 📜 Swap.ts
- ┃ ┃ ┗ 📜 Uniform.ts
- ┃ ┗ 📂 modules/         🧠 Módulos do sistema
- ┃   ┣ 📜 Admin.ts       ─ Sistema de admin
- ┃   ┣ 📜 BanKick.ts     ─ Ban/Kick automático
- ┃   ┣ 📜 Core.ts        ─ Entrada/saída/webhooks
- ┃   ┣ 📜 Goals.ts       ─ Sistema de gols
- ┃   ┣ 📜 Help.ts        ─ Comando !ajuda
- ┃   ┣ 📜 KickRate.ts    ─ Controle de kickrate
- ┃   ┣ 📜 Leave.ts       ─ Comando !sair
- ┃   ┣ 📜 Mute.ts        ─ Sistema de mute
- ┃   ┣ 📜 Pause.ts       ─ Sistema de pausa
- ┃   ┣ 📜 PrivateMessage.ts  ─ Mensagens privadas
- ┃   ┣ 📜 RealSoccer.ts  ─ Regras de futebol real
- ┃   ┣ 📜 Roles.ts       ─ Sistema de cargos
- ┃   ┣ 📜 Stadium.ts     ─ Gerenciador de mapas
- ┃   ┣ 📜 TeamChat.ts    ─ Chat por time
- ┃   ┗ 📜 Webhook.ts     ─ Webhooks de eventos
- ┣ 📂 room/              🏠 Gerenciamento de salas
- ┃ ┣ 📜 RoomFactory.ts   ─ Fábrica de salas Haxball
- ┃ ┗ 📜 RoomManager.ts   ─ Gerenciador de múltiplas salas
- ┣ 📂 utils/             🛠️ Utilitários
- ┃ ┗ 📜 helpers.ts       ─ Funções auxiliares
- ┗ 📜 index.ts           🚀 Ponto de entrada
-
-📦 maps/                 🗺️ Mapas Haxball (JSON)
-```
-
-<br>
 
 ---
 
-## 🎮 **Funcionalidades Haxball**
+## Mapas
 
-<div align="center">
-
-| 🎯 Comando | 📖 Descrição | 🎭 Acesso |
-|:---|---:|:---:|
-| `!adm` | Virar administrador da sala (se não houver) | 👤 Todos |
-| `!cargo` | Definir cargo por senha | 👤 Todos |
-| `!rr` / `!reset` | Reiniciar a partida | 🏆 Admin/Cap/Sub/Jog |
-| `!banall` / `!banred` / `!banblue` / `!banspec` | Banir todos/time/espectadores | 👮‍♂️ Cap / 💂 Sub |
-| `!clearbans` | Limpar todos os bans | 🏆 Admin/Cap/Sub/Jog |
-| `!kickall` / `!kickred` / `!kickblue` / `!kickspec` | Kickar todos/time/espectadores | 👮‍♂️ Cap / 💂 Sub |
-| `!fechar` / `!abrir` | Fechar/abrir sala com senha | 🏆 Admin/Cap/Sub |
-| `!mute` / `!unmute` | Mutar/desmutar jogador | 🏆 Admin/Cap/Sub |
-| `!camp` / `!firmo` | Ativar/confirmar modo campeonato | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!swap` | Inverter times red/blue | 🏆 Admin/Cap/Sub/Jog |
-| `!radius` | Alterar tamanho do jogador | 🏆 Admin/Cap/Sub |
-| `!puxarbola` / `!pararbola` | Puxar/parar a bola | 🏆 Admin/Cap/Sub |
-| `!tp` | Teleportar bola para posição | 🏆 Admin/Cap/Sub |
-| `!chaton` / `!chatoff` | Ativar/desativar chat | 🏆 Admin/Cap/Sub |
-| `!specon` / `!specoff` | Ativar/desativar chat de spec | 🏆 Admin/Cap/Sub |
-| `!uniform` | Alterar uniforme | 🏆 Admin/Cap/Sub/Jog |
-| `!avatar` | Alterar avatar | 🏆 Admin/Cap/Sub/Jog |
-| `!afk` | Marcar como ausente | 👤 Todos |
-| `!kickrate` | Configurar kickrate | 🏆 Admin/Cap/Sub |
-| `!pausar` / `!despausar` | Pausar/despausar partida | 🏆 Admin/Cap/Sub/Jog |
-| `!pv` / `!t` | Mensagem privada / chat do time | 👤 Todos |
-| `!bb` / `!leave` | Sair da sala | 👤 Todos |
-| `!help` | Mostrar ajuda | 👤 Todos |
-| `!gif` / `!clip` / `!gravar` / `!replay` | Gera GIF dos últimos N segundos (3-15s) | 👤 Todos |
-| `!x3` / `!x4` / `!lvk` / `!rs` / `!penal` | Trocar mapa | 🏆 Admin/Cap/Sub/Jog |
-| `!hackban` | Banir jogador por ID | 👮‍♂️ Cap |
-| `!hackclearbans` | Limpar bans do banco de dados | 👮‍♂️ Cap |
-| `!eval` | Executar código JavaScript | 👮‍♂️ Cap |
-
-</div>
-
-> **Hierarquia de cargos:** 👮‍♂️ **Capitão** (maior) → 💂 **Sub-capitão** → ⚽ **Jogador** → 👨‍💼 **Administrador** (menor)
->
-> **Administrador da sala** (`!adm`) é um conceito separado dos cargos - qualquer um pode se tornar admin via `!adm` quando não houver nenhum presente. O cargo `👨‍💼 administrador` é definido via senha no `!cargo`.
-
-<br>
+| Comando | Mapa |
+|:--|:--|
+| `!x3` | Futsal X3 |
+| `!x4` | Futsal X4 |
+| `!lvk` | LVK |
+| `!rs` | Real Soccer Revolution |
+| `!penal` | Penaltis |
 
 ---
 
-## 💬 **Funcionalidades Discord**
+## Banco de Dados
 
-<div align="center">
+O SQLite armazena:
 
-| 🤖 Comando | 📖 Descrição |
-|:---|---:|
-| `/admin` | 🛡️ Conceder ou remover admin de um jogador |
-| `/avatar` | 🖼️ Alterar avatar de um jogador |
-| `/banir` | 🚫 Banir jogador da sala permanentemente |
-| `/desmutar` | 🔓 Remover mute de um jogador |
-| `/despausar` | ▶️ Despausar a partida |
-| `/iniciar` | 🏁 Iniciar uma nova partida |
-| `/kickar` | 👢 Expulsar jogador da sala |
-| `/kickrate` | ⚡ Configurar limite de kickrate |
-| `/limparbans` | 🧹 Limpar lista de bans |
-| `/mapa` | 🗺️ Trocar o mapa da sala |
-| `/mensagem` | 💬 Enviar mensagem global na sala |
-| `/mensagemprivada` | 🤫 Enviar mensagem privada para um jogador |
-| `/mensagemtime` | 📢 Enviar mensagem para um time específico |
-| `/mutar` | 🔇 Mutar um jogador temporariamente |
-| `/parar` | ⏹️ Parar a partida em andamento |
-| `/pausar` | ⏸️ Pausar a partida |
-| `/players` | 👥 Listar todos os jogadores na sala |
-| `/radius` | 📐 Alterar tamanho do jogador |
-| `/reiniciar` | 🔄 Reiniciar a partida |
-| `/senha` | 🔑 Alterar a senha da sala |
-| `/time` | 🔵🔴 Mover jogador para um time |
-| `/trocar` | 🔄 Trocar de campo (lado) |
-| `/uniforme` | 👕 Alterar uniforme do time |
+- cargos persistentes;
+- bans;
+- mutes;
+- fila e status de clips.
 
-</div>
+Arquivo padrão:
 
-<br>
-
----
-
-## 🗺️ **Mapas Disponíveis**
-
-<div align="center">
-
-| 🏟️ Mapa | 📐 Tipo |
-|:---|---:|
-| **Futsal X3** | 🏟️ Campo 3x3 |
-| **Futsal X4** | 🏟️ Campo 4x4 |
-| **Real Soccer Revolution** | ⚽ Campo Grande |
-| **LVK** | 🏟️ Arena LVK |
-| **Penaltis** | 🥅 Treino de pênaltis |
-
-</div>
-
-<br>
-
----
-
-## 🎬 **Sistema de Clipes**
-
-O sistema de clipes captura automaticamente lances de gol e gera vídeos utilizando **Puppeteer** + **Chromium** headless.
-
-```
-⚽ GOL ──➤ [Detecção automática]
-               │
-               ▼
-        📹 ClipManager.ts ──➤ [Captura de replay]
-               │
-               ▼
-        🎞️ Queue.ts ──➤ [Fila de renderização]
-               │
-               ▼
-        🖼️ Renderer.ts ──➤ [Renderização Puppeteer]
-               │
-               ▼
-        📤 Upload & Notificação
+```text
+data.db
 ```
 
-<br>
-
 ---
 
-## 🌍 **Geo-Localização**
+## Observações Operacionais
 
-```
-🇧🇷 Brasil - São Paulo
-├── Latitude:  -23.5167
-├── Longitude: -46.6463
-└── Código:    BR
-```
-
-As salas são hospedadas com servidores otimizados para **América do Sul**, garantindo baixa latência para jogadores brasileiros.
-
-<br>
-
----
-
-## 🤝 **Contribuição**
-
-1. 🍴 Faça um **fork** do projeto
-2. 🌿 Crie uma **branch** (`git checkout -b feature/nova-feature`)
-3. 💻 Faça suas **alterações**
-4. ✔️ Execute `npm run build` para verificar erros de compilação
-5. 📝 Faça o **commit** (`git commit -m '✨ Adiciona nova feature'`)
-6. 📤 Faça o **push** (`git push origin feature/nova-feature`)
-7. 🔃 Abra um **Pull Request**
-
-<br>
-
----
-
-## 📄 **Licença**
-
-```
-MIT License
-
-Copyright © 2026 Arena Vincere
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files...
-```
-
-<br>
-
----
-
-<div align="center">
-
-**Feito por Fusion** ❤️
-
-[![Discord](https://img.shields.io/badge/Discord-ARENA%20VINCERE-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/arena)
-
-</div>
+- Reinicie o bot após alterar `.env`.
+- Webhooks são credenciais; não publique URLs reais.
+- `clips/` é diretório operacional e não deve ser versionado.
+- Use `npm run build` antes de subir alterações.

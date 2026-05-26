@@ -65,8 +65,12 @@ export class ClipQueue {
 
     const fileName = path.basename(filePath);
     const description = [
-      `🎥 GIF de ${clip.duration}s solicitado por \`${clip.player_name}\`.`,
-      clip.comment ? `💬 ${clip.comment}` : "",
+      "Um novo replay acabou de sair do forno.",
+      "",
+      `**Solicitado por:** \`${clip.player_name}\``,
+      `**Sala:** \`${clip.room_name}\``,
+      `**Duração:** \`${clip.duration}s\``,
+      clip.comment ? `**Comentário:** ${clip.comment}` : "",
     ].filter(Boolean).join("\n");
 
     let lastError: unknown;
@@ -76,10 +80,10 @@ export class ClipQueue {
         form.append("payload_json", JSON.stringify({
           embeds: [{
             color: 0x00FFFF,
-            title: `🎬 Clip - ${clip.room_name}`,
+            title: "🎬 Arena Vincere | Clip",
             description,
             image: { url: `attachment://${fileName}` },
-            footer: { text: `${new Date().getFullYear()} © ${clip.room_name}` },
+            footer: { text: `${new Date().getFullYear()} © ${clip.room_name} - GIF automático` },
             timestamp: new Date().toISOString(),
           }],
         }));

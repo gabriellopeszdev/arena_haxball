@@ -1,6 +1,7 @@
-import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
+import { playerAutocomplete } from "../autocomplete";
+import { EmbedFactory } from "../EmbedFactory";
 
 export const data = new SlashCommandBuilder()
   .setName("mensagem")
@@ -20,8 +21,10 @@ export const data = new SlashCommandBuilder()
     .setName("privada")
     .setDescription("Envia PV para um jogador.")
     .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
-    .addNumberOption((o) => o.setName("player").setDescription("ID do jogador.").setRequired(true))
+    .addNumberOption((o) => o.setName("player").setDescription("Jogador da sala.").setRequired(true).setAutocomplete(true))
     .addStringOption((o) => o.setName("mensagem").setDescription("Texto.").setRequired(true)));
+
+export const autocomplete = playerAutocomplete;
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const sub = interaction.options.getSubcommand();
