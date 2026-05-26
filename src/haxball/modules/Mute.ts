@@ -101,6 +101,7 @@ function formatDuration(totalSeconds: number): string {
 @Module
 export class MuteModule {
   private readonly checkInterval: NodeJS.Timeout;
+  private readonly mutedOnline = new Set<string>();
 
   constructor(private room: Room) {
     this.checkInterval = setInterval(() => this.cleanExpiredMutes(), 30000);
@@ -153,6 +154,7 @@ export class MuteModule {
     const reason = args.slice(1 + duration.consumedArgs).join(" ");
     const expiresAt = Math.floor(Date.now() / 1000) + duration.seconds;
     mutesDb.insert(target.ip ?? "", target.auth ?? "", target.name ?? "", player.name ?? "", expiresAt, reason);
+    this.mutedOnline.add(this.muteKey(target));
 
     target.reply({
       message: `[PV] 🔇 Você foi mutado por ${duration.label}${reason ? ` (${reason})` : ""}.`,
@@ -195,6 +197,7 @@ export class MuteModule {
     }
 
     mutesDb.remove(target.auth ?? "", target.ip ?? "");
+    this.mutedOnline.delete(this.muteKey(target));
     target.reply({ message: `[PV] 🔊 Você foi desmutado por ${player.name}.`, color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
     this.room.send({
       message: `🔊 ${target.name} foi desmutado por ${player.name}.`,
@@ -237,10 +240,15 @@ export class MuteModule {
   }
 
   private cleanExpiredMutes(): void {
-    const expiredMutes = mutesDb.getExpired();
-    for (const mute of expiredMutes) {
-      const player = Array.from(this.room.players.values()).find((p) => p.auth === mute.auth || p.ip === mute.ip);
-      if (!player) continue;
+    for (const player of Array.from(this.room.players.values())) {
+      const key = this.muteKey(player);
+      const activeMute = mutesDb.findActive(player.auth ?? "", player.ip ?? "");
+      if (activeMute) {
+        this.mutedOnline.add(key);
+        continue;
+      }
+
+      if (!this.mutedOnline.delete(key)) continue;
       this.room.send({
         message: `🔊 ${player.name} foi desmutado automaticamente.`,
         color: Colors.LightGreen,
@@ -249,5 +257,9 @@ export class MuteModule {
       });
     }
     mutesDb.cleanExpired();
+  }
+
+  private muteKey(player: Player): string {
+    return player.auth || player.ip || player.id.toString();
   }
 }
