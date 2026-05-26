@@ -15,7 +15,7 @@ import { HelpModule } from "./modules/Help";
 import { LeaveModule } from "./modules/Leave";
 import { MuteModule } from "./modules/Mute";
 
-import { afkCommand } from "./commands/AFK";
+import { AFKCommand } from "./commands/AFK";
 import { avatarCommand } from "./commands/Avatar";
 import { banCommands } from "./commands/Ban";
 import { ballCommands } from "./commands/Ball";
@@ -50,7 +50,7 @@ export function HandleModules(room: Room): void {
 }
 
 export function HandleCommands(room: Room): void {
-  afkCommand(room);
+  AFKCommand(room);
   avatarCommand(room);
   banCommands(room);
   ballCommands(room);
