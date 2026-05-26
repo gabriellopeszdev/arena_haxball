@@ -27,8 +27,6 @@ export function isSpecialChatMessage(message: string): boolean {
 }
 
 export function getPublicChatBlock(room: Room, player: Player, message: string): ChatBlock {
-  if (isCommandMessage(room, message) || isSpecialChatMessage(message)) return { blocked: false };
-
   const activeMute = mutesDb.findActive(player.auth ?? "", player.ip ?? "");
   if (activeMute) {
     return {
@@ -37,6 +35,8 @@ export function getPublicChatBlock(room: Room, player: Player, message: string):
       mute: { reason: activeMute.reason, expires_at: activeMute.expires_at },
     };
   }
+
+  if (isCommandMessage(room, message) || isSpecialChatMessage(message)) return { blocked: false };
 
   if (!chatEnabled) return { blocked: true, reason: "chat-off" };
   if (!specEnabled && player.team === 0) return { blocked: true, reason: "spec-off" };

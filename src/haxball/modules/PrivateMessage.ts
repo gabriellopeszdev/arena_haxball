@@ -24,8 +24,8 @@ export class PrivateMessageModule {
     if (!target) { player.reply({ message: "[PV] ⚠️ Jogador não encontrado.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
     if (target.id === player.id) { player.reply({ message: "[PV] ⚠️ Não pode enviar PV para si mesmo.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
     const msg = execInfo.arguments.slice(1).map((a) => a.toString()).join(" ");
-    target.reply({ message: `[PV] 📩 [PM < ${player.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
-    player.reply({ message: `[PV] 📩 [PV > ${target.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
+    target.reply({ message: `📩 [PM < ${player.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
+    player.reply({ message: `📩 [PV > ${target.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
     this.logPm(player, target, msg);
   }
 
@@ -39,8 +39,8 @@ export class PrivateMessageModule {
     const target = this.room.players.getByName(nick).first() || this.room.players.getByName(nick.replace(/_/g, " ")).first();
     if (!target) { player.reply({ message: `[PV] ⚠️ Jogador ${nick} não encontrado.`, color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return false; }
     if (target.id === player.id) { player.reply({ message: "[PV] ⚠️ Não pode enviar PV para si mesmo.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return false; }
-    target.reply({ message: `[PV] 📩 [PM < ${player.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
-    player.reply({ message: `[PV] 📩 [PV > ${target.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
+    target.reply({ message: `📩 [PM < ${player.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
+    player.reply({ message: `📩 [PV > ${target.name}]: ${msg}`, color: Colors.LightPink, style: ChatStyle.Bold, sound: ChatSounds.Normal });
     this.logPm(player, target, msg);
     return false;
   }

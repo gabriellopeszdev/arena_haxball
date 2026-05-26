@@ -29,7 +29,7 @@ export class TeamChatModule {
     const teamColor = player.team === 1 ? Colors.PaleVioletRed : player.team === 2 ? Colors.RoyalBlue : Colors.LawnGreen;
     const teamIcon = player.team === 1 ? "🔴" : player.team === 2 ? "🔵" : "🟢";
     for (const tp of Array.from(this.room.players.getAll((p) => p.team === player.team))) {
-      tp.reply({ message: `[PV] ${teamIcon} [TIME] ${player.name}: ${msg}`, color: teamColor, style: ChatStyle.Bold, sound: ChatSounds.Normal });
+      tp.reply({ message: `[${teamIcon}] ${player.name}: ${msg}`, color: teamColor, style: ChatStyle.Bold, sound: ChatSounds.Normal });
     }
     this.logTeamChat(player, msg);
     return false;
@@ -39,7 +39,7 @@ export class TeamChatModule {
     const teamColor = player.team === 1 ? Colors.PaleVioletRed : player.team === 2 ? Colors.RoyalBlue : Colors.LawnGreen;
     const teamIcon = player.team === 1 ? "🔴" : player.team === 2 ? "🔵" : "🟢";
     for (const tp of Array.from(this.room.players.getAll((p) => p.team === player.team))) {
-      tp.reply({ message: `[PV] ${teamIcon} [TIME] ${player.name}: ${msg}`, color: teamColor, style: ChatStyle.Bold, sound: ChatSounds.Normal });
+      tp.reply({ message: `[${teamIcon}] ${player.name}: ${msg}`, color: teamColor, style: ChatStyle.Bold, sound: ChatSounds.Normal });
     }
     this.logTeamChat(player, msg);
   }

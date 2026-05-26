@@ -114,6 +114,16 @@ function formatDuration(totalSeconds: number): string {
 export class MuteModule {
   constructor(private room: Room) {}
 
+  @Event
+  onPlayerJoin(player: Player): void {
+    const activeMute = mutesDb.findActive(player.auth ?? "", player.ip ?? "");
+    if (activeMute) {
+      player.canUseCommands = false;
+      muteState.mutedKeys.add(this.muteKey(player));
+      this.scheduleAutoUnmute(player, Math.max(1, activeMute.expires_at - Math.floor(Date.now() / 1000)));
+    }
+  }
+
   @ModuleCommand({
     aliases: ["silenciar", "mutar"],
     desc: "Muta um jogador por tempo determinado.",
@@ -162,6 +172,7 @@ export class MuteModule {
     const expiresAt = Math.floor(Date.now() / 1000) + duration.seconds;
     mutesDb.insert(target.ip ?? "", target.auth ?? "", target.name ?? "", player.name ?? "", expiresAt, reason);
     this.clearMuteState(target);
+    target.canUseCommands = false;
     muteState.mutedKeys.add(this.muteKey(target));
     this.scheduleAutoUnmute(target, duration.seconds);
 
@@ -207,6 +218,7 @@ export class MuteModule {
 
     mutesDb.remove(target.auth ?? "", target.ip ?? "");
     this.clearMuteState(target);
+    target.canUseCommands = true;
     target.reply({ message: `[PV] 🔊 Você foi desmutado por ${player.name}.`, color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
     this.room.send({
       message: `🔊 ${target.name} foi desmutado por ${player.name}.`,
@@ -222,6 +234,7 @@ export class MuteModule {
     if (!block.blocked) return;
 
     if (block.reason === "mute") {
+      player.canUseCommands = false;
       const key = this.muteKey(player);
       const now = Date.now();
       const lastReminderAt = muteState.lastReminderAt.get(key) ?? 0;
@@ -272,6 +285,7 @@ export class MuteModule {
   private notifyAutoUnmute(player: Player): void {
     if (!muteState.mutedKeys.has(this.muteKey(player))) return;
     this.clearMuteState(player);
+    player.canUseCommands = true;
     player.reply({
       message: "[PV] 🔊 Você foi liberado do mute. Se comporte, respira e segue o jogo.",
       color: Colors.LightGreen,
