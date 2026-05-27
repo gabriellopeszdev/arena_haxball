@@ -69,9 +69,9 @@ export class ClipQueue {
     const description = [
       "Um novo replay acabou de sair do forno.",
       "",
-      `**Solicitado por:** \`${clip.player_name}\``,
-      `**Sala:** \`${clip.room_name}\``,
-      `**Duração:** \`${clip.duration}s\``,
+      `🎬 **Solicitado por:** \`${clip.player_name}\``,
+      `🏟️ **Sala:** \`${clip.room_name}\``,
+      `⏱️ **Duração:** \`${clip.duration}s\``,
       clip.comment ? `**Comentário:** ${clip.comment}` : "",
     ].filter(Boolean).join("\n");
 
@@ -82,10 +82,10 @@ export class ClipQueue {
         form.append("payload_json", JSON.stringify({
           embeds: [{
             color: 0x00FFFF,
-            title: clip.room_name.replace(/\p{Emoji}/gu, "").trim(),
+            title: `🎬 ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} | Clip`,
             description,
             image: { url: `attachment://${fileName}` },
-            footer: { text: `${new Date().getFullYear()} © ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
+            footer: { text: `${new Date().getFullYear()} © ${clip.room_name} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
           }],
         }));
         form.append("files[0]", new Blob([fs.readFileSync(filePath)], { type: "image/gif" }), fileName);
