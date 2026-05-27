@@ -3,6 +3,7 @@ import FormData from "form-data";
 import { request } from "undici";
 import { currentStadiumName } from "./Stadium";
 import { client } from "../../discord/Client";
+import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { clipQueue } from "../../clip/Queue";
 import fs from "node:fs";
 import path from "node:path";
@@ -175,7 +176,7 @@ export class GoalsModule {
                 ...(this.goals.length > 0 ? [{ name: "📊 \`Estatísticas\`", value: this.goals.map((g) => `⏱️ **[${g.time}]** - ${g.teamEmoji} ${g.isOwnGoal ? `Gol contra de \`${g.scorer}\`` : `Gol de \`${g.scorer}\`${g.assister ? ` 🅰️ Assistência de \`${g.assister}\`` : ""}`}`).join("\n"), inline: false }] : []),
                 ...(theHaxUrl ? [{ name: `${theHaxPrefix}\`Link do Replay\``, value: `[Clique aqui para abrir](${theHaxUrl})`, inline: false }] : []),
               ],
-              footer: { text: `${new Date().getFullYear()} © ${this.room.name} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
+              footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
             };
             const form = new FormData();
             form.append("payload_json", JSON.stringify({ embeds: [embed] }));

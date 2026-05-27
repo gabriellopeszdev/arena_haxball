@@ -4,6 +4,12 @@ let botName = "Bot";
 let botURL = "";
 const currentYear = new Date().getFullYear();
 
+export function getBotName(): string {
+  return botName;
+}
+export function getBotURL(): string {
+  return botURL;
+}
 export function updateBotInfo(name: string, url: string): void {
   botName = name;
   botURL = url;

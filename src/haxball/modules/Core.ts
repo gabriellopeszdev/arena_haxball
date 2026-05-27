@@ -3,6 +3,7 @@ import { fetch, request } from "undici";
 import { bansDb, rolesDb } from "../../database/Database";
 import { WebhookClient } from "discord.js";
 import { client } from "../../discord/Client";
+import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
 
 const emojiMap: Record<string, { id: string; emojiName: string }> = {
@@ -152,7 +153,7 @@ export class CoreModule {
               { name: this.emojiField("Longitude"), value: `\`\`\`fix\n${geo.longitude || "—"}\`\`\``, inline: true },
               { name: this.emojiField("Proxy"), value: geo.proxy === "yes" ? "```yaml\nSim```" : "```fix\nNão```", inline: true },
             ],
-            footer: { text: `${new Date().getFullYear()} © ${this.room.name} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
+            footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
           }],
         });
       } catch {}
@@ -186,7 +187,7 @@ export class CoreModule {
               { name: this.emojiField("Longitude"), value: `\`\`\`fix\n${geo.longitude || "—"}\`\`\``, inline: true },
               { name: this.emojiField("Proxy"), value: geo.proxy === "yes" ? "```yaml\nSim```" : "```fix\nNão```", inline: true },
             ],
-            footer: { text: `${new Date().getFullYear()} © ${this.room.name} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
+            footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
           }],
         });
       } catch {}

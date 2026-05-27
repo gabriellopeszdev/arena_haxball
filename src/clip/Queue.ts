@@ -4,6 +4,7 @@ import path from "node:path";
 import { clipsDb } from "../database/Database";
 import { ClipRenderer } from "./Renderer";
 import { client } from "../discord/Client";
+import { getBotName, getBotURL } from "../discord/EmbedFactory";
 
 type PendingClip = {
   id: number;
@@ -82,10 +83,10 @@ export class ClipQueue {
         form.append("payload_json", JSON.stringify({
           embeds: [{
             color: 0x00FFFF,
-            title: `🎬 ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} | Clip`,
+            title: `🎬 ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} | CLIP`,
             description,
             image: { url: `attachment://${fileName}` },
-            footer: { text: `${new Date().getFullYear()} © ${clip.room_name} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
+            footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
           }],
         }));
         form.append("files[0]", new Blob([fs.readFileSync(filePath)], { type: "image/gif" }), fileName);
