@@ -82,7 +82,8 @@ export function getActiveRoomCount(): number {
 
 export function getWebhookUrl(baseKey: string, roomNumber?: number): string {
   if (roomNumber && roomNumber > 1) {
-    const specific = process.env[`${baseKey}${roomNumber}`];
+    const numberedKey = baseKey.replace("_WEBHOOK", `${roomNumber}_WEBHOOK`);
+    const specific = process.env[numberedKey];
     if (specific) return specific;
   }
   return process.env[baseKey] ?? "";
