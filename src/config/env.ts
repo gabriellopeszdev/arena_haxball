@@ -4,7 +4,7 @@ import readline from "node:readline";
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-let promptedToken: string | null = null;
+const promptedTokens: Record<number, string> = {};
 
 const PLACEHOLDER_PATTERNS = [/^token_sala_\d+$/i, /^seu_token/, /^sua_/, /^url_/];
 
@@ -29,9 +29,9 @@ async function promptForToken(roomNumber: number): Promise<string> {
 async function getOrPromptToken(roomNumber: number): Promise<string> {
   const envToken = process.env[`ROOM${roomNumber}_TOKEN`];
   if (envToken && !isPlaceholder(envToken)) return envToken;
-  if (promptedToken) return promptedToken;
-  promptedToken = await promptForToken(roomNumber);
-  return promptedToken;
+  if (promptedTokens[roomNumber]) return promptedTokens[roomNumber];
+  promptedTokens[roomNumber] = await promptForToken(roomNumber);
+  return promptedTokens[roomNumber];
 }
 
 async function promptRoomVisibility(roomNumber: number): Promise<boolean> {
