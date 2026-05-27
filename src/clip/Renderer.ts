@@ -12,10 +12,11 @@ const LAUNCH_ARGS = [
   "--disable-gpu",
   "--no-first-run",
 ];
-const GIF_FPS = 20;
+const GIF_FPS = 12;
+const GIF_WIDTH = 640;
 
 export class ClipRenderer {
-  async render(duration: number): Promise<string> {
+  async render(duration: number, endTime?: number): Promise<string> {
     const clipsDir = path.resolve(__dirname, "../../clips");
     if (!fs.existsSync(clipsDir)) fs.mkdirSync(clipsDir, { recursive: true });
 
@@ -61,8 +62,9 @@ export class ClipRenderer {
       await this.setViewMode(replayerPage, "2");
 
       const totalDuration = await this.getTotalDuration(replayerPage);
-      const captureDuration = Math.min(duration, totalDuration);
-      const seekTime = Math.max(0, totalDuration - captureDuration);
+      const clipEnd = Math.max(0, Math.min(endTime ?? totalDuration, totalDuration));
+      const captureDuration = Math.min(duration, clipEnd);
+      const seekTime = Math.max(0, clipEnd - captureDuration);
 
       await this.seekReplay(replayerPage, seekTime, totalDuration);
 
@@ -85,7 +87,7 @@ export class ClipRenderer {
         }
 
         const t = seekTime + (i + 1) * frameDelaySec;
-        if (t <= totalDuration) await this.seekReplay(replayerPage, t, totalDuration);
+        if (t <= clipEnd) await this.seekReplay(replayerPage, t, totalDuration);
       }
 
       this.buildGif(framesDir, fps, outputPath);
@@ -195,7 +197,7 @@ export class ClipRenderer {
       "-y",
       "-framerate", String(fps),
       "-i", inputPattern,
-      "-vf", `fps=${fps},scale=1280:-1:flags=lanczos,palettegen=stats_mode=diff`,
+      "-vf", `fps=${fps},scale=${GIF_WIDTH}:-1:flags=lanczos,palettegen=stats_mode=diff`,
       palettePath,
     ], { timeout: 120000, stdio: "pipe" });
     execFileSync("ffmpeg", [
@@ -203,7 +205,7 @@ export class ClipRenderer {
       "-framerate", String(fps),
       "-i", inputPattern,
       "-i", palettePath,
-      "-lavfi", `fps=${fps},scale=1280:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer`,
+      "-lavfi", `fps=${fps},scale=${GIF_WIDTH}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer`,
       outputPath,
     ], { timeout: 120000, stdio: "pipe" });
   }

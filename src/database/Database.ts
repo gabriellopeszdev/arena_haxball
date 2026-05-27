@@ -49,6 +49,7 @@ export function initializeDatabase(): void {
       file_path TEXT,
       webhook_url TEXT,
       status TEXT DEFAULT 'pending' CHECK(status IN ('pending','processing','done','failed')),
+      requested_at REAL,
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
 
@@ -58,6 +59,7 @@ export function initializeDatabase(): void {
   `);
 
   migrateRolesAdminCheck();
+  migrateClipsRequestedAt();
 }
 
 function migrateRolesAdminCheck(): void {
@@ -83,6 +85,12 @@ function migrateRolesAdminCheck(): void {
 
     DROP TABLE roles_old;
   `);
+}
+
+function migrateClipsRequestedAt(): void {
+  const columns = db.prepare("PRAGMA table_info(clips)").all() as { name: string }[];
+  if (columns.some((column) => column.name === "requested_at")) return;
+  db.exec("ALTER TABLE clips ADD COLUMN requested_at REAL");
 }
 
 export const rolesDb = {
@@ -137,8 +145,8 @@ export const mutesDb = {
 };
 
 export const clipsDb = {
-  insert(roomName: string, playerName: string, duration: number, comment: string) {
-    return db.prepare("INSERT INTO clips (room_name, player_name, duration, comment) VALUES (?, ?, ?, ?)").run(roomName, playerName, duration, comment);
+  insert(roomName: string, playerName: string, duration: number, comment: string, requestedAt?: number) {
+    return db.prepare("INSERT INTO clips (room_name, player_name, duration, comment, requested_at) VALUES (?, ?, ?, ?, ?)").run(roomName, playerName, duration, comment, requestedAt ?? null);
   },
   updateStatus(id: number, status: string, filePath?: string) {
     if (filePath) {
@@ -148,7 +156,7 @@ export const clipsDb = {
     }
   },
   getNextPending() {
-    return db.prepare("SELECT * FROM clips WHERE status = 'pending' ORDER BY id ASC LIMIT 1").get() as { id: number; room_name: string; player_name: string; duration: number; comment: string } | undefined;
+    return db.prepare("SELECT * FROM clips WHERE status = 'pending' ORDER BY id ASC LIMIT 1").get() as { id: number; room_name: string; player_name: string; duration: number; comment: string; requested_at: number | null } | undefined;
   },
 };
 

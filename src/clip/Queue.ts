@@ -10,16 +10,17 @@ type PendingClip = {
   player_name: string;
   duration: number;
   comment: string;
+  requested_at: number | null;
 };
 
-const DISCORD_FILE_LIMIT_BYTES = 25 * 1024 * 1024;
+const DISCORD_FILE_LIMIT_BYTES = 10 * 1024 * 1024;
 const DISCORD_SEND_ATTEMPTS = 3;
 
 export class ClipQueue {
   private processing = false;
 
-  async add(roomName: string, playerName: string, duration: number, comment: string): Promise<void> {
-    clipsDb.insert(roomName, playerName, duration, comment);
+  async add(roomName: string, playerName: string, duration: number, comment: string, requestedAt: number): Promise<void> {
+    clipsDb.insert(roomName, playerName, duration, comment, requestedAt);
   }
 
   async processPending(): Promise<void> {
@@ -39,7 +40,7 @@ export class ClipQueue {
     try {
       clipsDb.updateStatus(clip.id, "processing");
       const renderer = new ClipRenderer();
-      const filePath = await renderer.render(clip.duration);
+      const filePath = await renderer.render(clip.duration, clip.requested_at ?? undefined);
 
       await this.sendToDiscord(clip, filePath);
       fs.rmSync(filePath, { force: true });

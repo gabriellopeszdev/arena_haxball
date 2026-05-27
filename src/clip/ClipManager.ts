@@ -21,17 +21,25 @@ export function clipCommand(room: Room): void {
       const firstArg = args[0]?.toLowerCase();
       const rawDuration = firstArg?.endsWith("s") ? firstArg.slice(0, -1) : firstArg;
       const hasDurationArg = rawDuration ? /^\d+$/.test(rawDuration) : false;
-      const duration = hasDurationArg ? Number.parseInt(rawDuration, 10) : 15;
+      const requestedDuration = hasDurationArg ? Number.parseInt(rawDuration, 10) : 5;
 
-      if (duration < 3 || duration > 15) {
-        $.player.reply({ message: "[PV] ⚠️ Duração inválida (3-15 segundos).", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
-        return;
-      }
-
-      if (!room.isGameInProgress()) {
+      if (!room.isGameInProgress() || !room.scores) {
         $.player.reply({ message: "[PV] ❌ Não há partida em andamento para gerar GIF.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         return;
       }
+
+      const gameTime = Math.floor(room.scores.time);
+      if (gameTime < 1) {
+        $.player.reply({ message: "[PV] ⚠️ A partida ainda não tem 1s de gravação para gerar GIF.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+        return;
+      }
+
+      if (requestedDuration < 1 || requestedDuration > 15) {
+        $.player.reply({ message: "[PV] ⚠️ Duração inválida (1-15 segundos).", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+        return;
+      }
+
+      const duration = Math.min(requestedDuration, gameTime);
 
       if (gifsThisGame >= 4) {
         $.player.reply({ message: "[PV] ❌ Limite de 4 GIFs por partida atingido.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
@@ -48,7 +56,7 @@ export function clipCommand(room: Room): void {
         sound: ChatSounds.Notification,
       });
 
-      await clipQueue.add(room.name, $.player.name, duration, comment);
+      await clipQueue.add(room.name, $.player.name, duration, comment, gameTime);
     },
   });
 }
