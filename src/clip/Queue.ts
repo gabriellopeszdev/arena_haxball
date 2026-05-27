@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { clipsDb } from "../database/Database";
 import { ClipRenderer } from "./Renderer";
+import { client } from "../discord/Client";
 
 type PendingClip = {
   id: number;
@@ -81,11 +82,10 @@ export class ClipQueue {
         form.append("payload_json", JSON.stringify({
           embeds: [{
             color: 0x00FFFF,
-            title: "🎬 Arena Vincere | Clip",
+            title: clip.room_name.replace(/\p{Emoji}/gu, "").trim(),
             description,
             image: { url: `attachment://${fileName}` },
-            footer: { text: `${new Date().getFullYear()} © ${clip.room_name} - GIF automático` },
-            timestamp: new Date().toISOString(),
+            footer: { text: `${new Date().getFullYear()} © ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} - Todos os direitos reservados`, icon_url: client.user?.displayAvatarURL({ size: 256 }) },
           }],
         }));
         form.append("files[0]", new Blob([fs.readFileSync(filePath)], { type: "image/gif" }), fileName);
