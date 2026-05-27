@@ -1,10 +1,11 @@
-import dotenv from "dotenv";
 import fs from "node:fs";
 import path from "node:path";
 import { clipsDb } from "../database/Database";
 import { ClipRenderer } from "./Renderer";
 import { client } from "../discord/Client";
 import { getBotName, getBotURL } from "../discord/EmbedFactory";
+import { getWebhookUrl } from "../config/env";
+import { getRoomList } from "../room/RoomManager";
 
 type PendingClip = {
   id: number;
@@ -58,7 +59,8 @@ export class ClipQueue {
   }
 
   private async sendToDiscord(clip: PendingClip, filePath: string): Promise<void> {
-    const url = this.getWebhookUrl();
+    const roomNum = getRoomList().find((r) => r.name === clip.room_name)?.number;
+    const url = getWebhookUrl("GIFS_WEBHOOK", roomNum);
     if (!url) throw new Error("GIFS_WEBHOOK não configurado.");
 
     const size = fs.statSync(filePath).size;
@@ -107,14 +109,6 @@ export class ClipQueue {
     throw lastError;
   }
 
-  private getWebhookUrl(): string {
-    const current = process.env.GIFS_WEBHOOK?.trim();
-    if (current) return current;
-
-    const envPath = path.resolve(__dirname, "../../.env");
-    const parsed = dotenv.config({ path: envPath, override: false }).parsed;
-    return parsed?.GIFS_WEBHOOK?.trim() || process.env.GIFS_WEBHOOK?.trim() || "";
-  }
 }
 
 export const clipQueue = new ClipQueue();

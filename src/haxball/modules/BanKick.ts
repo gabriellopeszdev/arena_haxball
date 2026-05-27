@@ -1,5 +1,6 @@
 import { Event, Module, type Player, type Room } from "haxball-extended-room";
 import { request } from "undici";
+import { getWebhookUrl } from "../../config/env";
 import { rolesDb } from "../../database/Database";
 
 type PlayerRef = {
@@ -160,7 +161,7 @@ export class BanKickModule {
   }
 
   private logMessage(content: string): void {
-    const url = process.env.MENSAGEM_WEBHOOK;
+    const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
     request(url, {
       method: "POST",

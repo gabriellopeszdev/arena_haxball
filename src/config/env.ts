@@ -80,6 +80,14 @@ export function getActiveRoomCount(): number {
   return count || 1;
 }
 
+export function getWebhookUrl(baseKey: string, roomNumber?: number): string {
+  if (roomNumber && roomNumber > 1) {
+    const specific = process.env[`${baseKey}${roomNumber}`];
+    if (specific) return specific;
+  }
+  return process.env[baseKey] ?? "";
+}
+
 export const BOT_TOKEN = () => getEnv("TOKEN_BOT");
 export const CLIENT_ID = () => getEnv("CLIENT_ID");
 export const GUILD_ID = () => getEnv("GUILD_ID");

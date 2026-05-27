@@ -1,5 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, Module, type Player, type Room } from "haxball-extended-room";
 import { request } from "undici";
+import { getWebhookUrl } from "../../config/env";
 
 class RoleValidator {
     private static readonly validRoles = ["⚽ jogador", "👮‍♂️ capitão", "💂 sub-capitão"];
@@ -28,7 +29,7 @@ class KickRateManager {
 
 class KickRateWebhook {
     static send(room: Room, player: Player | undefined, min: number, rate: number, burst: number): void {
-        const url = process.env.MENSAGEM_WEBHOOK;
+        const url = getWebhookUrl("MENSAGEM_WEBHOOK", (room.state as any).roomNumber);
         if (!url) return;
 
         const by = player ? `por \`${player.name}\`` : "pelo sistema";

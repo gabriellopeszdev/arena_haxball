@@ -1,6 +1,7 @@
 import { Event, Module, type Player, type Room } from "haxball-extended-room";
 import type { Command, CommandExecInfo } from "haxball-extended-room";
 import { request } from "undici";
+import { getWebhookUrl } from "../../config/env";
 import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
 
 @Module
@@ -12,7 +13,7 @@ export class WebhookModule {
   }
 
   private sendSystem(content: string): void {
-    const url = process.env.MENSAGEM_WEBHOOK;
+    const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
     request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] [:warning: **SISTEMA**]: ${content}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
   }
@@ -89,7 +90,7 @@ export class WebhookModule {
   onPlayerBanned(_bannedPlayer: Player, _reason?: string, _byPlayer?: Player): void {}
 
   private sendMsg(content: string): void {
-    const url = process.env.MENSAGEM_WEBHOOK;
+    const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
     request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] ${content}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
   }

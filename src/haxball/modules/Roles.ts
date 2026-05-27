@@ -1,4 +1,5 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Event, Module, ModuleCommand, type Player, type Room } from "haxball-extended-room";
+import { getWebhookUrl } from "../../config/env";
 import { rolesDb } from "../../database/Database";
 import { request } from "undici";
 
@@ -81,7 +82,7 @@ export class RolesModule {
   }
 
   private notifyAdminWebhook(player: Player, role: string): void {
-    const url = process.env.ADMIN_WEBHOOK;
+    const url = getWebhookUrl("ADMIN_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
     const content = `[${this.room.name}] [:warning: **SISTEMA**]: :key: **CARGO** — \`[${player.id}]\` **${player.name}** autenticou como ${role}.`;
     request(url, { method: "POST", body: JSON.stringify({ content }), headers: { "Content-Type": "application/json" } }).catch(() => {});

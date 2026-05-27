@@ -1,5 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Event, Module, ModuleCommand, type Player, type Room } from "haxball-extended-room";
 import { request } from "undici";
+import { getWebhookUrl } from "../../config/env";
 
 @Module
 export class TeamChatModule {
@@ -45,7 +46,7 @@ export class TeamChatModule {
   }
 
   private logTeamChat(player: Player, msg: string): void {
-    const url = process.env.MENSAGEM_WEBHOOK;
+    const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
     const icon = player.team === 1 ? "🔴" : player.team === 2 ? "🔵" : "🟢";
     request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] [${icon} TEAM] \`[${player.id}]\` ${player.name}: ${msg}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});

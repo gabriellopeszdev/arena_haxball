@@ -1,5 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room, Teams } from "haxball-extended-room";
 import { request } from "undici";
+import { getWebhookUrl } from "../../config/env";
 
 export function campCommands(room: Room): void {
   room.command({
@@ -49,7 +50,7 @@ export function campCommands(room: Room): void {
       room.state[$.player.id] = room.state[$.player.id] || {};
       room.state[$.player.id].confirmed = true;
       room.send({ message: `✅ ${$.player.name} confirmou.`, color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
-      const url = process.env.CONFIRMACAO_WEBHOOK;
+      const url = getWebhookUrl("CONFIRMACAO_WEBHOOK", (room.state as any).roomNumber);
       if (url) {
         request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] ${$.player.name} confirmou.` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
       }

@@ -4,6 +4,7 @@ import { bansDb, rolesDb } from "../../database/Database";
 import { WebhookClient } from "discord.js";
 import { client } from "../../discord/Client";
 import { getBotName, getBotURL } from "../../discord/EmbedFactory";
+import { getWebhookUrl } from "../../config/env";
 import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
 
 const emojiMap: Record<string, { id: string; emojiName: string }> = {
@@ -27,8 +28,9 @@ export class CoreModule {
   private exitWebhook?: WebhookClient;
 
   constructor(private room: Room) {
-    const entryUrl = process.env.ENTRADA_WEBHOOK;
-    const exitUrl = process.env.SAIDA_WEBHOOK;
+    const roomNum = (room.state as any).roomNumber as number | undefined;
+    const entryUrl = getWebhookUrl("ENTRADA_WEBHOOK", roomNum);
+    const exitUrl = getWebhookUrl("SAIDA_WEBHOOK", roomNum);
     if (entryUrl) this.entryWebhook = new WebhookClient({ url: entryUrl });
     if (exitUrl) this.exitWebhook = new WebhookClient({ url: exitUrl });
   }
@@ -46,7 +48,7 @@ export class CoreModule {
   }
 
   private sendRoleChatWebhook(player: Player, message: string): void {
-    const url = process.env.MENSAGEM_WEBHOOK;
+    const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
     const role = player.settings.role?.toUpperCase();
     if (!role) return;

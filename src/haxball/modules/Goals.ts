@@ -4,6 +4,7 @@ import { request } from "undici";
 import { currentStadiumName } from "./Stadium";
 import { client } from "../../discord/Client";
 import { getBotName, getBotURL } from "../../discord/EmbedFactory";
+import { getWebhookUrl } from "../../config/env";
 import { clipQueue } from "../../clip/Queue";
 import fs from "node:fs";
 import path from "node:path";
@@ -106,7 +107,7 @@ export class GoalsModule {
 
     this.room.send({ message: msg, color: team === 1 ? Colors.PaleVioletRed : Colors.LightBlue, style: ChatStyle.Bold, sound: ChatSounds.Notification });
 
-    const msgUrl = process.env.MENSAGEM_WEBHOOK;
+    const msgUrl = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (msgUrl) request(msgUrl, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] ${msg}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
 
     this.scorer = null;
@@ -152,7 +153,7 @@ export class GoalsModule {
       clipQueue.processPending();
 
       if (this.goals.length > 0) {
-        const webhookUrl = process.env.GRAVACAO_WEBHOOK;
+        const webhookUrl = getWebhookUrl("GRAVACAO_WEBHOOK", (this.room.state as any).roomNumber);
         if (webhookUrl) {
           uploadReplayToTheHax(rec, this.room.name, (theHaxUrl) => {
             if (theHaxUrl) {

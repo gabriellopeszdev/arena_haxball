@@ -4,6 +4,7 @@ import { HotReloader } from "../hot/HotReloader";
 
 interface RoomOptions {
   roomName: string;
+  roomNumber: number;
   maxPlayers: number;
   public: boolean;
   token: string;
@@ -33,6 +34,7 @@ export async function initializeHaxballRoom(
   room.onRoomLink = (link: string) =>
     console.log(`🔗 Link da sala ${options.roomName}: ${link}`);
 
+  room.state = { roomNumber: options.roomNumber };
   room.lockTeams();
   SetRoomMessages(room);
   HandleModules(room);
