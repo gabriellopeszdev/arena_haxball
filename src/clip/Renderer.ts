@@ -96,6 +96,7 @@ export class ClipRenderer {
       return outputPath;
     } finally {
       fs.rmSync(framesDir, { recursive: true, force: true });
+      try { fs.rmSync(hbr2File, { force: true }); } catch {}
       await browser.close();
     }
   }
