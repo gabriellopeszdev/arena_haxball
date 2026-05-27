@@ -29,19 +29,17 @@ export class HotReloader {
     console.log("🔄 Hot Reload ativo — alterações em modules/commands/cogs serão aplicadas sem reiniciar.");
   }
 
-  private async refresh(): Promise<void> {
+  private refresh(): void {
     if (!this.room) return;
     try {
-      const clearDirs = [
-        path.resolve(__dirname, "../haxball"),
-        path.resolve(__dirname, "../clip"),
+      const clearPrefixes = [
+        path.resolve(__dirname, "../haxball").toLowerCase(),
+        path.resolve(__dirname, "../clip").toLowerCase(),
       ];
       for (const key of Object.keys(require.cache)) {
-        for (const dir of clearDirs) {
-          if (key.startsWith(dir)) {
-            delete require.cache[key];
-            break;
-          }
+        const lower = key.toLowerCase();
+        if (clearPrefixes.some((p) => lower.startsWith(p))) {
+          delete require.cache[key];
         }
       }
 
@@ -52,7 +50,7 @@ export class HotReloader {
         this.room.removeCommand(cmd.name);
       }
 
-      const handler = await import("../haxball/handler");
+      const handler = require("../haxball/handler") as typeof import("../haxball/handler");
       handler.SetRoomMessages(this.room);
       handler.HandleModules(this.room);
       handler.HandleCommands(this.room);
