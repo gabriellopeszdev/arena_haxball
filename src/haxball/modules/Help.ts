@@ -53,11 +53,13 @@ class CommandFinder {
     }
 
     getAllCommandNames(): string[] {
-        const commandNames = this.room.commands.map(command => command.name.toLowerCase());
+        const commandNames = this.room.commands
+            .filter((command) => command.desc)
+            .map((command) => command.name.toLowerCase());
 
         for (const module of this.room.modules) {
             for (const command of module.commands) {
-                if (!commandNames.includes(command.name.toLowerCase())) {
+                if (command.desc && !commandNames.includes(command.name.toLowerCase())) {
                     commandNames.push(command.name.toLowerCase());
                 }
             }
@@ -143,6 +145,15 @@ export class HelpModule {
         const command = this.commandFinder.findCommand(commandName);
 
         if (command) {
+            if (!command.desc) {
+                player.reply({
+                    message: "[PV] ❌ Comando não encontrado.",
+                    color: Colors.Red,
+                    style: ChatStyle.Bold,
+                    sound: ChatSounds.Notification
+                });
+                return;
+            }
             if (this.isCommandAllowedForPlayer(command, playerRole, isAdmin)) {
                 ResponseBuilder.sendCommandDetails(player, command);
             } else {

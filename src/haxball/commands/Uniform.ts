@@ -58,7 +58,7 @@ export function uniformCommand(room: Room): void {
     room.command({
       name,
       aliases: [],
-      desc: `Aplica o uniforme ${name}.`,
+      desc: "",
       usage: name,
       roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
       deleteMessage: true,
