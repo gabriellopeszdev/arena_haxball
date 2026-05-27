@@ -1,4 +1,4 @@
-import type { Room } from "haxball-extended-room";
+import { ChatSounds, ChatStyle, Colors, type Room } from "haxball-extended-room";
 import { CoreModule } from "./modules/Core";
 import { AdminModule } from "./modules/Admin";
 import { RolesModule } from "./modules/Roles";
@@ -30,6 +30,21 @@ import { specCommand } from "./commands/Spec";
 import { swapCommand } from "./commands/Swap";
 import { uniformCommand } from "./commands/Uniform";
 import { clipCommand } from "../clip/ClipManager";
+
+export function SetRoomMessages(room: Room): void {
+  room.noPermissionMessage = {
+    message: "🚫 Você não tem permissão para usar este comando!",
+    color: Colors.Red,
+    style: ChatStyle.Bold,
+    sound: ChatSounds.Notification,
+  };
+  room.commandCooldownMessage = {
+    message: "⏳ Não digite comandos tão rápido!",
+    color: Colors.Red,
+    style: ChatStyle.Bold,
+    sound: ChatSounds.Notification,
+  };
+}
 
 export function HandleModules(room: Room): void {
   room.module(CoreModule);

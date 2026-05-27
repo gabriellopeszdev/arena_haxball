@@ -6,13 +6,13 @@ const OWNER_ROLE = "1508631754825535589";
 
 export const data = new SlashCommandBuilder()
   .setName("eval")
-  .setDescription("Executa código na sala (dono only).")
+  .setDescription("Executa código na sala.")
   .addStringOption((o) => o.setName("sala").setDescription("Nome da sala.").setRequired(true))
   .addStringOption((o) => o.setName("código").setDescription("Código JS.").setRequired(true));
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!(interaction.member as any)?.roles?.cache?.has(OWNER_ROLE)) {
-    await interaction.reply({ content: "❌ Apenas o dono do bot pode usar este comando.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: "❌ Apenas pessoas autorizadas podem usar este comando.", flags: MessageFlags.Ephemeral });
     return;
   }
   const sala = interaction.options.getString("sala", true);

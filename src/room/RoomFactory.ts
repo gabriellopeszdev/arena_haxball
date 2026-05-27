@@ -1,5 +1,5 @@
 import type { Room } from "haxball-extended-room";
-import { HandleModules, HandleCommands } from "../haxball/handler";
+import { HandleModules, HandleCommands, SetRoomMessages } from "../haxball/handler";
 import { HotReloader } from "../hot/HotReloader";
 
 interface RoomOptions {
@@ -34,6 +34,7 @@ export async function initializeHaxballRoom(
     console.log(`🔗 Link da sala ${options.roomName}: ${link}`);
 
   room.lockTeams();
+  SetRoomMessages(room);
   HandleModules(room);
   HandleCommands(room);
 

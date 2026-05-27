@@ -53,6 +53,7 @@ export class HotReloader {
       }
 
       const handler = await import("../haxball/handler");
+      handler.SetRoomMessages(this.room);
       handler.HandleModules(this.room);
       handler.HandleCommands(this.room);
 
