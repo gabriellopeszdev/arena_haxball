@@ -98,6 +98,9 @@ export class WebhookModule {
   private maskCommand(message: string): string {
     const [command] = message.trim().split(/\s+/);
     if (command?.toLowerCase() === `${this.room.prefix || "!"}cargo`) return `${command} [senha ocultada]`;
+    const sensitiveCommands = ["fechar", "senha", "setapassword", "trancar", "lock", "close", "set", "password"];
+    const commandName = command?.replace(this.room.prefix || "!", "").toLowerCase();
+    if (commandName && sensitiveCommands.includes(commandName)) return `${command} [credencial ocultada]`;
     return message;
   }
 }
