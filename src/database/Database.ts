@@ -155,8 +155,17 @@ export const clipsDb = {
       db.prepare("UPDATE clips SET status = ? WHERE id = ?").run(status, id);
     }
   },
-  getNextPending() {
+  getNextPending(roomName?: string) {
+    if (roomName) {
+      return db.prepare("SELECT * FROM clips WHERE status = 'pending' AND room_name = ? ORDER BY id ASC LIMIT 1").get(roomName) as { id: number; room_name: string; player_name: string; duration: number; comment: string; requested_at: number | null } | undefined;
+    }
     return db.prepare("SELECT * FROM clips WHERE status = 'pending' ORDER BY id ASC LIMIT 1").get() as { id: number; room_name: string; player_name: string; duration: number; comment: string; requested_at: number | null } | undefined;
+  },
+  countPending(roomName?: string) {
+    if (roomName) {
+      return (db.prepare("SELECT COUNT(*) AS total FROM clips WHERE status = 'pending' AND room_name = ?").get(roomName) as { total: number }).total;
+    }
+    return (db.prepare("SELECT COUNT(*) AS total FROM clips WHERE status = 'pending'").get() as { total: number }).total;
   },
 };
 

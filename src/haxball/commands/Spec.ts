@@ -6,7 +6,7 @@ export function specCommand(room: Room): void {
     name: "specon",
     desc: "Ativa chat de espectadores.",
     usage: "specon",
-    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if (specEnabled) { $.player.reply({ message: "[PV] ⚠️ Já está ativado.", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
@@ -19,7 +19,7 @@ export function specCommand(room: Room): void {
     name: "specoff",
     desc: "Desativa chat de espectadores.",
     usage: "specoff",
-    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if (!specEnabled) { $.player.reply({ message: "[PV] ⚠️ Já está desativado.", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }

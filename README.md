@@ -54,18 +54,18 @@ Notas importantes:
 | `!adm` | Vira admin da sala quando não há admin presente | 👤 Todos |
 | `!cargo <senha>` | Define cargo persistente por senha | 👤 Todos |
 | `!rr` / `!reset` | Reinicia a partida | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
-| `!fechar` / `!senha` | Fecha a sala com senha | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
-| `!abrir` | Remove a senha da sala | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
+| `!fechar` / `!senha` | Fecha a sala com senha | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!abrir` | Remove a senha da sala | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!clearbans` | Limpa bans do HaxBall e banco | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!banall` / `!banred` / `!banblue` / `!banspec` | Bane grupos de jogadores | 👮‍♂️ Cap / 💂 Sub |
 | `!kickall` / `!kickred` / `!kickblue` / `!kickspec` | Kicka grupos de jogadores | 👮‍♂️ Cap / 💂 Sub |
 | `!mute` / `!unmute` | Muta ou desmuta jogador | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!camp` / `!firmo` | Ativa campeonato e confirma presença | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
 | `!swap` | Troca times entre red, blue e spec | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
-| `!radius` | Altera o raio de um jogador | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
+| `!radius` | Altera o raio de um jogador | 💂 Sub / 👮‍♂️ Cap |
 | `!puxarbola` / `!pararbola` / `!tp` | Controle avançado da bola | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
-| `!chaton` / `!chatoff` | Liga/desliga chat de jogadores | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
-| `!specon` / `!specoff` | Liga/desliga chat de espectadores | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
+| `!chaton` / `!chatoff` | Liga/desliga chat de jogadores | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!specon` / `!specoff` | Liga/desliga chat de espectadores | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!uniform` | Altera uniforme do time | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!avatar` | Altera avatar de jogador | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!pausar` / `!despausar` | Pausa ou despausa a partida | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
@@ -95,6 +95,9 @@ Regras:
 - o GIF é enviado no Discord via `GIFS_WEBHOOK`;
 - depois de enviado com sucesso, o arquivo local é apagado;
 - se o envio falhar, o arquivo local permanece salvo em `clips/`.
+- o replay temporário `.hbr2` usado para renderizar clips é apagado após todos os clips da partida serem enviados.
+
+Replays completos/súmulas só são enviados quando a partida tem gol, mais de `30s` de tempo jogado e menos de `30min`.
 
 Exemplos:
 

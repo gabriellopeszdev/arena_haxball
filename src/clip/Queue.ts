@@ -26,36 +26,48 @@ export class ClipQueue {
     clipsDb.insert(roomName, playerName, duration, comment, requestedAt);
   }
 
-  async processPending(): Promise<void> {
-    if (this.processing) return;
+  async processPending(replayFilePath?: string, roomName?: string): Promise<void> {
+    if (this.processing) {
+      setTimeout(() => void this.processPending(replayFilePath, roomName), 1000);
+      return;
+    }
     this.processing = true;
+    let hadFailure = false;
     try {
-      await this.processNext();
+      hadFailure = await this.processAll(replayFilePath, roomName);
     } finally {
       this.processing = false;
+      if (replayFilePath && !hadFailure) {
+        fs.rmSync(replayFilePath, { force: true });
+      }
     }
   }
 
-  private async processNext(): Promise<void> {
-    const clip = clipsDb.getNextPending();
-    if (!clip) return;
+  private async processAll(replayFilePath?: string, roomName?: string): Promise<boolean> {
+    let hadFailure = false;
 
-    try {
-      clipsDb.updateStatus(clip.id, "processing");
-      const renderer = new ClipRenderer();
-      const filePath = await renderer.render(clip.duration, clip.requested_at ?? undefined);
+    while (true) {
+      const clip = clipsDb.getNextPending(roomName);
+      if (!clip) break;
 
-      await this.sendToDiscord(clip, filePath);
-      fs.rmSync(filePath, { force: true });
+      try {
+        clipsDb.updateStatus(clip.id, "processing");
+        const renderer = new ClipRenderer();
+        const filePath = await renderer.render(clip.duration, clip.requested_at ?? undefined, replayFilePath);
 
-      clipsDb.updateStatus(clip.id, "done", filePath);
-      console.log(`✅ Clip #${clip.id} enviado e removido: ${filePath}`);
-    } catch (err) {
-      console.error(`❌ Erro ao renderizar/enviar clip #${clip.id}:`, err);
-      clipsDb.updateStatus(clip.id, "failed");
+        await this.sendToDiscord(clip, filePath);
+        fs.rmSync(filePath, { force: true });
+
+        clipsDb.updateStatus(clip.id, "done", filePath);
+        console.log(`✅ Clip #${clip.id} enviado e removido: ${filePath}`);
+      } catch (err) {
+        hadFailure = true;
+        console.error(`❌ Erro ao renderizar/enviar clip #${clip.id}:`, err);
+        clipsDb.updateStatus(clip.id, "failed");
+      }
     }
 
-    await this.processNext();
+    return hadFailure;
   }
 
   private async sendToDiscord(clip: PendingClip, filePath: string): Promise<void> {
@@ -75,7 +87,7 @@ export class ClipQueue {
       `🎬 **Solicitado por:** \`${clip.player_name}\``,
       `🏟️ **Sala:** \`${clip.room_name}\``,
       `⏱️ **Duração:** \`${clip.duration}s\``,
-      clip.comment ? `**Comentário:** ${clip.comment}` : "",
+      clip.comment ? `💬 **Comentário:** ${clip.comment}` : "",
     ].filter(Boolean).join("\n");
 
     let lastError: unknown;

@@ -16,11 +16,11 @@ const GIF_FPS = 12;
 const GIF_WIDTH = 640;
 
 export class ClipRenderer {
-  async render(duration: number, endTime?: number): Promise<string> {
+  async render(duration: number, endTime?: number, replayFile?: string): Promise<string> {
     const clipsDir = path.resolve(__dirname, "../../clips");
     if (!fs.existsSync(clipsDir)) fs.mkdirSync(clipsDir, { recursive: true });
 
-    const hbr2File = this.findHbr2(clipsDir);
+    const hbr2File = replayFile ?? this.findHbr2(clipsDir);
     const framesDir = path.join(clipsDir, `frames-${Date.now()}`);
     fs.mkdirSync(framesDir, { recursive: true });
 
@@ -96,7 +96,6 @@ export class ClipRenderer {
       return outputPath;
     } finally {
       fs.rmSync(framesDir, { recursive: true, force: true });
-      try { fs.rmSync(hbr2File, { force: true }); } catch {}
       await browser.close();
     }
   }

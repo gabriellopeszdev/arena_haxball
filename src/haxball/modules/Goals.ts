@@ -6,8 +6,12 @@ import { client } from "../../discord/Client";
 import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
 import { clipQueue } from "../../clip/Queue";
+import { clipsDb } from "../../database/Database";
 import fs from "node:fs";
 import path from "node:path";
+
+const MIN_REPLAY_SECONDS = 30;
+const MAX_REPLAY_SECONDS = 30 * 60;
 
 let playersThatTouchedTheBall = new Set<number>();
 let lastBallPosition: { x: number; y: number } | null = null;
@@ -91,18 +95,21 @@ export class GoalsModule {
       const p = Array.from(this.room.players.values()).find((pl) => pl.id === lastTouchByPlayer);
       if (p) this.scorer = p;
     }
+    if (team === Teams.Red) this.redScore++;
+    if (team === Teams.Blue) this.blueScore++;
+
     const scorer = this.scorer;
-    if (!scorer) return;
-
-    const ownGoal = this.isOwnGoal(team, scorer);
+    const ownGoal = scorer ? this.isOwnGoal(team, scorer) : false;
     const teamEmoji = team === 1 ? "🔴" : "🔵";
-    const validAssister = this.assister && this.assister.team === scorer.team ? this.assister.name : null;
+    const scorerName = scorer?.name ?? "Desconhecido";
+    const validAssister = scorer && this.assister && this.assister.team === scorer.team ? this.assister.name : null;
 
-    this.goals.push({ time: this.gameTime, scorer: scorer.name, assister: validAssister, isOwnGoal: ownGoal, teamEmoji });
+    this.goals.push({ time: this.gameTime, scorer: scorerName, assister: validAssister, isOwnGoal: ownGoal, teamEmoji });
 
     const speedText = lastBallSpeed ? ` Velocidade: ${lastBallSpeed.toFixed(2)}km/h` : "";
     let msg: string;
-    if (ownGoal) msg = `[${this.gameTime}] 🤣 Gol contra de ${teamEmoji} ${scorer.name}.${speedText}`;
+    if (!scorer) msg = `[${this.gameTime}] ⚽ Gol do time ${teamEmoji}.${speedText}`;
+    else if (ownGoal) msg = `[${this.gameTime}] 🤣 Gol contra de ${teamEmoji} ${scorer.name}.${speedText}`;
     else msg = `[${this.gameTime}] ⚽ Gol de ${scorer.name}!${validAssister ? ` 🅰️ (assistência de ${validAssister})` : ""}${speedText}`;
 
     this.room.send({ message: msg, color: team === 1 ? Colors.PaleVioletRed : Colors.LightBlue, style: ChatStyle.Bold, sound: ChatSounds.Notification });
@@ -116,6 +123,8 @@ export class GoalsModule {
   }
 
   private handleTeamVictory(scores: { red: number; blue: number }): void {
+    this.redScore = scores.red;
+    this.blueScore = scores.blue;
     const winner = scores.red > scores.blue ? "red" : "blue";
     const ws = winner === "red" ? scores.red : scores.blue;
     const ls = winner === "red" ? scores.blue : scores.red;
@@ -136,23 +145,36 @@ export class GoalsModule {
   onGameStop(): void {
     this.hasGameStarted = false;
     if (this.isRecording) {
+      if (this.room.scores) {
+        this.redScore = Math.max(this.redScore, this.room.scores.red);
+        this.blueScore = Math.max(this.blueScore, this.room.scores.blue);
+        this.gameTime = formatClock(this.room.scores.time);
+      }
+
+      const gameSeconds = this.room.scores?.time ?? clockToSeconds(this.gameTime);
       const rec = this.room.stopRecording();
+      const gameTimeSnapshot = formatClock(gameSeconds);
+      const goalsSnapshot = this.goals.map((goal) => ({ ...goal }));
+      const redScoreSnapshot = this.redScore;
+      const blueScoreSnapshot = this.blueScore;
+      const redPlayersSnapshot = Array.from(this.room.players.red().values()).map((p) => `🔴 ${p.name}`);
+      const bluePlayersSnapshot = Array.from(this.room.players.blue().values()).map((p) => `🔵 ${p.name}`);
+      const specPlayersSnapshot = Array.from(this.room.players.spectators().values()).map((p) => `🟢 ${p.name}`);
+      const stadiumSnapshot = currentStadiumName;
+      const fileName = this.createReplayFileName();
+      const pendingClips = clipsDb.countPending(this.room.name);
+      const shouldSaveReplay = goalsSnapshot.length > 0 && gameSeconds > MIN_REPLAY_SECONDS && gameSeconds < MAX_REPLAY_SECONDS;
+      let replayPath: string | undefined;
 
-      const clipsDir = path.resolve(__dirname, "../../../clips");
-      if (!fs.existsSync(clipsDir)) fs.mkdirSync(clipsDir, { recursive: true });
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      const hh = String(now.getHours()).padStart(2, "0");
-      const min = String(now.getMinutes()).padStart(2, "0");
-      const ss = String(now.getSeconds()).padStart(2, "0");
-      const fileName = `HBReplay-${dd}-${mm}-${yyyy}-${hh}h${min}m${ss}s.hbr2`;
-      fs.writeFileSync(path.join(clipsDir, fileName), Buffer.from(rec));
+      if (pendingClips > 0) {
+        const clipsDir = path.resolve(__dirname, "../../../clips");
+        if (!fs.existsSync(clipsDir)) fs.mkdirSync(clipsDir, { recursive: true });
+        replayPath = path.join(clipsDir, fileName);
+        fs.writeFileSync(replayPath, Buffer.from(rec));
+        void clipQueue.processPending(replayPath, this.room.name);
+      }
 
-      clipQueue.processPending();
-
-      if (this.goals.length > 0) {
+      if (shouldSaveReplay) {
         const webhookUrl = getWebhookUrl("GRAVACAO_WEBHOOK", (this.room.state as any).roomNumber);
         if (webhookUrl) {
           uploadReplayToTheHax(rec, this.room.name, (theHaxUrl) => {
@@ -166,15 +188,15 @@ export class GoalsModule {
 
             const embed = {
               title: `📝 \`SÚMULA DA PARTIDA\` - ${this.room.name}`,
-              color: this.redScore > this.blueScore ? Colors.Red : this.blueScore > this.redScore ? Colors.LightBlue : Colors.LightGreen,
+              color: redScoreSnapshot > blueScoreSnapshot ? Colors.Red : blueScoreSnapshot > redScoreSnapshot ? Colors.LightBlue : Colors.LightGreen,
               fields: [
-                { name: `🔴 \`RED\` (${this.redScore})`, value: Array.from(this.room.players.red().values()).map((p) => `🔴 ${p.name}`).join("\n") || "ㅤ", inline: true },
-                { name: "🟢 \`SPEC\`", value: Array.from(this.room.players.spectators().values()).map((p) => `🟢 ${p.name}`).join("\n") || "ㅤ", inline: true },
-                { name: `🔵 \`BLUE\` (${this.blueScore})`, value: Array.from(this.room.players.blue().values()).map((p) => `🔵 ${p.name}`).join("\n") || "ㅤ", inline: true },
-                { name: "⏳ \`Tempo de Jogo\`", value: this.gameTime, inline: true },
-                { name: "🗺️ \`Mapa\`", value: currentStadiumName, inline: true },
+                { name: `🔴 \`RED\` (${redScoreSnapshot})`, value: redPlayersSnapshot.join("\n") || "ㅤ", inline: true },
+                { name: "🟢 \`SPEC\`", value: specPlayersSnapshot.join("\n") || "ㅤ", inline: true },
+                { name: `🔵 \`BLUE\` (${blueScoreSnapshot})`, value: bluePlayersSnapshot.join("\n") || "ㅤ", inline: true },
+                { name: "⏳ \`Tempo de Jogo\`", value: gameTimeSnapshot, inline: true },
+                { name: "🗺️ \`Mapa\`", value: stadiumSnapshot, inline: true },
                 { name: "📁 \`Nome do Replay\`", value: `\`\`\`fix\n${fileName}\`\`\``, inline: false },
-                ...(this.goals.length > 0 ? [{ name: "📊 \`Estatísticas\`", value: this.goals.map((g) => `⏱️ **[${g.time}]** - ${g.teamEmoji} ${g.isOwnGoal ? `Gol contra de \`${g.scorer}\`` : `Gol de \`${g.scorer}\`${g.assister ? ` 🅰️ Assistência de \`${g.assister}\`` : ""}`}`).join("\n"), inline: false }] : []),
+                { name: "📊 \`Estatísticas\`", value: goalsSnapshot.map((g) => `⏱️ **[${g.time}]** - ${g.teamEmoji} ${g.isOwnGoal ? `Gol contra de \`${g.scorer}\`` : `Gol de \`${g.scorer}\`${g.assister ? ` 🅰️ Assistência de \`${g.assister}\`` : ""}`}`).join("\n"), inline: false },
                 ...(theHaxUrl ? [{ name: `${theHaxPrefix}\`Link do Replay\``, value: `[Clique aqui para abrir](${theHaxUrl})`, inline: false }] : []),
               ],
               footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
@@ -193,6 +215,17 @@ export class GoalsModule {
     this.scorer = null;
     this.assister = null;
     resetTouchTracking();
+  }
+
+  private createReplayFileName(): string {
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const yyyy = now.getFullYear();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    return `HBReplay-${dd}-${mm}-${yyyy}-${hh}h${min}m${ss}s.hbr2`;
   }
 
   private updateScores(scores: { red: number; blue: number; time: number }): void {
@@ -227,4 +260,16 @@ function resetTouchTracking() {
   lastTouchByPlayer = null;
   lastBallPosition = null;
   lastBallSpeed = 0;
+}
+
+function clockToSeconds(value: string): number {
+  const [minutes, seconds] = value.split(":").map((part) => Number.parseInt(part, 10));
+  if (Number.isNaN(minutes) || Number.isNaN(seconds)) return 0;
+  return minutes * 60 + seconds;
+}
+
+function formatClock(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+  const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
 }

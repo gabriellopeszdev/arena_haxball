@@ -8,7 +8,7 @@ export function passwordCommand(room: Room): void {
     aliases: ["senha", "lock", "trancar"],
     desc: "Fecha a sala com senha.",
     usage: "fechar <senha>",
-    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       const senha = $.arguments[0]?.toString() || process.env.SENHA_PADRAO || "fncpass";
@@ -24,7 +24,7 @@ export function passwordCommand(room: Room): void {
     aliases: ["unlock", "destrancar"],
     desc: "Abre a sala (remove senha).",
     usage: "abrir",
-    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       room.clearPassword();
