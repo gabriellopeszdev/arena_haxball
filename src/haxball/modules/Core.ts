@@ -6,6 +6,7 @@ import { client } from "../../discord/Client";
 import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
 import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
+import { syncPlayerAccessRole } from "../roles/AccessRoles";
 
 const emojiMap: Record<string, { id: string; emojiName: string }> = {
   Nick: { id: "1508652143605846096", emojiName: "Nick" },
@@ -33,6 +34,12 @@ export class CoreModule {
     const exitUrl = getWebhookUrl("SAIDA_WEBHOOK", roomNum);
     if (entryUrl) this.entryWebhook = new WebhookClient({ url: entryUrl });
     if (exitUrl) this.exitWebhook = new WebhookClient({ url: exitUrl });
+
+    for (const player of this.room.players.values()) {
+      if (player.settings.role) {
+        syncPlayerAccessRole(player, player.settings.role);
+      }
+    }
   }
 
   private emojiField(name: string): string {
@@ -88,7 +95,7 @@ export class CoreModule {
       };
       const displayName = roleMap[roleName];
       if (displayName) {
-        player.settings.role = displayName;
+        syncPlayerAccessRole(player, displayName);
         player.admin = true;
         this.room.send({
           message: `O ${displayName.toUpperCase()} ${player.name} entrou na sala.`,

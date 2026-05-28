@@ -6,7 +6,7 @@ export function ballCommands(room: Room): void {
     aliases: ["stopball"],
     desc: "Para a bola, zerando sua velocidade.",
     usage: "pararbola",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length > 0) {
@@ -35,7 +35,7 @@ export function ballCommands(room: Room): void {
     aliases: ["bringball", "pullball", "puxar"],
     desc: "Puxa a bola até o jogador que usou o comando.",
     usage: "puxarbola",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length > 0) {
@@ -78,7 +78,7 @@ export function ballCommands(room: Room): void {
     aliases: ["teleportar", "tpbola"],
     desc: "Teleporta o jogador até a posição da bola.",
     usage: "tp",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length > 0) {

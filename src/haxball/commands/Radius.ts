@@ -6,7 +6,7 @@ export function radiusCommand(room: Room): void {
     aliases: ["raio", "tamanho", "size"],
     desc: "Altera o tamanho do jogador.",
     usage: "radius <id> <tamanho>",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length < 2) {

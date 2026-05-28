@@ -12,7 +12,7 @@ export function swapCommand(room: Room): void {
     aliases: ["trocar", "inverter"],
     desc: "Inverte jogadores entre dois times (red, blue, spec).",
     usage: "[time1] [time2]",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       const t1 = $.arguments[0]?.toString().toLowerCase();

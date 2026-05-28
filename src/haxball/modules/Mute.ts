@@ -128,7 +128,7 @@ export class MuteModule {
     aliases: ["silenciar", "mutar"],
     desc: "Muta um jogador por tempo determinado.",
     usage: "mutar #id tempo [motivo]",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
   })
   public mute(execInfo: CommandExecInfo): void {
@@ -194,7 +194,7 @@ export class MuteModule {
     aliases: ["desmutar", "unmute", "dessilenciar"],
     desc: "Remove o mute de um jogador.",
     usage: "unmute <id>",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
   })
   public unmute(execInfo: CommandExecInfo): void {

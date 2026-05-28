@@ -2,6 +2,7 @@ import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Event, Module, Mod
 import { getWebhookUrl } from "../../config/env";
 import { rolesDb } from "../../database/Database";
 import { request } from "undici";
+import { syncPlayerAccessRole } from "../roles/AccessRoles";
 
 @Module
 export class RolesModule {
@@ -65,7 +66,7 @@ export class RolesModule {
       if (oldDbRole) rolesDb.removeByAuth(player.auth ?? "");
     }
 
-    player.settings.role = targetRole;
+    syncPlayerAccessRole(player, targetRole);
     player.admin = true;
     const dbRole = this.roleToDb(targetRole);
     if (!dbRole) {

@@ -53,28 +53,28 @@ Notas importantes:
 |:--|:--|:--|
 | `!adm` | Vira admin da sala quando não há admin presente | 👤 Todos |
 | `!cargo <senha>` | Define cargo persistente por senha | 👤 Todos |
-| `!rr` / `!reset` | Reinicia a partida | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!fechar` / `!senha` | Fecha a sala com senha | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
-| `!abrir` | Remove a senha da sala | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
+| `!rr` / `!reset` | Reinicia a partida | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!fechar` / `!senha` | Fecha a sala com senha | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
+| `!abrir` | Remove a senha da sala | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
 | `!clearbans` | Limpa bans do HaxBall e banco | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!banall` / `!banred` / `!banblue` / `!banspec` | Bane grupos de jogadores | 👮‍♂️ Cap / 💂 Sub |
 | `!kickall` / `!kickred` / `!kickblue` / `!kickspec` | Kicka grupos de jogadores | 👮‍♂️ Cap / 💂 Sub |
-| `!mute` / `!unmute` | Muta ou desmuta jogador | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!mute` / `!unmute` | Muta ou desmuta jogador | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!camp` / `!firmo` | Ativa campeonato e confirma presença | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!swap` | Troca times entre red, blue e spec | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!radius` | Altera o raio de um jogador | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
-| `!puxarbola` / `!pararbola` / `!tp` | Controle avançado da bola | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!chaton` / `!chatoff` | Liga/desliga chat de jogadores | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
-| `!specon` / `!specoff` | Liga/desliga chat de espectadores | 👑 Admin / 👮‍♂️ Cap / 💂 Sub |
-| `!uniform` | Altera uniforme do time | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!avatar` | Altera avatar de jogador | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!pausar` / `!despausar` | Pausa ou despausa a partida | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!swap` | Troca times entre red, blue e spec | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!radius` | Altera o raio de um jogador | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
+| `!puxarbola` / `!pararbola` / `!tp` | Controle avançado da bola | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!chaton` / `!chatoff` | Liga/desliga chat de jogadores | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
+| `!specon` / `!specoff` | Liga/desliga chat de espectadores | 👨‍💼 Adm / 💂 Sub / 👮‍♂️ Cap |
+| `!uniform` | Altera uniforme do time | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!avatar` | Altera avatar de jogador | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!pausar` / `!despausar` | Pausa ou despausa a partida | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!pv` / `!t` | Mensagem privada ou chat de time | 👤 Todos |
 | `!afk` / `!afks` | Marca AFK ou lista AFKs | 👤 Todos |
 | `!bb` / `!leave` | Sai da sala | 👤 Todos |
 | `!help` | Mostra comandos disponíveis | 👤 Todos |
-| `!gif` / `!clip` / `!gravar` / `!replay` | Gera GIF dos últimos segundos | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!x3` / `!x4` / `!lvk` / `!rs` / `!penal` | Troca o mapa | 👑 Admin / 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
+| `!gif` / `!clip` / `!gravar` / `!replay` | Gera GIF dos últimos segundos | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!x3` / `!x4` / `!lvk` / `!rs` / `!penal` | Troca o mapa | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!hackban` | Bane jogador por ID | 👮‍♂️ Cap |
 | `!hackclearbans` | Limpa bans do banco | 👮‍♂️ Cap |
 | `!eval` | Executa JavaScript | 👮‍♂️ Cap |
@@ -87,9 +87,10 @@ O comando `!gif` gera um GIF dos últimos segundos da partida.
 
 Regras:
 
-- acesso apenas para `👮‍♂️ Capitão`, `💂 Sub-capitão` e `⚽ Jogador`;
-- duração permitida: `3` a `15` segundos;
-- sem duração informada, o padrão é `15s`;
+- acesso apenas para `👮‍♂️ Capitão`, `💂 Sub-capitão`, `⚽ Jogador` e `👨‍💼 Administrador`;
+- duração permitida: `1` a `15` segundos;
+- sem duração informada, o padrão é `5s`;
+- se a partida tiver menos tempo que o pedido, o GIF usa apenas o tempo disponível;
 - máximo de `4` GIFs por partida;
 - o GIF é enviado no Discord via `GIFS_WEBHOOK`;
 - depois de enviado com sucesso, o arquivo local é apagado;
@@ -125,7 +126,7 @@ Os comandos slash controlam a sala pelo Discord.
 | `/mensagem geral` | Envia mensagem para a sala |
 | `/mensagem time` | Envia mensagem para um time |
 | `/mensagem privada` | Envia PV para jogador |
-| `/mapa` | Troca mapa |
+| `/mapa` | Carrega mapa por arquivo `.hbs` ou `.json` |
 | `/senha` | Altera senha da sala |
 | `/iniciar` / `/parar` / `/pausar` / `/despausar` / `/reiniciar` | Controle de partida |
 | `/limparbans` | Limpa bans |

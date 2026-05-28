@@ -6,7 +6,7 @@ export function avatarCommand(room: Room): void {
     aliases: ["av", "avatarjogador"],
     desc: "Altera o avatar de um jogador.",
     usage: "avatar <id> <avatar>",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length < 2) {

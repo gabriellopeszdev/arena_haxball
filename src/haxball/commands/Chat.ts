@@ -11,7 +11,7 @@ export function chatCommand(room: Room): void {
     name: "chatoff",
     desc: "Desativa o chat de jogadores.",
     usage: "chatoff",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if (chatEnabled === false) { $.player.reply({ message: "[PV] ⚠️ Chat já está desativado.", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
@@ -24,7 +24,7 @@ export function chatCommand(room: Room): void {
     name: "chaton",
     desc: "Ativa o chat de jogadores.",
     usage: "chaton",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if (chatEnabled === true) { $.player.reply({ message: "[PV] ⚠️ Chat já está ativado.", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
@@ -37,7 +37,7 @@ export function chatCommand(room: Room): void {
     name: "specon",
     desc: "Ativa o chat de espectadores.",
     usage: "specon",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if (specEnabled === true) { $.player.reply({ message: "[PV] ⚠️ Chat de spec já está ativado.", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }
@@ -50,7 +50,7 @@ export function chatCommand(room: Room): void {
     name: "specoff",
     desc: "Desativa o chat de espectadores.",
     usage: "specoff",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if (specEnabled === false) { $.player.reply({ message: "[PV] ⚠️ Chat de spec já está desativado.", color: Colors.Yellow, style: ChatStyle.Bold, sound: ChatSounds.Notification }); return; }

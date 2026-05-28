@@ -10,7 +10,7 @@ export class PauseModule {
     aliases: ["pausar", "pause"],
     desc: "Pausa a partida.",
     usage: "pausar",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
   })
   public pausar(execInfo: CommandExecInfo): void {
@@ -25,7 +25,7 @@ export class PauseModule {
     aliases: ["despausar", "unpause", "continuar", "resume"],
     desc: "Despausa a partida.",
     usage: "despausar",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
   })
   public despausar(execInfo: CommandExecInfo): void {

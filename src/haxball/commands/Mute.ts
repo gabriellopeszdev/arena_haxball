@@ -22,7 +22,7 @@ export function muteCommand(room: Room): void {
     aliases: ["mutar", "silenciar"],
     desc: "Muta um jogador por tempo determinado.",
     usage: "mutar #id tempo [motivo]",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length < 2) {
@@ -59,7 +59,7 @@ export function muteCommand(room: Room): void {
     aliases: ["desmutar"],
     desc: "Remove mute de um jogador.",
     usage: "unmute <id>",
-    roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador", "👨‍💼 administrador"],
+    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length < 1) {

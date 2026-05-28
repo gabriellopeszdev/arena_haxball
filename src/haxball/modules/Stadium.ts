@@ -40,18 +40,18 @@ export class StadiumModule {
     this.room.onStadiumChange = (name) => { currentStadiumName = name; };
   }
 
-  @ModuleCommand({ aliases: ["bazingax3", "x3bazinga", "futsalx3"], desc: "Carrega Futsal X3 by Bazinga.", usage: "x3", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["bazingax3", "x3bazinga", "futsalx3"], desc: "Carrega Futsal X3 by Bazinga.", usage: "x3", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public x3(execInfo: CommandExecInfo) { this.commands[0].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["bazingax4", "x4bazinga", "futsalx4"], desc: "Carrega Futsal X4 by Bazinga.", usage: "x4", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["bazingax4", "x4bazinga", "futsalx4"], desc: "Carrega Futsal X4 by Bazinga.", usage: "x4", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public x4(execInfo: CommandExecInfo) { this.commands[1].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["x1", "x1lvk"], desc: "Carrega LVK.", usage: "lvk", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["x1", "x1lvk"], desc: "Carrega LVK.", usage: "lvk", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public lvk(execInfo: CommandExecInfo) { this.commands[2].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["rsr", "realsoccer", "rs"], desc: "Carrega Real Soccer Revolution.", usage: "rs", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["rsr", "realsoccer", "rs"], desc: "Carrega Real Soccer Revolution.", usage: "rs", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public rs(execInfo: CommandExecInfo) { this.commands[3].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["penalti", "penaltis", "penal"], desc: "Carrega Pênaltis.", usage: "penal", roles: ["admin", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["penalti", "penaltis", "penal"], desc: "Carrega Pênaltis.", usage: "penal", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public penal(execInfo: CommandExecInfo) { this.commands[4].execute(execInfo); }
 }
