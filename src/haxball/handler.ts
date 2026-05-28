@@ -7,7 +7,6 @@ import { GoalsModule } from "./modules/Goals";
 import { PrivateMessageModule } from "./modules/PrivateMessage";
 import { TeamChatModule } from "./modules/TeamChat";
 import { StadiumModule } from "./modules/Stadium";
-import { PauseModule } from "./modules/Pause";
 import { KickRateModule } from "./modules/KickRate";
 import { BanKickModule } from "./modules/BanKick";
 import { RealSoccerModule } from "./modules/RealSoccer";
@@ -55,7 +54,6 @@ export function HandleModules(room: Room): void {
   room.module(PrivateMessageModule);
   room.module(TeamChatModule);
   room.module(StadiumModule);
-  room.module(PauseModule);
   room.module(KickRateModule);
   room.module(BanKickModule);
   room.module(RealSoccerModule);

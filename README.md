@@ -68,7 +68,6 @@ Notas importantes:
 | `!specon` / `!specoff` | Liga/desliga chat de espectadores | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!uniform` | Altera uniforme do time | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!avatar` | Altera avatar de jogador | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
-| `!pausar` / `!despausar` | Pausa ou despausa a partida | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!pv` / `!t` | Mensagem privada ou chat de time | 👤 Todos |
 | `!afk` / `!afks` | Marca AFK ou lista AFKs | 👤 Todos |
 | `!bb` / `!leave` | Sai da sala | 👤 Todos |
