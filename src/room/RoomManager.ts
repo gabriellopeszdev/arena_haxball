@@ -42,8 +42,8 @@ export async function startRoom(roomNumber: number, customName?: string): Promis
       token: config.token,
       geo: {
         code: process.env.GEO_CODE || "BR",
-        lat: parseFloat(process.env.GEO_LAT || "-23.5167") + (roomNumber - 1),
-        lon: parseFloat(process.env.GEO_LON || "-46.6463") + (roomNumber - 1),
+        lat: parseFloat(process.env.GEO_LAT || "-23.5167"),
+        lon: parseFloat(process.env.GEO_LON || "-46.6463"),
       },
       proxy,
     });
