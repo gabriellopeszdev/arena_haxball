@@ -19,7 +19,7 @@ export function passwordCommand(room: Room): void {
       $.player.reply({ message: `[PV] 🔒 A sala foi trancada com ${senhaUsada}: ${senha}.`, color: Colors.Lightcoral, style: ChatStyle.Small, sound: ChatSounds.Notification });
 
       const url = getWebhookUrl("SENHA_WEBHOOK", (room.state as any).roomNumber);
-      if (url) request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] Sala fechada por \`${$.player.name}\`. 🔐 Senha: **${senha}**` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+      if (url) request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] Sala fechada por \`${$.player.name}\`. Senha: **${senha}**` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
     },
   });
 
