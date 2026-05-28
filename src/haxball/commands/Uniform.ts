@@ -42,7 +42,7 @@ export function uniformCommand(room: Room): void {
     aliases: ["uni", "uniform"],
     desc: "Aplica um uniforme pre-definido.",
     usage: "uniforme <nome>",
-    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       const name = $.arguments[0]?.toString().toLowerCase();
@@ -60,7 +60,7 @@ export function uniformCommand(room: Room): void {
       aliases: [],
       desc: "",
       usage: name,
-      roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+      roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
       deleteMessage: true,
       func: ($: CommandExecInfo) => applyUniform(room, $, name),
     });

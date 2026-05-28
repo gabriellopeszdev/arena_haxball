@@ -74,7 +74,7 @@ Notas importantes:
 | `!bb` / `!leave` | Sai da sala | 👤 Todos |
 | `!help` | Mostra comandos disponíveis | 👤 Todos |
 | `!gif` / `!clip` / `!gravar` / `!replay` | Gera GIF dos últimos segundos | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
-| `!x3` / `!x4` / `!lvk` / `!rs` / `!penal` | Troca o mapa | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!x3` / `!x4` / `!x3fbf` / `!x4fbf` / `!lvk` / `!rs` / `!penal` | Troca o mapa | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!hackban` | Bane jogador por ID | 👮‍♂️ Cap |
 | `!hackclearbans` | Limpa bans do banco | 👮‍♂️ Cap |
 | `!eval` | Executa JavaScript | 👮‍♂️ Cap |
@@ -227,18 +227,6 @@ src/
 maps/          Mapas HaxBall
 clips/         Replays e GIFs temporários
 ```
-
----
-
-## Mapas
-
-| Comando | Mapa |
-|:--|:--|
-| `!x3` | Futsal X3 |
-| `!x4` | Futsal X4 |
-| `!lvk` | LVK |
-| `!rs` | Real Soccer Revolution |
-| `!penal` | Penaltis |
 
 ---
 

@@ -1,11 +1,18 @@
-import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Module, ModuleCommand, type Player, type Room } from "haxball-extended-room";
-import FutsalX3 from "../../../maps/Futsal X3 by Bazinga.json";
-import FutsalX4 from "../../../maps/Futsal X4 by Bazinga.json";
-import LVK from "../../../maps/LVK.json";
-import RealSoccerRevolution from "../../../maps/Real Soccer Revolution.json";
-import Penaltis from "../../../maps/Penaltis.json";
+import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Module, ModuleCommand, type Room } from "haxball-extended-room";
+import fs from "node:fs";
+import path from "node:path";
 
 export let currentStadiumName = "Classic";
+
+function loadStadiumFile(fileName: string): object | string {
+  const filePath = path.resolve(process.cwd(), "maps", fileName);
+  const content = fs.readFileSync(filePath, "utf8");
+  try {
+    return JSON.parse(content) as object;
+  } catch {
+    return content;
+  }
+}
 
 class StadiumCommand {
   constructor(private room: Room, private stadium: object | string, private name: string) {}
@@ -31,27 +38,35 @@ export class StadiumModule {
 
   constructor(private room: Room) {
     this.commands = [
-      new StadiumCommand(room, FutsalX3, "Futsal X3"),
-      new StadiumCommand(room, FutsalX4, "Futsal X4"),
-      new StadiumCommand(room, LVK, "X1 LVK"),
-      new StadiumCommand(room, RealSoccerRevolution, "Real Soccer Revolution"),
-      new StadiumCommand(room, Penaltis, "Pênaltis"),
+      new StadiumCommand(room, loadStadiumFile("Futsal X3 by Bazinga.json"), "Futsal X3"),
+      new StadiumCommand(room, loadStadiumFile("Futsal X4 by Bazinga.json"), "Futsal X4"),
+      new StadiumCommand(room, loadStadiumFile("LVK.json"), "X1 LVK"),
+      new StadiumCommand(room, loadStadiumFile("Real Soccer Revolution.json"), "Real Soccer Revolution"),
+      new StadiumCommand(room, loadStadiumFile("Pênaltis.json"), "Pênaltis"),
+      new StadiumCommand(room, loadStadiumFile("Futsal x3 - FBF Brasil.json"), "Futsal X3 - FBF Brasil"),
+      new StadiumCommand(room, loadStadiumFile("Futsal x4 - FBF Brasil.json"), "Futsal X4 - FBF Brasil"),
     ];
     this.room.onStadiumChange = (name) => { currentStadiumName = name; };
   }
 
-  @ModuleCommand({ aliases: ["bazingax3", "x3bazinga", "futsalx3"], desc: "Carrega Futsal X3 by Bazinga.", usage: "x3", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["bazingax3", "x3bazinga", "futsalx3"], desc: "Carrega Futsal X3 by Bazinga.", usage: "x3", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public x3(execInfo: CommandExecInfo) { this.commands[0].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["bazingax4", "x4bazinga", "futsalx4"], desc: "Carrega Futsal X4 by Bazinga.", usage: "x4", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["bazingax4", "x4bazinga", "futsalx4"], desc: "Carrega Futsal X4 by Bazinga.", usage: "x4", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public x4(execInfo: CommandExecInfo) { this.commands[1].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["x1", "x1lvk"], desc: "Carrega LVK.", usage: "lvk", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["x1", "x1lvk"], desc: "Carrega LVK.", usage: "lvk", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public lvk(execInfo: CommandExecInfo) { this.commands[2].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["rsr", "realsoccer", "rs"], desc: "Carrega Real Soccer Revolution.", usage: "rs", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["rsr", "realsoccer", "rs"], desc: "Carrega Real Soccer Revolution.", usage: "rs", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public rs(execInfo: CommandExecInfo) { this.commands[3].execute(execInfo); }
 
-  @ModuleCommand({ aliases: ["penalti", "penaltis", "penal"], desc: "Carrega Pênaltis.", usage: "penal", roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  @ModuleCommand({ aliases: ["penalti", "penaltis", "penal"], desc: "Carrega Pênaltis.", usage: "penal", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
   public penal(execInfo: CommandExecInfo) { this.commands[4].execute(execInfo); }
+
+  @ModuleCommand({ aliases: ["fbfx3"], desc: "Carrega Futsal X3 - FBF Brasil.", usage: "x3fbf", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  public x3fbf(execInfo: CommandExecInfo) { this.commands[5].execute(execInfo); }
+
+  @ModuleCommand({ aliases: ["fbfx4"], desc: "Carrega Futsal X4 - FBF Brasil.", usage: "x4fbf", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })
+  public x4fbf(execInfo: CommandExecInfo) { this.commands[6].execute(execInfo); }
 }

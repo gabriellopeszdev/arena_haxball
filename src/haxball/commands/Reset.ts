@@ -6,7 +6,7 @@ export function resetCommand(room: Room): void {
     aliases: ["reiniciar", "restart", "reset"],
     desc: "Reinicia a partida.",
     usage: "rr",
-    roles: ["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
+    roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
       if ($.arguments.length > 0) {
