@@ -5,7 +5,7 @@ const DB_PATH = path.resolve(__dirname, "../../data.db");
 
 const db = new Database(DB_PATH);
 
-db.pragma("journal_mode = WAL");
+db.pragma("journal_mode = DELETE");
 db.pragma("foreign_keys = ON");
 
 export function initializeDatabase(): void {
