@@ -6,7 +6,7 @@ export function evalCommand(room: Room): void {
     desc: "Executa código JavaScript.",
     usage: "eval <código>",
     roles: ["👮‍♂️ capitão"],
-    deleteMessage: false,
+    deleteMessage: true,
     func: ($: CommandExecInfo) => {
       try {
         const code = $.arguments.map((a) => a.toString()).join(" ");
