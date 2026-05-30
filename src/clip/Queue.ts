@@ -93,7 +93,8 @@ export class ClipQueue {
       `🎬 **Solicitado por:** \`${clip.player_name}\``,
       `🏟️ **Sala:** \`${clip.room_name}\``,
       `⏱️ **Duração:** \`${clip.duration}s\` \`${interval}\``,
-      clip.comment ? `💬 **Comentário:** ${sanitizeDiscordContent(clip.comment)}` : "",
+      clip.comment ? `💬 **Comentário:** \`${sanitizeDiscordContent(clip.comment)}\`` : "",
+      replayUrl ? `${theHaxPrefix}**Link do Replay:** [Clique aqui para abrir](${replayUrl})` : "",
     ].filter(Boolean).join("\n");
 
     let lastError: unknown;
@@ -105,7 +106,6 @@ export class ClipQueue {
             color: 0x00FFFF,
             title: `🎬 ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} | CLIP`,
             description,
-            fields: replayUrl ? [{ name: `${theHaxPrefix}\`Link do Replay\``, value: `[Clique aqui para abrir](${replayUrl})`, inline: false }] : [],
             image: { url: `attachment://${fileName}` },
             footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
           }],

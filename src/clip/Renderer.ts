@@ -15,6 +15,14 @@ const LAUNCH_ARGS = [
 ];
 const GIF_FPS = 20;
 const GIF_WIDTH = 640;
+const MAX_GIF_BYTES = 10 * 1024 * 1024;
+const GIF_PROFILES = [
+  { fps: 20, width: 640 },
+  { fps: 18, width: 600 },
+  { fps: 15, width: 560 },
+  { fps: 12, width: 520 },
+  { fps: 10, width: 480 },
+];
 const SEEK_POLL_INTERVAL_MS = 40;
 const MAX_SEEK_WAIT_MS = 10000;
 const execFileAsync = promisify(execFile);
@@ -72,9 +80,9 @@ export class ClipRenderer {
 
       await this.seekReplay(replayerPage, seekTime, totalDuration);
 
-      const fps = GIF_FPS;
-      const totalFrames = Math.max(1, Math.round(captureDuration * fps));
-      const frameDelaySec = 1 / fps;
+      const captureFps = GIF_FPS;
+      const totalFrames = Math.max(1, Math.round(captureDuration * captureFps));
+      const frameDelaySec = 1 / captureFps;
       const canvas = await replayerPage.$("canvas");
 
       for (let i = 0; i < totalFrames; i++) {
@@ -95,7 +103,7 @@ export class ClipRenderer {
 
       }
 
-      await this.buildGif(framesDir, fps, outputPath);
+      await this.buildGif(framesDir, outputPath);
 
       console.log(`GIF: ${outputPath}`);
       return outputPath;
@@ -219,26 +227,45 @@ export class ClipRenderer {
     throw new Error(`Replay seek did not settle near ${(target * 100).toFixed(2)}%.`);
   }
 
-  private async buildGif(framesDir: string, fps: number, outputPath: string): Promise<void> {
+  private async buildGif(framesDir: string, outputPath: string): Promise<void> {
     const inputPattern = path.join(framesDir, "frame-%05d.png");
-    const palettePath = path.join(framesDir, "palette.png");
 
-    await execFileAsync("ffmpeg", [
-      "-y",
-      "-framerate", String(fps),
-      "-i", inputPattern,
-      "-vf", `fps=${fps},scale=${GIF_WIDTH}:-1:flags=lanczos,palettegen=stats_mode=diff`,
-      palettePath,
-    ], { timeout: 120000 });
-    await execFileAsync("ffmpeg", [
-      "-y",
-      "-framerate", String(fps),
-      "-i", inputPattern,
-      "-i", palettePath,
-      "-lavfi", `fps=${fps},scale=${GIF_WIDTH}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer`,
-      outputPath,
-    ], { timeout: 120000 });
+    for (let i = 0; i < GIF_PROFILES.length; i++) {
+      const profile = GIF_PROFILES[i];
+      const palettePath = path.join(framesDir, `palette-${profile.fps}-${profile.width}.png`);
+
+      await execFileAsync("ffmpeg", [
+        "-y",
+        "-framerate", String(GIF_FPS),
+        "-i", inputPattern,
+        "-vf", `fps=${profile.fps},scale=${profile.width}:-1:flags=lanczos,palettegen=stats_mode=diff:max_colors=192`,
+        palettePath,
+      ], { timeout: 120000 });
+      await execFileAsync("ffmpeg", [
+        "-y",
+        "-framerate", String(GIF_FPS),
+        "-i", inputPattern,
+        "-i", palettePath,
+        "-lavfi", `fps=${profile.fps},scale=${profile.width}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3`,
+        outputPath,
+      ], { timeout: 120000 });
+
+      const size = fs.statSync(outputPath).size;
+      if (size <= MAX_GIF_BYTES) {
+        if (i > 0) {
+          console.log(`GIF comprimido para ${profile.width}px/${profile.fps}fps (${formatBytes(size)}).`);
+        }
+        return;
+      }
+    }
+
+    const finalSize = fs.statSync(outputPath).size;
+    throw new Error(`GIF muito grande mesmo apos compressao (${formatBytes(finalSize)}).`);
   }
+}
+
+function formatBytes(bytes: number): string {
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
 function parseClock(value: string): number {
