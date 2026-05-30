@@ -11,7 +11,7 @@ export function passwordCommand(room: Room): void {
     roles: ["👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"],
     deleteMessage: true,
     func: ($: CommandExecInfo) => {
-      const senha = $.arguments.map((arg) => arg.toString()).join(" ") || process.env.SENHA_PADRAO || "";
+      const senha = $.arguments.map((arg) => arg.toString()).join(" ") || process.env.SENHA_PADRAO || "vincere7";
       const senhaUsada = senha === process.env.SENHA_PADRAO ? "a senha padrão" : "a senha fornecida";
 
       room.setPassword(senha);

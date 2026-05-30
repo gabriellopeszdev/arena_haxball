@@ -18,7 +18,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const acao = interaction.options.getString("ação", true);
   if (acao === "fechar") {
-    const senha = interaction.options.getString("senha") || process.env.SENHA_PADRAO || "fncpass";
+    const senha = interaction.options.getString("senha") || process.env.SENHA_PADRAO || "vincere7";
     room.setPassword(senha);
     room.send({ message: `🔒 Sala fechada por ${interaction.user.username}.`, color: 0xFF0000 } as any);
     const url = getWebhookUrl("SENHA_WEBHOOK", (room.state as any).roomNumber);
