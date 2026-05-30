@@ -21,7 +21,7 @@ export function clipCommand(room: Room): void {
       const firstArg = args[0]?.toLowerCase();
       const rawDuration = firstArg?.endsWith("s") ? firstArg.slice(0, -1) : firstArg;
       const hasDurationArg = rawDuration ? /^\d+$/.test(rawDuration) : false;
-      const requestedDuration = hasDurationArg ? Number.parseInt(rawDuration, 10) : 5;
+      const requestedDuration = hasDurationArg ? Number.parseInt(rawDuration, 10) : 15;
 
       if (!room.isGameInProgress() || !room.scores) {
         $.player.reply({ message: "[PV] ❌ Não há partida em andamento para gerar GIF.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });

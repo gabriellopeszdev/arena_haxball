@@ -1,6 +1,7 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room, Teams } from "haxball-extended-room";
-import { request } from "undici";
+import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
+import { sendWebhookJson } from "../../utils/discordWebhook";
 
 export function campCommands(room: Room): void {
   room.command({
@@ -52,7 +53,21 @@ export function campCommands(room: Room): void {
       room.send({ message: `✅ ${$.player.name} confirmou.`, color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
       const url = getWebhookUrl("CONFIRMACAO_WEBHOOK", (room.state as any).roomNumber);
       if (url) {
-        request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] ${$.player.name} confirmou.` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+        const teamEmoji = $.player.team === 1 ? "ðŸ”´" : $.player.team === 2 ? "ðŸ”µ" : "ðŸŸ¢";
+        sendWebhookJson(url, {
+          embeds: [{
+            title: room.name,
+            description: `${teamEmoji} \`[${$.player.id}]\` **${$.player.name}** confirmou na sala com sucesso.`,
+            color: 0x79E879,
+            fields: [
+              { name: "<:Nick:1508652143605846096> `Nick`", value: `\`\`\`fix\n${$.player.name}\`\`\``, inline: true },
+              { name: "<:Auth:1508652011770478673> Auth", value: `\`\`\`fix\n${$.player.auth ?? ""}\`\`\``, inline: true },
+              { name: "<:IP:1508652093848817794> IP", value: `\`\`\`fix\n${$.player.ip ?? ""}\`\`\``, inline: true },
+              { name: "<:CONN:1508652073820885124> CONN", value: `\`\`\`fix\n${$.player.conn ?? ""}\`\`\``, inline: true },
+            ],
+            footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
+          }],
+        });
       }
     },
   });

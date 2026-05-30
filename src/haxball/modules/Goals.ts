@@ -7,17 +7,12 @@ import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
 import { clipQueue } from "../../clip/Queue";
 import { clipsDb } from "../../database/Database";
+import { sendWebhookJson, webhookJsonPayload } from "../../utils/discordWebhook";
 import fs from "node:fs";
 import path from "node:path";
 
 const MIN_REPLAY_SECONDS = 30;
 const MAX_REPLAY_SECONDS = 30 * 60;
-
-let playersThatTouchedTheBall = new Set<number>();
-let lastBallPosition: { x: number; y: number } | null = null;
-let lastBallSpeed = 0;
-let lastTouchByTeam: number | null = null;
-let lastTouchByPlayer: number | null = null;
 
 function pointDistance(p1: { x: number; y: number }, p2: { x: number; y: number }): number {
   return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
@@ -60,6 +55,10 @@ export class GoalsModule {
   private gameTime = "00:00";
   private scorer: Player | null = null;
   private assister: Player | null = null;
+  private playersThatTouchedTheBall = new Set<number>();
+  private lastBallPosition: { x: number; y: number } | null = null;
+  private lastBallSpeed = 0;
+  private lastTouchByPlayer: number | null = null;
 
   constructor(private room: Room) {
     this.room.onTeamVictory = (scores) => this.handleTeamVictory(scores);
@@ -91,8 +90,8 @@ export class GoalsModule {
   }
 
   private handleTeamGoal(team: number): void {
-    if (!this.scorer && lastTouchByPlayer !== null) {
-      const p = Array.from(this.room.players.values()).find((pl) => pl.id === lastTouchByPlayer);
+    if (!this.scorer && this.lastTouchByPlayer !== null) {
+      const p = Array.from(this.room.players.values()).find((pl) => pl.id === this.lastTouchByPlayer);
       if (p) this.scorer = p;
     }
     if (team === Teams.Red) this.redScore++;
@@ -106,7 +105,7 @@ export class GoalsModule {
 
     this.goals.push({ time: this.gameTime, scorer: scorerName, assister: validAssister, isOwnGoal: ownGoal, teamEmoji });
 
-    const speedText = lastBallSpeed ? ` Velocidade: ${lastBallSpeed.toFixed(2)}km/h` : "";
+    const speedText = this.lastBallSpeed ? ` Velocidade: ${this.lastBallSpeed.toFixed(2)}km/h` : "";
     let msg: string;
     if (!scorer) msg = `[${this.gameTime}] ⚽ Gol do time ${teamEmoji}.${speedText}`;
     else if (ownGoal) msg = `[${this.gameTime}] 🤣 Gol contra de ${teamEmoji} ${scorer.name}.${speedText}`;
@@ -115,11 +114,11 @@ export class GoalsModule {
     this.room.send({ message: msg, color: team === 1 ? Colors.PaleVioletRed : Colors.LightBlue, style: ChatStyle.Bold, sound: ChatSounds.Notification });
 
     const msgUrl = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
-    if (msgUrl) request(msgUrl, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] ${msg}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    if (msgUrl) sendWebhookJson(msgUrl, { content: `[${this.room.name}] ${msg}` });
 
     this.scorer = null;
     this.assister = null;
-    resetTouchTracking();
+    this.resetTouchTracking();
   }
 
   private handleTeamVictory(scores: { red: number; blue: number }): void {
@@ -138,7 +137,7 @@ export class GoalsModule {
     this.goals = [];
     this.scorer = null;
     this.assister = null;
-    resetTouchTracking();
+    this.resetTouchTracking();
   }
 
   @Event
@@ -160,7 +159,7 @@ export class GoalsModule {
       const redPlayersSnapshot = Array.from(this.room.players.red().values()).map((p) => `🔴 ${p.name}`);
       const bluePlayersSnapshot = Array.from(this.room.players.blue().values()).map((p) => `🔵 ${p.name}`);
       const specPlayersSnapshot = Array.from(this.room.players.spectators().values()).map((p) => `🟢 ${p.name}`);
-      const stadiumSnapshot = currentStadiumName;
+      const stadiumSnapshot = (this.room.state as any).currentStadiumName || currentStadiumName;
       const fileName = this.createReplayFileName();
       const pendingClips = clipsDb.countPending(this.room.name);
       const shouldSaveReplay = goalsSnapshot.length > 0 && gameSeconds > MIN_REPLAY_SECONDS && gameSeconds < MAX_REPLAY_SECONDS;
@@ -202,7 +201,7 @@ export class GoalsModule {
               footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
             };
             const form = new FormData();
-            form.append("payload_json", JSON.stringify({ embeds: [embed] }));
+            form.append("payload_json", JSON.stringify(webhookJsonPayload({ embeds: [embed] })));
             form.append("file", Buffer.from(rec), fileName);
             request(webhookUrl, { method: "POST", headers: form.getHeaders(), body: form }).catch(() => {});
           });
@@ -214,17 +213,17 @@ export class GoalsModule {
     this.isRecording = false;
     this.scorer = null;
     this.assister = null;
-    resetTouchTracking();
+    this.resetTouchTracking();
   }
 
   private createReplayFileName(): string {
-    const now = new Date();
-    const dd = String(now.getDate()).padStart(2, "0");
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const yyyy = now.getFullYear();
-    const hh = String(now.getHours()).padStart(2, "0");
-    const min = String(now.getMinutes()).padStart(2, "0");
-    const ss = String(now.getSeconds()).padStart(2, "0");
+    const parts = getSaoPauloDateParts();
+    const dd = parts.day;
+    const mm = parts.month;
+    const yyyy = parts.year;
+    const hh = parts.hour;
+    const min = parts.minute;
+    const ss = parts.second;
     return `HBReplay-${dd}-${mm}-${yyyy}-${hh}h${min}m${ss}s.hbr2`;
   }
 
@@ -239,27 +238,25 @@ export class GoalsModule {
   private trackBall(): void {
     if (this.room.ball.x == null || this.room.ball.y == null) return;
     const pos = { x: this.room.ball.x, y: this.room.ball.y };
-    if (lastBallPosition) lastBallSpeed = (pointDistance(pos, lastBallPosition) * 60 * 60 * 60) / 15000;
-    lastBallPosition = pos;
+    if (this.lastBallPosition) this.lastBallSpeed = (pointDistance(pos, this.lastBallPosition) * 60 * 60 * 60) / 15000;
+    this.lastBallPosition = pos;
     for (const p of this.room.players.values()) {
       if (!p.position) continue;
-      if (!playersThatTouchedTheBall.has(p.id) && pointDistance(p.position, pos) < 25.01) {
-        playersThatTouchedTheBall.add(p.id);
-        lastTouchByTeam = p.team;
-        lastTouchByPlayer = p.id;
-      } else if (playersThatTouchedTheBall.has(p.id) && pointDistance(p.position, pos) > 29.01) {
-        playersThatTouchedTheBall.delete(p.id);
+      if (!this.playersThatTouchedTheBall.has(p.id) && pointDistance(p.position, pos) < 25.01) {
+        this.playersThatTouchedTheBall.add(p.id);
+        this.lastTouchByPlayer = p.id;
+      } else if (this.playersThatTouchedTheBall.has(p.id) && pointDistance(p.position, pos) > 29.01) {
+        this.playersThatTouchedTheBall.delete(p.id);
       }
     }
   }
-}
 
-function resetTouchTracking() {
-  playersThatTouchedTheBall.clear();
-  lastTouchByTeam = null;
-  lastTouchByPlayer = null;
-  lastBallPosition = null;
-  lastBallSpeed = 0;
+  private resetTouchTracking(): void {
+    this.playersThatTouchedTheBall.clear();
+    this.lastTouchByPlayer = null;
+    this.lastBallPosition = null;
+    this.lastBallSpeed = 0;
+  }
 }
 
 function clockToSeconds(value: string): number {
@@ -272,4 +269,18 @@ function formatClock(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
   const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, "0");
   return `${minutes}:${seconds}`;
+}
+
+function getSaoPauloDateParts(): Record<"day" | "month" | "year" | "hour" | "minute" | "second", string> {
+  const formatter = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  return Object.fromEntries(formatter.formatToParts(new Date()).map((part) => [part.type, part.value])) as Record<"day" | "month" | "year" | "hour" | "minute" | "second", string>;
 }

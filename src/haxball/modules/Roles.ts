@@ -1,8 +1,8 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Event, Module, ModuleCommand, type Player, type Room } from "haxball-extended-room";
 import { getWebhookUrl } from "../../config/env";
 import { rolesDb } from "../../database/Database";
-import { request } from "undici";
 import { syncPlayerAccessRole } from "../roles/AccessRoles";
+import { sendWebhookJson } from "../../utils/discordWebhook";
 
 @Module
 export class RolesModule {
@@ -86,7 +86,7 @@ export class RolesModule {
     const url = getWebhookUrl("ADMIN_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
     const content = `[${this.room.name}] [:warning: **SISTEMA**]: :key: **CARGO** — \`[${player.id}]\` **${player.name}** autenticou como ${role}.`;
-    request(url, { method: "POST", body: JSON.stringify({ content }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    sendWebhookJson(url, { content });
   }
 
   @ModuleCommand({

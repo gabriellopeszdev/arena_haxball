@@ -1,8 +1,8 @@
 import { Event, Module, type Player, type Room } from "haxball-extended-room";
 import type { Command, CommandExecInfo } from "haxball-extended-room";
-import { request } from "undici";
 import { getWebhookUrl } from "../../config/env";
 import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
+import { sanitizeDiscordContent, sendWebhookJson } from "../../utils/discordWebhook";
 
 @Module
 export class WebhookModule {
@@ -15,7 +15,7 @@ export class WebhookModule {
   private sendSystem(content: string): void {
     const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
-    request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] [:warning: **SISTEMA**]: ${content}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    sendWebhookJson(url, { content: `[${this.room.name}] [:warning: **SISTEMA**]: ${content}` });
   }
 
   @Event
@@ -44,7 +44,7 @@ export class WebhookModule {
     if (message.startsWith(prefix)) return;
     if (isSpecialChatMessage(message)) return;
     if (getPublicChatBlock(this.room, player, message).blocked) return;
-    this.sendMsg(`${this.teamEmoji(player)} [${player.id}] **${player.name}**: \`${message}\``);
+    this.sendMsg(`${this.teamEmoji(player)} [${player.id}] **${player.name}**: \`${sanitizeDiscordContent(message)}\``);
   }
 
   @Event
@@ -92,7 +92,7 @@ export class WebhookModule {
   private sendMsg(content: string): void {
     const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
-    request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] ${content}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    sendWebhookJson(url, { content: `[${this.room.name}] ${content}` });
   }
 
   private maskCommand(message: string): string {

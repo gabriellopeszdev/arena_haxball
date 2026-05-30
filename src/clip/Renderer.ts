@@ -12,8 +12,9 @@ const LAUNCH_ARGS = [
   "--disable-gpu",
   "--no-first-run",
 ];
-const GIF_FPS = 12;
+const GIF_FPS = 20;
 const GIF_WIDTH = 640;
+const SEEK_SETTLE_MS = 80;
 
 export class ClipRenderer {
   async render(duration: number, endTime?: number, replayFile?: string): Promise<string> {
@@ -74,6 +75,9 @@ export class ClipRenderer {
       const canvas = await replayerPage.$("canvas");
 
       for (let i = 0; i < totalFrames; i++) {
+        const t = seekTime + i * frameDelaySec;
+        await this.seekReplay(replayerPage, Math.min(t, clipEnd), totalDuration);
+
         const fp = path.join(framesDir, `frame-${String(i).padStart(5, "0")}.png`);
         if (canvas) {
           const clip = await canvas.boundingBox();
@@ -86,8 +90,6 @@ export class ClipRenderer {
           await page.screenshot({ path: fp, type: "png" });
         }
 
-        const t = seekTime + (i + 1) * frameDelaySec;
-        if (t <= clipEnd) await this.seekReplay(replayerPage, t, totalDuration);
       }
 
       this.buildGif(framesDir, fps, outputPath);
@@ -180,7 +182,7 @@ export class ClipRenderer {
       timebar.dispatchEvent(new MouseEvent("mouseup", options));
       timebar.dispatchEvent(new MouseEvent("click", options));
     }, percent);
-    await sleep(35);
+    await sleep(SEEK_SETTLE_MS);
   }
 
   private findHbr2(dir: string): string {

@@ -6,6 +6,7 @@ import { client } from "../discord/Client";
 import { getBotName, getBotURL } from "../discord/EmbedFactory";
 import { getWebhookUrl } from "../config/env";
 import { getRoomList } from "../room/RoomManager";
+import { sanitizeDiscordContent, webhookJsonPayload } from "../utils/discordWebhook";
 
 type PendingClip = {
   id: number;
@@ -87,14 +88,14 @@ export class ClipQueue {
       `🎬 **Solicitado por:** \`${clip.player_name}\``,
       `🏟️ **Sala:** \`${clip.room_name}\``,
       `⏱️ **Duração:** \`${clip.duration}s\``,
-      clip.comment ? `💬 **Comentário:** ${clip.comment}` : "",
+      clip.comment ? `💬 **Comentário:** ${sanitizeDiscordContent(clip.comment)}` : "",
     ].filter(Boolean).join("\n");
 
     let lastError: unknown;
     for (let attempt = 1; attempt <= DISCORD_SEND_ATTEMPTS; attempt++) {
       try {
         const form = new FormData();
-        form.append("payload_json", JSON.stringify({
+        form.append("payload_json", JSON.stringify(webhookJsonPayload({
           embeds: [{
             color: 0x00FFFF,
             title: `🎬 ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} | CLIP`,
@@ -102,7 +103,7 @@ export class ClipQueue {
             image: { url: `attachment://${fileName}` },
             footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
           }],
-        }));
+        })));
         form.append("files[0]", new Blob([fs.readFileSync(filePath)], { type: "image/gif" }), fileName);
 
         const response = await fetch(withWait(url), { method: "POST", body: form });

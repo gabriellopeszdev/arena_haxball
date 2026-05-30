@@ -1,7 +1,7 @@
 import { Event, Module, type Player, type Room } from "haxball-extended-room";
-import { request } from "undici";
 import { getWebhookUrl } from "../../config/env";
 import { rolesDb } from "../../database/Database";
+import { sendWebhookJson } from "../../utils/discordWebhook";
 
 type PlayerRef = {
   id: number;
@@ -163,10 +163,6 @@ export class BanKickModule {
   private logMessage(content: string): void {
     const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
-    request(url, {
-      method: "POST",
-      body: JSON.stringify({ content: `[${this.room.name}] [:warning: **SISTEMA**]: ${content}` }),
-      headers: { "Content-Type": "application/json" },
-    }).catch(() => {});
+    sendWebhookJson(url, { content: `[${this.room.name}] [:warning: **SISTEMA**]: ${content}` });
   }
 }

@@ -1,7 +1,7 @@
 import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
-import { request } from "undici";
+import { sendWebhookJson } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("senha")
@@ -21,7 +21,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     room.setPassword(senha);
     room.send({ message: `🔒 Sala fechada por ${interaction.user.username}.`, color: 0xFF0000 } as any);
     const url = process.env.SENHA_WEBHOOK;
-    if (url) request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] Sala fechada por \`${interaction.user.username}\`. Senha: ${senha}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    if (url) sendWebhookJson(url, { content: `[${room.name}] Sala fechada por \`${interaction.user.username}\`. Senha: ${senha}` });
     await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔒 Sala fechada. Senha: \`${senha}\``, user)] });
   } else {
     room.clearPassword();

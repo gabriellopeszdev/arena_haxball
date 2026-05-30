@@ -1,5 +1,5 @@
 import { Module, type Player, type Room, Event, Colors, ChatStyle, ChatSounds } from "haxball-extended-room";
-import { fetch, request } from "undici";
+import { fetch } from "undici";
 import { bansDb, rolesDb } from "../../database/Database";
 import { WebhookClient } from "discord.js";
 import { client } from "../../discord/Client";
@@ -7,6 +7,7 @@ import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
 import { getPublicChatBlock, isSpecialChatMessage } from "../chat/ChatGuards";
 import { syncPlayerAccessRole } from "../roles/AccessRoles";
+import { sanitizeDiscordContent, sendWebhookJson } from "../../utils/discordWebhook";
 
 const emojiMap: Record<string, { id: string; emojiName: string }> = {
   Nick: { id: "1508652143605846096", emojiName: "Nick" },
@@ -59,8 +60,8 @@ export class CoreModule {
     if (!url) return;
     const role = player.settings.role?.toUpperCase();
     if (!role) return;
-    const content = `[${this.room.name}] [${role}] [${this.teamEmoji(player)}] \`[${player.id}]\` **${player.name}**: \`${message}\``;
-    request(url, { method: "POST", body: JSON.stringify({ content }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    const content = `[${this.room.name}] [${role}] [${this.teamEmoji(player)}] \`[${player.id}]\` **${player.name}**: \`${sanitizeDiscordContent(message)}\``;
+    sendWebhookJson(url, { content });
   }
 
   @Event

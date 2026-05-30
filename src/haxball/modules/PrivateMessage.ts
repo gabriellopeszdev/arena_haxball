@@ -1,6 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Event, Module, ModuleCommand, type Player, type Room } from "haxball-extended-room";
-import { request } from "undici";
 import { getWebhookUrl } from "../../config/env";
+import { sanitizeDiscordContent, sendWebhookJson } from "../../utils/discordWebhook";
 
 @Module
 export class PrivateMessageModule {
@@ -49,6 +49,6 @@ export class PrivateMessageModule {
   private logPm(sender: Player, receiver: Player, message: string): void {
     const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
-    request(url, { method: "POST", body: JSON.stringify({ content: `[${this.room.name}] [PM] \`[${sender.id}]\` ${sender.name} -> \`[${receiver.id}]\` ${receiver.name}: ${message}` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+    sendWebhookJson(url, { content: `[${this.room.name}] [PM] \`[${sender.id}]\` **${sender.name}** -> \`[${receiver.id}]\` **${receiver.name}**: \`${sanitizeDiscordContent(message)}\`` });
   }
 }

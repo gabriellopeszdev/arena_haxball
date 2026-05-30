@@ -28,6 +28,8 @@ class StadiumCommand {
     }
     this.room.setStadium(this.stadium as any);
     currentStadiumName = this.name;
+    (this.room.state as any).currentStadiumName = this.name;
+    this.room.customEvents.emit("realSoccerToggle", this.name === "Real Soccer Revolution");
     this.room.send({ message: `✅ Mapa alterado para ${this.name} por ${execInfo.player.name}.`, color: Colors.Orange, style: ChatStyle.SmallBold, sound: ChatSounds.Notification });
   }
 }
@@ -37,6 +39,7 @@ export class StadiumModule {
   private commands: StadiumCommand[];
 
   constructor(private room: Room) {
+    (this.room.state as any).currentStadiumName = currentStadiumName;
     this.commands = [
       new StadiumCommand(room, loadStadiumFile("Futsal X3 by Bazinga.json"), "Futsal X3"),
       new StadiumCommand(room, loadStadiumFile("Futsal X4 by Bazinga.json"), "Futsal X4"),
@@ -46,7 +49,11 @@ export class StadiumModule {
       new StadiumCommand(room, loadStadiumFile("Futsal x3 - FBF Brasil.json"), "Futsal X3 - FBF Brasil"),
       new StadiumCommand(room, loadStadiumFile("Futsal x4 - FBF Brasil.json"), "Futsal X4 - FBF Brasil"),
     ];
-    this.room.onStadiumChange = (name) => { currentStadiumName = name; };
+    this.room.onStadiumChange = (name) => {
+      currentStadiumName = name;
+      (this.room.state as any).currentStadiumName = name;
+      this.room.customEvents.emit("realSoccerToggle", name === "Real Soccer Revolution");
+    };
   }
 
   @ModuleCommand({ aliases: ["bazingax3", "x3bazinga", "futsalx3"], desc: "Carrega Futsal X3 by Bazinga.", usage: "x3", roles: ["admin", "👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"], deleteMessage: true })

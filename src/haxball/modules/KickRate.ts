@@ -1,6 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, Module, type Player, type Room } from "haxball-extended-room";
-import { request } from "undici";
 import { getWebhookUrl } from "../../config/env";
+import { sendWebhookJson } from "../../utils/discordWebhook";
 
 class RoleValidator {
     private static readonly validRoles = ["⚽ jogador", "👮‍♂️ capitão", "💂 sub-capitão"];
@@ -35,11 +35,7 @@ class KickRateWebhook {
         const by = player ? `por \`${player.name}\`` : "pelo sistema";
         const text = `[${room.name}] [:warning: **SISTEMA**]: Kickrate alterado ${by}: min = ${min}, rate = ${rate}, burst = ${burst}`;
 
-        request(url, {
-            method: "POST",
-            body: JSON.stringify({ content: text }),
-            headers: { "Content-Type": "application/json" }
-        }).catch(err => console.error("Erro ao enviar webhook de KickRate:", err));
+        sendWebhookJson(url, { content: text });
     }
 }
 

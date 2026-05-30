@@ -1,6 +1,6 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room } from "haxball-extended-room";
-import { request } from "undici";
 import { getWebhookUrl } from "../../config/env";
+import { sendWebhookJson } from "../../utils/discordWebhook";
 
 export function passwordCommand(room: Room): void {
   room.command({
@@ -19,7 +19,7 @@ export function passwordCommand(room: Room): void {
       $.player.reply({ message: `[PV] 🔒 A sala foi trancada com ${senhaUsada}: ${senha}.`, color: Colors.Lightcoral, style: ChatStyle.Small, sound: ChatSounds.Notification });
 
       const url = getWebhookUrl("SENHA_WEBHOOK", (room.state as any).roomNumber);
-      if (url) request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] Sala fechada por \`${$.player.name}\`. Senha: **${senha}**` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+      if (url) sendWebhookJson(url, { content: `[${room.name}] Sala fechada por \`${$.player.name}\`. Senha: **${senha}**` });
     },
   });
 
@@ -40,7 +40,7 @@ export function passwordCommand(room: Room): void {
       room.clearPassword();
       room.send({ message: `🔓 A senha da sala foi removida por ${$.player.name}.`, color: Colors.LightSeaGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
       const url = getWebhookUrl("SENHA_WEBHOOK", (room.state as any).roomNumber);
-      if (url) request(url, { method: "POST", body: JSON.stringify({ content: `[${room.name}] Sala aberta por \`${$.player.name}\`.` }), headers: { "Content-Type": "application/json" } }).catch(() => {});
+      if (url) sendWebhookJson(url, { content: `[${room.name}] Sala aberta por \`${$.player.name}\`.` });
     },
   });
 }
