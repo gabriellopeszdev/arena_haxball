@@ -22,7 +22,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     room.setPassword(senha);
     room.send({ message: `🔒 Sala fechada por ${interaction.user.username}.`, color: 0xFF0000 } as any);
     const url = getWebhookUrl("SENHA_WEBHOOK", (room.state as any).roomNumber);
-    if (url) sendWebhookJson(url, { content: `[${room.name}] Sala fechada por \`${interaction.user.username}\`. Senha: ${senha}` });
+    if (url) sendWebhookJson(url, { content: `[${room.name}] Sala fechada por \`${interaction.user.username}\`. Senha: **${senha}**` });
     await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔒 Sala fechada. Senha: \`${senha}\``, user)] });
   } else {
     room.clearPassword();
