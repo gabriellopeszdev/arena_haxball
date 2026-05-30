@@ -2,7 +2,8 @@ import puppeteer from "puppeteer";
 import type { Page, Frame, ElementHandle } from "puppeteer";
 import path from "node:path";
 import fs from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 
 const LAUNCH_ARGS = [
   "--no-sandbox",
@@ -14,7 +15,9 @@ const LAUNCH_ARGS = [
 ];
 const GIF_FPS = 20;
 const GIF_WIDTH = 640;
-const SEEK_SETTLE_MS = 80;
+const SEEK_POLL_INTERVAL_MS = 40;
+const MAX_SEEK_WAIT_MS = 10000;
+const execFileAsync = promisify(execFile);
 
 export class ClipRenderer {
   async render(duration: number, endTime?: number, replayFile?: string): Promise<string> {
@@ -92,7 +95,7 @@ export class ClipRenderer {
 
       }
 
-      this.buildGif(framesDir, fps, outputPath);
+      await this.buildGif(framesDir, fps, outputPath);
 
       console.log(`GIF: ${outputPath}`);
       return outputPath;
@@ -155,7 +158,6 @@ export class ClipRenderer {
 
   private async getTotalDuration(frame: Frame): Promise<number> {
     await this.seekReplay(frame, Number.POSITIVE_INFINITY, 1);
-    await sleep(250);
     const duration = await frame.evaluate(() => {
       return (document.querySelector('[data-hook="time"]')?.textContent || "").trim();
     });
@@ -176,13 +178,16 @@ export class ClipRenderer {
       const rect = timebar.getBoundingClientRect();
       const x = rect.left + rect.width * p;
       const y = rect.top + rect.height / 2;
+      const pageX = timebar.offsetLeft + timebar.clientWidth * p;
       const options = { bubbles: true, cancelable: true, clientX: x, clientY: y };
+      const click = new MouseEvent("click", options);
+      Object.defineProperty(click, "pageX", { get: () => pageX });
 
       timebar.dispatchEvent(new MouseEvent("mousedown", options));
       timebar.dispatchEvent(new MouseEvent("mouseup", options));
-      timebar.dispatchEvent(new MouseEvent("click", options));
+      timebar.dispatchEvent(click);
     }, percent);
-    await sleep(SEEK_SETTLE_MS);
+    await this.waitForSeek(frame, percent);
   }
 
   private findHbr2(dir: string): string {
@@ -191,25 +196,48 @@ export class ClipRenderer {
     return path.join(dir, files[files.length - 1]);
   }
 
-  private buildGif(framesDir: string, fps: number, outputPath: string): void {
+  private async waitForSeek(frame: Frame, targetPercent: number): Promise<void> {
+    const deadline = Date.now() + MAX_SEEK_WAIT_MS;
+    const target = Math.max(0, Math.min(0.999, targetPercent));
+    const tolerance = target > 0.99 ? 0.008 : 0.003;
+
+    while (Date.now() < deadline) {
+      const progress = await frame.evaluate(() => {
+        const width = (document.querySelector('[data-hook="progbar"]') as HTMLElement | null)?.style.width || "0";
+        const value = Number.parseFloat(width);
+        return Number.isFinite(value) ? value / 100 : 0;
+      });
+
+      if (target > 0.99 ? progress >= 0.99 : Math.abs(progress - target) <= tolerance) {
+        await sleep(SEEK_POLL_INTERVAL_MS);
+        return;
+      }
+
+      await sleep(SEEK_POLL_INTERVAL_MS);
+    }
+
+    throw new Error(`Replay seek did not settle near ${(target * 100).toFixed(2)}%.`);
+  }
+
+  private async buildGif(framesDir: string, fps: number, outputPath: string): Promise<void> {
     const inputPattern = path.join(framesDir, "frame-%05d.png");
     const palettePath = path.join(framesDir, "palette.png");
 
-    execFileSync("ffmpeg", [
+    await execFileAsync("ffmpeg", [
       "-y",
       "-framerate", String(fps),
       "-i", inputPattern,
       "-vf", `fps=${fps},scale=${GIF_WIDTH}:-1:flags=lanczos,palettegen=stats_mode=diff`,
       palettePath,
-    ], { timeout: 120000, stdio: "pipe" });
-    execFileSync("ffmpeg", [
+    ], { timeout: 120000 });
+    await execFileAsync("ffmpeg", [
       "-y",
       "-framerate", String(fps),
       "-i", inputPattern,
       "-i", palettePath,
       "-lavfi", `fps=${fps},scale=${GIF_WIDTH}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer`,
       outputPath,
-    ], { timeout: 120000, stdio: "pipe" });
+    ], { timeout: 120000 });
   }
 }
 

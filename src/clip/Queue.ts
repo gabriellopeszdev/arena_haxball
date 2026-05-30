@@ -27,15 +27,15 @@ export class ClipQueue {
     clipsDb.insert(roomName, playerName, duration, comment, requestedAt);
   }
 
-  async processPending(replayFilePath?: string, roomName?: string): Promise<void> {
+  async processPending(replayFilePath?: string, roomName?: string, replayUrl?: string | null): Promise<void> {
     if (this.processing) {
-      setTimeout(() => void this.processPending(replayFilePath, roomName), 1000);
+      setTimeout(() => void this.processPending(replayFilePath, roomName, replayUrl), 1000);
       return;
     }
     this.processing = true;
     let hadFailure = false;
     try {
-      hadFailure = await this.processAll(replayFilePath, roomName);
+      hadFailure = await this.processAll(replayFilePath, roomName, replayUrl);
     } finally {
       this.processing = false;
       if (replayFilePath && !hadFailure) {
@@ -44,7 +44,7 @@ export class ClipQueue {
     }
   }
 
-  private async processAll(replayFilePath?: string, roomName?: string): Promise<boolean> {
+  private async processAll(replayFilePath?: string, roomName?: string, replayUrl?: string | null): Promise<boolean> {
     let hadFailure = false;
 
     while (true) {
@@ -56,7 +56,7 @@ export class ClipQueue {
         const renderer = new ClipRenderer();
         const filePath = await renderer.render(clip.duration, clip.requested_at ?? undefined, replayFilePath);
 
-        await this.sendToDiscord(clip, filePath);
+        await this.sendToDiscord(clip, filePath, replayUrl);
         fs.rmSync(filePath, { force: true });
 
         clipsDb.updateStatus(clip.id, "done", filePath);
@@ -71,7 +71,7 @@ export class ClipQueue {
     return hadFailure;
   }
 
-  private async sendToDiscord(clip: PendingClip, filePath: string): Promise<void> {
+  private async sendToDiscord(clip: PendingClip, filePath: string, replayUrl?: string | null): Promise<void> {
     const roomNum = getRoomList().find((r) => r.name === clip.room_name)?.number;
     const url = getWebhookUrl("GIFS_WEBHOOK", roomNum);
     if (!url) throw new Error("GIFS_WEBHOOK não configurado.");
@@ -82,12 +82,15 @@ export class ClipQueue {
     }
 
     const fileName = path.basename(filePath);
+    const interval = formatClipInterval(clip.duration, clip.requested_at);
+    const theHaxEmoji = client.emojis.cache.find((e) => e.name === "TheHax");
+    const theHaxPrefix = theHaxEmoji ? `${theHaxEmoji} ` : "";
     const description = [
       "Um novo replay acabou de sair do forno.",
       "",
       `🎬 **Solicitado por:** \`${clip.player_name}\``,
       `🏟️ **Sala:** \`${clip.room_name}\``,
-      `⏱️ **Duração:** \`${clip.duration}s\``,
+      `⏱️ **Duração:** \`${clip.duration}s\` \`${interval}\``,
       clip.comment ? `💬 **Comentário:** ${sanitizeDiscordContent(clip.comment)}` : "",
     ].filter(Boolean).join("\n");
 
@@ -100,6 +103,7 @@ export class ClipQueue {
             color: 0x00FFFF,
             title: `🎬 ${clip.room_name.replace(/\p{Emoji}/gu, "").trim()} | CLIP`,
             description,
+            fields: replayUrl ? [{ name: `${theHaxPrefix}\`Link do Replay\``, value: `[Clique aqui para abrir](${replayUrl})`, inline: false }] : [],
             image: { url: `attachment://${fileName}` },
             footer: { text: `${new Date().getFullYear()} © ${getBotName()} - Todos os direitos reservados`, icon_url: getBotURL() },
           }],
@@ -128,6 +132,18 @@ export const clipQueue = new ClipQueue();
 
 function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+}
+
+function formatClipInterval(duration: number, requestedAt: number | null): string {
+  const end = Math.max(0, Math.floor(requestedAt ?? 0));
+  const start = Math.max(0, end - Math.max(0, Math.floor(duration)));
+  return `[${formatClock(start)} - ${formatClock(end)}]`;
+}
+
+function formatClock(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+  const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
 }
 
 function sleep(ms: number): Promise<void> {

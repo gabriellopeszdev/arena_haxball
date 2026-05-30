@@ -170,7 +170,6 @@ export class GoalsModule {
         if (!fs.existsSync(clipsDir)) fs.mkdirSync(clipsDir, { recursive: true });
         replayPath = path.join(clipsDir, fileName);
         fs.writeFileSync(replayPath, Buffer.from(rec));
-        void clipQueue.processPending(replayPath, this.room.name);
       }
 
       if (shouldSaveReplay) {
@@ -204,10 +203,14 @@ export class GoalsModule {
             form.append("payload_json", JSON.stringify(webhookJsonPayload({ embeds: [embed] })));
             form.append("file", Buffer.from(rec), fileName);
             request(webhookUrl, { method: "POST", headers: form.getHeaders(), body: form }).catch(() => {});
+            if (replayPath) void clipQueue.processPending(replayPath, this.room.name, theHaxUrl);
           });
         } else {
           this.room.send({ message: "🎥 A gravação foi enviada.", color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+          if (replayPath) void clipQueue.processPending(replayPath, this.room.name);
         }
+      } else if (replayPath) {
+        void clipQueue.processPending(replayPath, this.room.name);
       }
     }
     this.isRecording = false;
