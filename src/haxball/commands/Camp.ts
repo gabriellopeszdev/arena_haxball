@@ -53,7 +53,7 @@ export function campCommands(room: Room): void {
       room.send({ message: `✅ ${$.player.name} confirmou.`, color: Colors.LightGreen, style: ChatStyle.Bold, sound: ChatSounds.Notification });
       const url = getWebhookUrl("CONFIRMACAO_WEBHOOK", (room.state as any).roomNumber);
       if (url) {
-        const teamEmoji = $.player.team === 1 ? "ðŸ”´" : $.player.team === 2 ? "ðŸ”µ" : "ðŸŸ¢";
+        const teamEmoji = $.player.team === 1 ? "🔴" : $.player.team === 2 ? "🔵" : "🟢";
         sendWebhookJson(url, {
           embeds: [{
             title: room.name,
