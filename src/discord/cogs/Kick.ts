@@ -18,9 +18,10 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: MessageFlags.Ephemeral }); return; }
   const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
   const playerId = interaction.options.getNumber("player", true);
-  const reason = interaction.options.getString("motivo") || "Kickado pelo Discord";
+  const reason = interaction.options.getString("motivo") || undefined;
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
+  const teamEmoji = player.team === 1 ? "🔴" : player.team === 2 ? "🔵" : "🟢";
   player.kick(reason);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`👢 \`[${player.id}] ${player.name}\` foi kickado${reason ? ` (\`${reason}\`)` : ""}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`👢 ${teamEmoji} \`[${player.id}]\` **${player.name}** foi kickado${reason ? ` (\`${reason}\`)` : ""}.`, user)] });
 }

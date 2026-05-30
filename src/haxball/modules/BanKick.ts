@@ -53,7 +53,7 @@ export class BanKickModule {
     const by = byPlayer ? `por \`${byPlayer.name}\`` : "pelo sistema";
     const why = reason ? ` (motivo: ${reason})` : "";
 
-    this.logMessage(`Jogador \`${kickedPlayer.name}\` ${this.playerTag(kickedPlayer)} foi kickado ${by}${why}`);
+    this.logMessage(`Jogador ${this.playerTag(kickedPlayer)} **${kickedPlayer.name}** foi kickado ${by}${why}`);
 
     const decision = this.punishmentDecision(byPlayer, kickedPlayer, "kickar");
     if (!decision.allowed) {
@@ -66,7 +66,7 @@ export class BanKickModule {
     const by = byPlayer ? `por \`${byPlayer.name}\`` : "pelo sistema";
     const why = reason ? ` (motivo: ${reason})` : "";
 
-    this.logMessage(`Jogador \`${bannedPlayer.name}\` ${this.playerTag(bannedPlayer)} foi banido ${by}${why}`);
+    this.logMessage(`Jogador ${this.playerTag(bannedPlayer)} **${bannedPlayer.name}** foi banido ${by}${why}`);
 
     const decision = this.punishmentDecision(byPlayer, bannedPlayer, "banir");
     if (!decision.allowed) {
@@ -153,7 +153,7 @@ export class BanKickModule {
   }
 
   private playerTag(player: PlayerRef): string {
-    return `${this.teamEmoji(player)} [${player.id}]`;
+    return `${this.teamEmoji(player)} \`[${player.id}]\``;
   }
 
   private teamEmoji(player: PlayerRef): string {
