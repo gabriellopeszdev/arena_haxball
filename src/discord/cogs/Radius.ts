@@ -2,6 +2,7 @@ import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } f
 import { getRoom } from "../../room/RoomManager";
 import { playerAutocomplete } from "../autocomplete";
 import { EmbedFactory } from "../EmbedFactory";
+import { sanitizeDiscordContent } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("radius")
@@ -22,5 +23,5 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const target = room.players[playerId];
   if (!target) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   target.radius = size;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`📏 Raio de \`[${target.id}] **${target.name}**\` alterado para \`${size}\`.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`📏 Raio de \`[${target.id}] **${sanitizeDiscordContent(target.name)}**\` alterado para \`${size}\`.`, user)] });
 }

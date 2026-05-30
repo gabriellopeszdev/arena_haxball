@@ -2,6 +2,7 @@ import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Sl
 import { getRoom } from "../../room/RoomManager";
 import { playerAutocomplete } from "../autocomplete";
 import { EmbedFactory } from "../EmbedFactory";
+import { sanitizeDiscordContent } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("mensagem")
@@ -51,6 +52,6 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     const target = room.players[playerId];
     if (!target) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
     target.reply({ message: `📩 [DISCORD PV]: ${msg}`, color: 0xFFB6C1 } as any);
-    await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ PV enviado para \`[${target.id}] **${target.name}**\`.`, user)] });
+    await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ PV enviado para \`[${target.id}] **${sanitizeDiscordContent(target.name)}**\`.`, user)] });
   }
 }

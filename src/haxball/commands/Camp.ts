@@ -1,7 +1,7 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room, Teams } from "haxball-extended-room";
 import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
-import { sendWebhookJson } from "../../utils/discordWebhook";
+import { sanitizeDiscordContent, sendWebhookJson } from "../../utils/discordWebhook";
 
 export function campCommands(room: Room): void {
   room.command({
@@ -57,7 +57,7 @@ export function campCommands(room: Room): void {
         sendWebhookJson(url, {
           embeds: [{
             title: room.name,
-            description: `${teamEmoji} \`[${$.player.id}]\` **${$.player.name}** confirmou na sala com sucesso.`,
+            description: `${teamEmoji} \`[${$.player.id}]\` **${sanitizeDiscordContent($.player.name)}** confirmou na sala com sucesso.`,
             color: 0x79E879,
             fields: [
               { name: "<:Nick:1508652143605846096> `Nick`", value: `\`\`\`fix\n${$.player.name}\`\`\``, inline: true },

@@ -1,6 +1,7 @@
 import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
+import { sanitizeDiscordContent } from "../../utils/discordWebhook";
 import { playerAutocomplete } from "../autocomplete";
 
 export const data = new SlashCommandBuilder()

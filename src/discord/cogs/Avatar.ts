@@ -3,6 +3,7 @@ import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } f
 import { getRoom } from "../../room/RoomManager";
 import { sanitizeAvatar } from "../../utils/helpers";
 import { playerAutocomplete } from "../autocomplete";
+import { sanitizeDiscordContent } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("avatar")
@@ -22,9 +23,9 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const input = interaction.options.getString("avatar", true);
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
-  if (input.toLowerCase() === "clear") { player.clearAvatar(); await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Avatar de \`[${player.id}] **${player.name}**\` limpo.`, user)] }); return; }
+  if (input.toLowerCase() === "clear") { player.clearAvatar(); await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Avatar de \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` limpo.`, user)] }); return; }
   const sanitized = sanitizeAvatar(input);
   if (!sanitized) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Avatar inválido.", user)], flags: MessageFlags.Ephemeral }); return; }
   player.setAvatar(sanitized);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Avatar de \`[${player.id}] **${player.name}**\` definido como \`${sanitized}\`.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Avatar de \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` definido como \`${sanitized}\`.`, user)] });
 }

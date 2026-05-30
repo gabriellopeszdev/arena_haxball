@@ -1,7 +1,7 @@
 import { Event, Module, type Player, type Room } from "haxball-extended-room";
 import { getWebhookUrl } from "../../config/env";
 import { rolesDb } from "../../database/Database";
-import { sendWebhookJson } from "../../utils/discordWebhook";
+import { sanitizeDiscordContent, sendWebhookJson } from "../../utils/discordWebhook";
 
 type PlayerRef = {
   id: number;
@@ -53,7 +53,7 @@ export class BanKickModule {
     const by = byPlayer ? `por \`${byPlayer.name}\`` : "pelo sistema";
     const why = reason ? ` (motivo: ${reason})` : "";
 
-    this.logMessage(`Jogador ${this.playerTag(kickedPlayer)} **${kickedPlayer.name}** foi kickado ${by}${why}`);
+    this.logMessage(`Jogador ${this.playerTag(kickedPlayer)} **${sanitizeDiscordContent(kickedPlayer.name)}** foi kickado ${by}${why}`);
 
     const decision = this.punishmentDecision(byPlayer, kickedPlayer, "kickar");
     if (!decision.allowed) {
@@ -66,7 +66,7 @@ export class BanKickModule {
     const by = byPlayer ? `por \`${byPlayer.name}\`` : "pelo sistema";
     const why = reason ? ` (motivo: ${reason})` : "";
 
-    this.logMessage(`Jogador ${this.playerTag(bannedPlayer)} **${bannedPlayer.name}** foi banido ${by}${why}`);
+    this.logMessage(`Jogador ${this.playerTag(bannedPlayer)} **${sanitizeDiscordContent(bannedPlayer.name)}** foi banido ${by}${why}`);
 
     const decision = this.punishmentDecision(byPlayer, bannedPlayer, "banir");
     if (!decision.allowed) {

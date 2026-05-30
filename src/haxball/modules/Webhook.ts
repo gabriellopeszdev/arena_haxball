@@ -35,7 +35,7 @@ export class WebhookModule {
 
   @Event
   onPlayerRunCommand(player: Player, _command: Command, info: CommandExecInfo): void {
-    this.sendSystem(`:speech_balloon: **COMANDO** — ${this.teamEmoji(player)} [${player.id}] **${player.name}** usou \`${this.maskCommand(info.message)}\``);
+    this.sendSystem(`:speech_balloon: **COMANDO** — ${this.teamEmoji(player)} [${player.id}] **${sanitizeDiscordContent(player.name)}** usou \`${this.maskCommand(info.message)}\``);
   }
 
   @Event
@@ -44,43 +44,43 @@ export class WebhookModule {
     if (message.startsWith(prefix)) return;
     if (isSpecialChatMessage(message)) return;
     if (getPublicChatBlock(this.room, player, message).blocked) return;
-    this.sendMsg(`${this.teamEmoji(player)} [${player.id}] **${player.name}**: \`${sanitizeDiscordContent(message)}\``);
+    this.sendMsg(`${this.teamEmoji(player)} [${player.id}] **${sanitizeDiscordContent(player.name)}**: \`${sanitizeDiscordContent(message)}\``);
   }
 
   @Event
   onPlayerJoin(player: Player): void {
-    this.sendSystem(`:inbox_tray: **ENTRADA** — \`[${player.id}]\` **${player.name}** entrou na sala.`);
+    this.sendSystem(`:inbox_tray: **ENTRADA** — \`[${player.id}]\` **${sanitizeDiscordContent(player.name)}** entrou na sala.`);
   }
 
   @Event
   onPlayerLeave(player: Player): void {
-    this.sendSystem(`:outbox_tray: **SAÍDA** — \`[${player.id}]\` **${player.name}** saiu da sala.`);
+    this.sendSystem(`:outbox_tray: **SAÍDA** — \`[${player.id}]\` **${sanitizeDiscordContent(player.name)}** saiu da sala.`);
   }
 
   @Event
   onPlayerTeamChange(changedPlayer: Player, byPlayer?: Player): void {
     const teamNames: Record<number, string> = { 0: "🟢 Spectators", 1: "🔴 Red", 2: "🔵 Blue" };
     const team = teamNames[changedPlayer.team] || `Time ${changedPlayer.team}`;
-    const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : "";
-    this.sendSystem(`:arrows_counterclockwise: **TIME** — \`[${changedPlayer.id}]\` **${changedPlayer.name}** movido para ${team}${by}`);
+    const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${sanitizeDiscordContent(byPlayer.name)}**` : "";
+    this.sendSystem(`:arrows_counterclockwise: **TIME** — \`[${changedPlayer.id}]\` **${sanitizeDiscordContent(changedPlayer.name)}** movido para ${team}${by}`);
   }
 
   @Event
   onPlayerAdminChange(changedPlayer: Player, byPlayer?: Player): void {
     if (changedPlayer.settings?.role) return;
     const status = changedPlayer.admin ? "recebeu admin" : "perdeu admin";
-    const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : "";
-    this.sendSystem(`:crown: **ADMIN** — \`[${changedPlayer.id}]\` **${changedPlayer.name}** ${status}${by}`);
+    const by = byPlayer ? ` por \`[${byPlayer.id}]\` **${sanitizeDiscordContent(byPlayer.name)}**` : "";
+    this.sendSystem(`:crown: **ADMIN** — \`[${changedPlayer.id}]\` **${sanitizeDiscordContent(changedPlayer.name)}** ${status}${by}`);
   }
 
   @Event
   onGamePause(byPlayer?: Player): void {
-    this.sendSystem(`:pause_button: **PAUSA** — Partida pausada${byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : ""}`);
+    this.sendSystem(`:pause_button: **PAUSA** — Partida pausada${byPlayer ? ` por \`[${byPlayer.id}]\` **${sanitizeDiscordContent(byPlayer.name)}**` : ""}`);
   }
 
   @Event
   onGameUnpause(byPlayer?: Player): void {
-    this.sendSystem(`:arrow_forward: **DESPAUSAR** — Partida despausada${byPlayer ? ` por \`[${byPlayer.id}]\` **${byPlayer.name}**` : ""}`);
+    this.sendSystem(`:arrow_forward: **DESPAUSAR** — Partida despausada${byPlayer ? ` por \`[${byPlayer.id}]\` **${sanitizeDiscordContent(byPlayer.name)}**` : ""}`);
   }
 
   @Event

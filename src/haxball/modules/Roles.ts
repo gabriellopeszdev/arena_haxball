@@ -2,7 +2,7 @@ import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, Event, Module, Mod
 import { getWebhookUrl } from "../../config/env";
 import { rolesDb } from "../../database/Database";
 import { syncPlayerAccessRole } from "../roles/AccessRoles";
-import { sendWebhookJson } from "../../utils/discordWebhook";
+import { sanitizeDiscordContent, sendWebhookJson } from "../../utils/discordWebhook";
 
 @Module
 export class RolesModule {
@@ -85,7 +85,7 @@ export class RolesModule {
   private notifyAdminWebhook(player: Player, role: string): void {
     const url = getWebhookUrl("ADMIN_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
-    const content = `[${this.room.name}] [:warning: **SISTEMA**]: :key: **CARGO** — \`[${player.id}]\` **${player.name}** autenticou como ${role}.`;
+    const content = `[${this.room.name}] [:warning: **SISTEMA**]: :key: **CARGO** — \`[${player.id}]\` **${sanitizeDiscordContent(player.name)}** autenticou como ${role}.`;
     sendWebhookJson(url, { content });
   }
 

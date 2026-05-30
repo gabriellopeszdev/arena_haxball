@@ -50,6 +50,6 @@ export class TeamChatModule {
     if (!url) return;
     const icon = player.team === 1 ? "🔴" : player.team === 2 ? "🔵" : "🟢";
     const safeMsg = sanitizeDiscordContent(msg);
-    sendWebhookJson(url, { content: `[${this.room.name}] [${icon} TEAM CHAT] \`[${player.id}]\` **${player.name}**: \`${safeMsg}\`` });
+    sendWebhookJson(url, { content: `[${this.room.name}] [${icon} TEAM CHAT] \`[${player.id}]\` **${sanitizeDiscordContent(player.name)}**: \`${safeMsg}\`` });
   }
 }

@@ -7,7 +7,8 @@ export function sanitizeDiscordContent(value: string): string {
     .replace(/\*\*\s*@everyone\s*\*\*/gi, "`@everyone`")
     .replace(/\*\*\s*@here\s*\*\*/gi, "`@here`")
     .replace(/(?<!`)@everyone(?!`)/gi, "`@everyone`")
-    .replace(/(?<!`)@here(?!`)/gi, "`@here`");
+    .replace(/(?<!`)@here(?!`)/gi, "`@here`")
+    .replace(/([*_~`|])/g, "\\$1");
 }
 
 export function webhookJsonPayload(payload: JsonPayload): JsonPayload {

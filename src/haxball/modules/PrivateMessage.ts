@@ -49,6 +49,6 @@ export class PrivateMessageModule {
   private logPm(sender: Player, receiver: Player, message: string): void {
     const url = getWebhookUrl("MENSAGEM_WEBHOOK", (this.room.state as any).roomNumber);
     if (!url) return;
-    sendWebhookJson(url, { content: `[${this.room.name}] [PM] \`[${sender.id}]\` **${sender.name}** -> \`[${receiver.id}]\` **${receiver.name}**: \`${sanitizeDiscordContent(message)}\`` });
+    sendWebhookJson(url, { content: `[${this.room.name}] [PM] \`[${sender.id}]\` **${sanitizeDiscordContent(sender.name)}** -> \`[${receiver.id}]\` **${sanitizeDiscordContent(receiver.name)}**: \`${sanitizeDiscordContent(message)}\`` });
   }
 }

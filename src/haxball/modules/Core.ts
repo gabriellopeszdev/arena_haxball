@@ -60,7 +60,7 @@ export class CoreModule {
     if (!url) return;
     const role = player.settings.role?.toUpperCase();
     if (!role) return;
-    const content = `[${this.room.name}] [${role}] [${this.teamEmoji(player)}] \`[${player.id}]\` **${player.name}**: \`${sanitizeDiscordContent(message)}\``;
+    const content = `[${this.room.name}] [${role}] [${this.teamEmoji(player)}] \`[${player.id}]\` **${sanitizeDiscordContent(player.name)}**: \`${sanitizeDiscordContent(message)}\``;
     sendWebhookJson(url, { content });
   }
 

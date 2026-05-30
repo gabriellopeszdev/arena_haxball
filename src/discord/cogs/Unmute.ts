@@ -3,6 +3,7 @@ import { mutesDb } from "../../database/Database";
 import { getRoom } from "../../room/RoomManager";
 import { playerAutocomplete } from "../autocomplete";
 import { EmbedFactory } from "../EmbedFactory";
+import { sanitizeDiscordContent } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("desmutar")
@@ -22,5 +23,5 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   mutesDb.remove(player.auth ?? "", player.ip ?? "");
   player.reply({ message: "🔊 Você foi desmutado.", color: 0x00FF00 } as any);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔊 \`[${player.id}] **${player.name}**\` desmutado.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔊 \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` desmutado.`, user)] });
 }
