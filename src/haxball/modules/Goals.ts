@@ -203,7 +203,11 @@ export class GoalsModule {
             form.append("payload_json", JSON.stringify(webhookJsonPayload({ embeds: [embed] })));
             form.append("file", Buffer.from(rec), fileName);
             request(webhookUrl, { method: "POST", headers: form.getHeaders(), body: form }).catch(() => {});
-            clipQueue.setReplayUrl(replayPath, theHaxUrl);
+            if (replayPath && theHaxUrl) {
+              const clipQueueState = clipQueue as unknown as { __replayUrls?: Map<string, string> };
+              if (!clipQueueState.__replayUrls) clipQueueState.__replayUrls = new Map<string, string>();
+              clipQueueState.__replayUrls.set(replayPath, theHaxUrl);
+            }
             if (replayPath) void clipQueue.processPending(replayPath, this.room.name);
           });
         } else {

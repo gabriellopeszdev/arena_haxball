@@ -22,14 +22,9 @@ const DISCORD_SEND_ATTEMPTS = 3;
 
 export class ClipQueue {
   private processing = false;
-  private replayUrls = new Map<string, string>();
 
   async add(roomName: string, playerName: string, duration: number, comment: string, requestedAt: number): Promise<void> {
     clipsDb.insert(roomName, playerName, duration, comment, requestedAt);
-  }
-
-  setReplayUrl(replayFilePath: string | undefined, replayUrl: string | null): void {
-    if (replayFilePath && replayUrl) this.replayUrls.set(replayFilePath, replayUrl);
   }
 
   async processPending(replayFilePath?: string, roomName?: string): Promise<void> {
@@ -40,12 +35,12 @@ export class ClipQueue {
     this.processing = true;
     let hadFailure = false;
     try {
-      const replayUrl = replayFilePath ? this.replayUrls.get(replayFilePath) : undefined;
+      const replayUrl = replayFilePath ? getReplayUrlStore(this).get(replayFilePath) : undefined;
       hadFailure = await this.processAll(replayFilePath, roomName, replayUrl);
     } finally {
       this.processing = false;
       if (replayFilePath && !hadFailure) {
-        this.replayUrls.delete(replayFilePath);
+        getReplayUrlStore(this).delete(replayFilePath);
         fs.rmSync(replayFilePath, { force: true });
       }
     }
@@ -160,4 +155,10 @@ function sleep(ms: number): Promise<void> {
 function withWait(url: string): string {
   const separator = url.includes("?") ? "&" : "?";
   return `${url}${separator}wait=true`;
+}
+
+function getReplayUrlStore(queue: ClipQueue): Map<string, string> {
+  const holder = queue as unknown as { __replayUrls?: Map<string, string> };
+  if (!holder.__replayUrls) holder.__replayUrls = new Map<string, string>();
+  return holder.__replayUrls;
 }
