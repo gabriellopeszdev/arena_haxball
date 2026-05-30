@@ -22,23 +22,30 @@ const DISCORD_SEND_ATTEMPTS = 3;
 
 export class ClipQueue {
   private processing = false;
+  private replayUrls = new Map<string, string>();
 
   async add(roomName: string, playerName: string, duration: number, comment: string, requestedAt: number): Promise<void> {
     clipsDb.insert(roomName, playerName, duration, comment, requestedAt);
   }
 
-  async processPending(replayFilePath?: string, roomName?: string, replayUrl?: string | null): Promise<void> {
+  setReplayUrl(replayFilePath: string | undefined, replayUrl: string | null): void {
+    if (replayFilePath && replayUrl) this.replayUrls.set(replayFilePath, replayUrl);
+  }
+
+  async processPending(replayFilePath?: string, roomName?: string): Promise<void> {
     if (this.processing) {
-      setTimeout(() => void this.processPending(replayFilePath, roomName, replayUrl), 1000);
+      setTimeout(() => void this.processPending(replayFilePath, roomName), 1000);
       return;
     }
     this.processing = true;
     let hadFailure = false;
     try {
+      const replayUrl = replayFilePath ? this.replayUrls.get(replayFilePath) : undefined;
       hadFailure = await this.processAll(replayFilePath, roomName, replayUrl);
     } finally {
       this.processing = false;
       if (replayFilePath && !hadFailure) {
+        this.replayUrls.delete(replayFilePath);
         fs.rmSync(replayFilePath, { force: true });
       }
     }

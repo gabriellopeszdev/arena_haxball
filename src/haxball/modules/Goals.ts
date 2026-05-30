@@ -203,7 +203,8 @@ export class GoalsModule {
             form.append("payload_json", JSON.stringify(webhookJsonPayload({ embeds: [embed] })));
             form.append("file", Buffer.from(rec), fileName);
             request(webhookUrl, { method: "POST", headers: form.getHeaders(), body: form }).catch(() => {});
-            if (replayPath) void clipQueue.processPending(replayPath, this.room.name, theHaxUrl);
+            clipQueue.setReplayUrl(replayPath, theHaxUrl);
+            if (replayPath) void clipQueue.processPending(replayPath, this.room.name);
           });
         } else {
           this.room.send({ message: "🎥 A gravação foi enviada.", color: Colors.Gray, style: ChatStyle.Bold, sound: ChatSounds.Notification });
