@@ -111,4 +111,31 @@ export async function initializeDiscordBot(): Promise<void> {
   await client.login(token);
 }
 
+export async function reloadDiscordCommands(): Promise<void> {
+  const cogsDir = path.join(__dirname, "cogs");
+  if (!fs.existsSync(cogsDir)) return;
+
+  const lowerCogsDir = cogsDir.toLowerCase();
+  for (const key of Object.keys(require.cache)) {
+    if (key.toLowerCase().startsWith(lowerCogsDir)) {
+      delete require.cache[key];
+    }
+  }
+
+  const loaded: Command[] = [];
+  const files = fs.readdirSync(cogsDir).filter((f) => f.endsWith(".ts") || f.endsWith(".js"));
+  for (const file of files) {
+    try {
+      const mod = await import(path.join(cogsDir, file));
+      if (mod.data && mod.execute) {
+        loaded.push({ data: mod.data, execute: mod.execute, autocomplete: mod.autocomplete });
+        console.log(`✅ Cog recarregado: ${mod.data.name}`);
+      }
+    } catch (err) {
+      console.error(`❌ Erro ao recarregar cog ${file}:`, err);
+    }
+  }
+  commands = loaded;
+}
+
 export { client };

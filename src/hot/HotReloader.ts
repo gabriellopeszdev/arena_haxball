@@ -8,13 +8,20 @@ const WATCH_DIRS = [
   path.resolve(__dirname, "../clip"),
 ];
 
+const COGS_DIR = path.resolve(__dirname, "../discord/cogs").toLowerCase();
+
 export class HotReloader {
   private watchers: fs.FSWatcher[] = [];
   private room: Room | null = null;
   private debounceTimer: NodeJS.Timeout | null = null;
+  private reloadCogs: (() => Promise<void>) | null = null;
 
   setRoom(room: Room): void {
     this.room = room;
+  }
+
+  setReloadCogs(fn: () => Promise<void>): void {
+    this.reloadCogs = fn;
   }
 
   start(): void {
@@ -35,6 +42,7 @@ export class HotReloader {
       const clearPrefixes = [
         path.resolve(__dirname, "../haxball").toLowerCase(),
         path.resolve(__dirname, "../clip").toLowerCase(),
+        COGS_DIR,
       ];
       for (const key of Object.keys(require.cache)) {
         const lower = key.toLowerCase();
@@ -54,6 +62,10 @@ export class HotReloader {
       handler.SetRoomMessages(this.room);
       handler.HandleModules(this.room);
       handler.HandleCommands(this.room);
+
+      if (this.reloadCogs) {
+        this.reloadCogs().catch((err: unknown) => console.error("❌ Erro ao recarregar cogs:", err));
+      }
 
       console.log(`🔄 Hot Reload aplicado (${new Date().toLocaleTimeString()})`);
     } catch (err) {

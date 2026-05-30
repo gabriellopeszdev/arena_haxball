@@ -40,8 +40,11 @@ export async function initializeHaxballRoom(
   HandleModules(room);
   HandleCommands(room);
 
+  const { reloadDiscordCommands } = await import("../discord/Client");
+
   const reloader = new HotReloader();
   reloader.setRoom(room);
+  reloader.setReloadCogs(reloadDiscordCommands);
   reloader.start();
 
   return room;
