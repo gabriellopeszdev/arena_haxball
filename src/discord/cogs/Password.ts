@@ -1,6 +1,7 @@
 import { EmbedFactory } from "../EmbedFactory";
-import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
+import { getWebhookUrl } from "../../config/env";
 import { sendWebhookJson } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
@@ -20,12 +21,14 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     const senha = interaction.options.getString("senha") || process.env.SENHA_PADRAO || "fncpass";
     room.setPassword(senha);
     room.send({ message: `🔒 Sala fechada por ${interaction.user.username}.`, color: 0xFF0000 } as any);
-    const url = process.env.SENHA_WEBHOOK;
+    const url = getWebhookUrl("SENHA_WEBHOOK", (room.state as any).roomNumber);
     if (url) sendWebhookJson(url, { content: `[${room.name}] Sala fechada por \`${interaction.user.username}\`. Senha: ${senha}` });
     await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔒 Sala fechada. Senha: \`${senha}\``, user)] });
   } else {
     room.clearPassword();
     room.send({ message: `🔓 Sala aberta por ${interaction.user.username}.`, color: 0x90EE90 } as any);
+    const url = getWebhookUrl("SENHA_WEBHOOK", (room.state as any).roomNumber);
+    if (url) sendWebhookJson(url, { content: `[${room.name}] Sala aberta por \`${interaction.user.username}\`.` });
     await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed("🔓 Sala aberta.", user)] });
   }
 }

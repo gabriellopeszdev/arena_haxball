@@ -22,5 +22,5 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   player.kick(reason);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`👢 \`[${player.id}] **${player.name}**\` foi kickingado${reason ? ` (\`${reason}\`)` : ""}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`👢 \`[${player.id}] ${player.name}\` foi kickado${reason ? ` (\`${reason}\`)` : ""}.`, user)] });
 }

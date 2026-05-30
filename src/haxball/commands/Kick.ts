@@ -18,7 +18,7 @@ function kickFactory(getIds: (room: Room) => number[], emoji: string) {
       return;
     }
     const count = kickPlayers(room, getIds(room), `👢 ${$.message.split(" ")[0]}`);
-    if (count > 0) room.send({ message: `👢 ${count} jogador(es) do ${emoji} kickingados por ${$.player.name}.`, color: Colors.Orange, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+    if (count > 0) room.send({ message: `👢 ${count} jogador(es) do ${emoji} kickados por ${$.player.name}.`, color: Colors.Orange, style: ChatStyle.Bold, sound: ChatSounds.Notification });
     else $.player.reply({ message: "[PV] ❌ Nenhum jogador.", color: Colors.Orange, style: ChatStyle.Bold, sound: ChatSounds.Notification });
   };
 }
