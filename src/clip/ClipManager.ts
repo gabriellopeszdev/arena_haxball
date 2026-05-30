@@ -1,6 +1,8 @@
 import { ChatSounds, ChatStyle, Colors, type CommandExecInfo, type Room } from "haxball-extended-room";
 import { clipQueue } from "./Queue";
 
+const MAX_GIF_DURATION_SECONDS = 7;
+
 export function clipCommand(room: Room): void {
   let gifsThisGame = 0;
   const previousOnGameStart = (room as any).onGameStart;
@@ -21,7 +23,7 @@ export function clipCommand(room: Room): void {
       const firstArg = args[0]?.toLowerCase();
       const rawDuration = firstArg?.endsWith("s") ? firstArg.slice(0, -1) : firstArg;
       const hasDurationArg = rawDuration ? /^\d+$/.test(rawDuration) : false;
-      const requestedDuration = hasDurationArg ? Number.parseInt(rawDuration, 10) : 15;
+      const requestedDuration = hasDurationArg ? Number.parseInt(rawDuration, 10) : MAX_GIF_DURATION_SECONDS;
 
       if (!room.isGameInProgress() || !room.scores) {
         $.player.reply({ message: "[PV] ❌ Não há partida em andamento para gerar GIF.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
@@ -34,8 +36,8 @@ export function clipCommand(room: Room): void {
         return;
       }
 
-      if (requestedDuration < 1 || requestedDuration > 15) {
-        $.player.reply({ message: "[PV] ⚠️ Duração inválida (1-15 segundos).", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
+      if (requestedDuration < 1 || requestedDuration > MAX_GIF_DURATION_SECONDS) {
+        $.player.reply({ message: `[PV] ⚠️ Duração inválida (1-${MAX_GIF_DURATION_SECONDS} segundos).`, color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         return;
       }
 
