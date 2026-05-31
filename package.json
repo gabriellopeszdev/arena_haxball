@@ -9,8 +9,8 @@
     "build": "tsc",
     "lint": "tsc --noEmit",
     "postinstall": "node scripts/patch-haxball.js",
-    "sync": "rsync -avz --delete --exclude node_modules --exclude .git --exclude clips --exclude data.db* --exclude .env --exclude .env.example --exclude README.md --exclude dist ./ $VPS_USER@$VPS_HOST:/home/$VPS_USER/vincere",
-    "sync:full": "npm run sync && ssh $VPS_USER@$VPS_HOST 'cd /home/$VPS_USER/vincere && npm install && pm2 restart all'"
+    "sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync-vps.ps1",
+    "sync:full": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync-vps.ps1 -Full"
   },
   "keywords": [
     "haxball"
