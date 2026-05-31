@@ -6,11 +6,8 @@ import { initializeHaxballRoom } from "./RoomFactory";
 const rooms = new Map<string, Room>();
 const roomMetadata = new Map<string, { number: number; proxy?: string }>();
 
-let hbInit: any = null;
-
-async function getHbInit(): Promise<any> {
-  if (!hbInit) hbInit = await HaxballJS;
-  return hbInit;
+async function getHbInit(proxy?: string): Promise<any> {
+  return HaxballJS(proxy ? { proxy } : {});
 }
 
 function generateRoomName(roomNumber: number, customName?: string): string {
@@ -28,9 +25,9 @@ function getProxyForRoom(roomNumber: number): string | undefined {
 export async function startRoom(roomNumber: number, customName?: string): Promise<Room | null> {
   try {
     const config = await getRoomConfig(roomNumber);
-    const HBInit = await getHbInit();
     const name = config.name || generateRoomName(roomNumber, customName);
     const proxy = config.proxy || getProxyForRoom(roomNumber);
+    const HBInit = await getHbInit(proxy);
 
     console.log(`🚀 Iniciando ${name}...`);
 

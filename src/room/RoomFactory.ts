@@ -27,7 +27,6 @@ export async function initializeHaxballRoom(
   };
 
   if (options.geo) config.geo = options.geo;
-  if (options.proxy) config.proxy = options.proxy;
 
   const room = new Room(config as any, HBInit);
 
