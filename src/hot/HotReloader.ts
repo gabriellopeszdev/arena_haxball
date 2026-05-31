@@ -6,14 +6,16 @@ const WATCH_DIRS = [
   path.resolve(__dirname, "../haxball"),
   path.resolve(__dirname, "../discord/cogs"),
   path.resolve(__dirname, "../clip"),
+  path.resolve(__dirname, "../utils"),
 ];
 
 const COGS_DIR = path.resolve(__dirname, "../discord/cogs").toLowerCase();
 
 export class HotReloader {
-  private watchers: fs.FSWatcher[] = [];
+  private static instances = new Set<HotReloader>();
+  private static watchers: fs.FSWatcher[] = [];
+  private static debounceTimer: NodeJS.Timeout | null = null;
   private room: Room | null = null;
-  private debounceTimer: NodeJS.Timeout | null = null;
   private reloadCogs: (() => Promise<void>) | null = null;
 
   setRoom(room: Room): void {
@@ -25,23 +27,33 @@ export class HotReloader {
   }
 
   start(): void {
+    HotReloader.instances.add(this);
+    if (HotReloader.watchers.length > 0) return;
+
     for (const dir of WATCH_DIRS) {
       if (!fs.existsSync(dir)) continue;
       const watcher = fs.watch(dir, { recursive: true }, () => {
-        if (this.debounceTimer) clearTimeout(this.debounceTimer);
-        this.debounceTimer = setTimeout(() => this.refresh(), 300);
+        if (HotReloader.debounceTimer) clearTimeout(HotReloader.debounceTimer);
+        HotReloader.debounceTimer = setTimeout(() => {
+          let reloadCogs = true;
+          for (const reloader of HotReloader.instances) {
+            reloader.refresh(reloadCogs);
+            reloadCogs = false;
+          }
+        }, 300);
       });
-      this.watchers.push(watcher);
+      HotReloader.watchers.push(watcher);
     }
-    console.log("🔄 Hot Reload ativo — alterações em modules/commands/cogs serão aplicadas sem reiniciar.");
+    console.log("🔄 Hot Reload ativo — alterações em modules/commands/cogs/clip/utils serão aplicadas sem reiniciar.");
   }
 
-  private refresh(): void {
+  private refresh(reloadCogs: boolean): void {
     if (!this.room) return;
     try {
       const clearPrefixes = [
         path.resolve(__dirname, "../haxball").toLowerCase(),
         path.resolve(__dirname, "../clip").toLowerCase(),
+        path.resolve(__dirname, "../utils").toLowerCase(),
         COGS_DIR,
       ];
       for (const key of Object.keys(require.cache)) {
@@ -63,7 +75,7 @@ export class HotReloader {
       handler.HandleModules(this.room);
       handler.HandleCommands(this.room);
 
-      if (this.reloadCogs) {
+      if (reloadCogs && this.reloadCogs) {
         this.reloadCogs().catch((err: unknown) => console.error("❌ Erro ao recarregar cogs:", err));
       }
 
@@ -74,10 +86,14 @@ export class HotReloader {
   }
 
   stop(): void {
-    for (const w of this.watchers) {
+    HotReloader.instances.delete(this);
+    if (HotReloader.instances.size > 0) return;
+
+    for (const w of HotReloader.watchers) {
       w.close();
     }
-    this.watchers = [];
-    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    HotReloader.watchers = [];
+    if (HotReloader.debounceTimer) clearTimeout(HotReloader.debounceTimer);
+    HotReloader.debounceTimer = null;
   }
 }

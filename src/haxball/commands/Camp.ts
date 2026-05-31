@@ -3,6 +3,19 @@ import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
 import { sanitizeDiscordContent, sendWebhookJson } from "../../utils/discordWebhook";
 
+export function toggleCampMode(room: Room, actorName: string): boolean {
+  room.state.campMode = !room.state.campMode;
+  if (room.state.campMode) {
+    room.send({ message: `✅ Modo campeonato ativado por ${actorName}. Use !firmo para confirmar.`, color: Colors.LightGreen, style: ChatStyle.SmallItalic, sound: ChatSounds.Notification });
+    for (const p of Array.from(room.players.values())) { p.team = Teams.Spectators; room.state[p.id] = { confirmed: false }; }
+    room.lockTeams();
+  } else {
+    room.send({ message: `✅ Modo campeonato desativado por ${actorName}.`, color: Colors.IndianRed, style: ChatStyle.SmallItalic, sound: ChatSounds.Notification });
+    for (const p of Array.from(room.players.values())) { if (room.state[p.id]) room.state[p.id].confirmed = false; }
+  }
+  return room.state.campMode;
+}
+
 export function campCommands(room: Room): void {
   room.command({
     name: "camp",
@@ -16,15 +29,7 @@ export function campCommands(room: Room): void {
         $.player.reply({ message: `[PV] ❌ Use apenas ${$.message.split(" ")[0]}`, color: Colors.Red, style: ChatStyle.SmallBold, sound: ChatSounds.Notification });
         return;
       }
-      room.state.campMode = !room.state.campMode;
-      if (room.state.campMode) {
-        room.send({ message: `✅ Modo campeonato ativado por ${$.player.name}. Use !firmo para confirmar.`, color: Colors.LightGreen, style: ChatStyle.SmallItalic, sound: ChatSounds.Notification });
-        for (const p of Array.from(room.players.values())) { p.team = Teams.Spectators; room.state[p.id] = { confirmed: false }; }
-        room.lockTeams();
-      } else {
-        room.send({ message: `✅ Modo campeonato desativado por ${$.player.name}.`, color: Colors.IndianRed, style: ChatStyle.SmallItalic, sound: ChatSounds.Notification });
-        for (const p of Array.from(room.players.values())) { if (room.state[p.id]) room.state[p.id].confirmed = false; }
-      }
+      toggleCampMode(room, $.player.name);
     },
   });
 

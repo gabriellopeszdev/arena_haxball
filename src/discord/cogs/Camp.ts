@@ -1,6 +1,7 @@
 import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
+import { toggleCampMode } from "../../haxball/commands/Camp";
 
 export const data = new SlashCommandBuilder()
   .setName("camp")
@@ -12,6 +13,6 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const room = getRoom(sala);
   if (!room) { await interaction.reply({ content: "❌ Sala não encontrada.", flags: undefined }); return; }
   const user = { name: interaction.user.username, avatarURL: (interaction.member as any)?.displayAvatarURL?.() || interaction.user.displayAvatarURL() };
-  room.state.campMode = !room.state.campMode;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Modo campeonato \`${room.state.campMode ? "ativado" : "desativado"}\`.`, user)] });
+  const campMode = toggleCampMode(room, `[DISCORD] ${interaction.user.username}`);
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Modo campeonato \`${campMode ? "ativado" : "desativado"}\`.`, user)] });
 }
