@@ -12,12 +12,8 @@ export function sanitizeDiscordContent(value: string): string {
 }
 
 export function webhookJsonPayload(payload: JsonPayload): JsonPayload {
-  const safePayload = { ...payload };
-  if (typeof safePayload.content === "string") {
-    safePayload.content = sanitizeDiscordContent(safePayload.content);
-  }
   return {
-    ...safePayload,
+    ...payload,
     allowed_mentions: { parse: [] },
   };
 }
