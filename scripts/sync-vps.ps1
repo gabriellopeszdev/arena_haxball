@@ -6,6 +6,7 @@ $ErrorActionPreference = "Stop"
 
 $vpsUser = $env:VPS_USER
 $vpsHost = $env:VPS_HOST
+$vpsKey = $env:VPS_KEY
 
 if ([string]::IsNullOrWhiteSpace($vpsUser) -or [string]::IsNullOrWhiteSpace($vpsHost)) {
   throw "Configure VPS_USER e VPS_HOST no terminal antes de executar npm run sync."
@@ -16,6 +17,39 @@ $archivePath = Join-Path $env:TEMP $archiveName
 $remoteArchive = "/tmp/$archiveName"
 $remoteDir = "/home/$vpsUser/vincere"
 $remote = "$vpsUser@$vpsHost"
+$usePutty = -not [string]::IsNullOrWhiteSpace($vpsKey) -and [IO.Path]::GetExtension($vpsKey) -ieq ".ppk"
+
+if (-not [string]::IsNullOrWhiteSpace($vpsKey) -and -not (Test-Path -LiteralPath $vpsKey)) {
+  throw "A chave configurada em VPS_KEY nao foi encontrada: $vpsKey"
+}
+
+function Copy-ToVps([string]$source, [string]$destination) {
+  if ($usePutty) {
+    & pscp -batch -i $vpsKey $source "${remote}:$destination"
+  } elseif (-not [string]::IsNullOrWhiteSpace($vpsKey)) {
+    & scp -i $vpsKey $source "${remote}:$destination"
+  } else {
+    & scp $source "${remote}:$destination"
+  }
+
+  if ($LASTEXITCODE -ne 0) {
+    throw "Falha ao enviar pacote para a VPS."
+  }
+}
+
+function Invoke-OnVps([string]$command) {
+  if ($usePutty) {
+    & plink -batch -i $vpsKey $remote $command
+  } elseif (-not [string]::IsNullOrWhiteSpace($vpsKey)) {
+    & ssh -i $vpsKey $remote $command
+  } else {
+    & ssh $remote $command
+  }
+
+  if ($LASTEXITCODE -ne 0) {
+    throw "Falha ao executar comando na VPS."
+  }
+}
 
 try {
   tar `
@@ -34,23 +68,14 @@ try {
     throw "Falha ao criar pacote de sincronizacao."
   }
 
-  scp $archivePath "${remote}:$remoteArchive"
-  if ($LASTEXITCODE -ne 0) {
-    throw "Falha ao enviar pacote para a VPS."
-  }
+  Copy-ToVps $archivePath $remoteArchive
 
-  ssh $remote "mkdir -p '$remoteDir' && tar -xzf '$remoteArchive' -C '$remoteDir' && rm -f '$remoteArchive'"
-  if ($LASTEXITCODE -ne 0) {
-    throw "Falha ao extrair pacote na VPS."
-  }
+  Invoke-OnVps "mkdir -p '$remoteDir' && tar -xzf '$remoteArchive' -C '$remoteDir' && rm -f '$remoteArchive'"
 
   Write-Host "OK Codigo sincronizado em ${remote}:$remoteDir"
 
   if ($Full) {
-    ssh $remote "cd '$remoteDir' && npm install && pm2 restart all"
-    if ($LASTEXITCODE -ne 0) {
-      throw "Falha ao instalar dependencias ou reiniciar a VPS."
-    }
+    Invoke-OnVps "cd '$remoteDir' && npm install && pm2 restart all"
 
     Write-Host "OK Dependencias instaladas e processos reiniciados"
   }
