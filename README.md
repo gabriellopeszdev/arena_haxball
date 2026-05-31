@@ -87,7 +87,7 @@ O comando `!gif` gera um GIF dos últimos segundos da partida.
 Regras:
 
 - acesso apenas para `👮‍♂️ Capitão`, `💂 Sub-capitão`, `⚽ Jogador` e `👨‍💼 Administrador`;
-- duração permitida: `1` a `15` segundos;
+- duração permitida: `1` a `10` segundos;
 - sem duração informada, o padrão é `5s`;
 - se a partida tiver menos tempo que o pedido, o GIF usa apenas o tempo disponível;
 - máximo de `4` GIFs por partida;
