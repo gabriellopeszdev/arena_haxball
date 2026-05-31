@@ -75,9 +75,11 @@ try {
   Write-Host "OK Codigo sincronizado em ${remote}:$remoteDir"
 
   if ($Full) {
-    Invoke-OnVps "cd '$remoteDir' && npm install && pm2 restart all"
+    Invoke-OnVps "cd '$remoteDir' && npm install"
 
-    Write-Host "OK Dependencias instaladas e processos reiniciados"
+    Invoke-OnVps "if command -v pm2 >/dev/null 2>&1; then pm2 restart all; else echo 'AVISO pm2 nao instalado; reinicie manualmente o processo na sessao tmux.'; fi"
+
+    Write-Host "OK Dependencias instaladas"
   }
 } finally {
   if (Test-Path $archivePath) {
