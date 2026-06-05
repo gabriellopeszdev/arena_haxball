@@ -40,26 +40,13 @@ export function initializeDatabase(): void {
       PRIMARY KEY (ip, auth)
     );
 
-    CREATE TABLE IF NOT EXISTS clips (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      room_name TEXT NOT NULL,
-      player_name TEXT,
-      duration INTEGER NOT NULL,
-      comment TEXT DEFAULT '',
-      file_path TEXT,
-      webhook_url TEXT,
-      status TEXT DEFAULT 'pending' CHECK(status IN ('pending','processing','done','failed')),
-      requested_at REAL,
-      created_at INTEGER NOT NULL DEFAULT (unixepoch())
-    );
-
     CREATE INDEX IF NOT EXISTS idx_roles_auth ON roles(auth);
     CREATE INDEX IF NOT EXISTS idx_bans_auth ON bans(auth);
     CREATE INDEX IF NOT EXISTS idx_mutes_expires ON mutes(expires_at);
   `);
 
   migrateRolesAdminCheck();
-  migrateClipsRequestedAt();
+  dropLegacyClipsTable();
 }
 
 function migrateRolesAdminCheck(): void {
@@ -87,10 +74,8 @@ function migrateRolesAdminCheck(): void {
   `);
 }
 
-function migrateClipsRequestedAt(): void {
-  const columns = db.prepare("PRAGMA table_info(clips)").all() as { name: string }[];
-  if (columns.some((column) => column.name === "requested_at")) return;
-  db.exec("ALTER TABLE clips ADD COLUMN requested_at REAL");
+function dropLegacyClipsTable(): void {
+  db.exec("DROP TABLE IF EXISTS clips");
 }
 
 export const rolesDb = {
@@ -141,31 +126,6 @@ export const mutesDb = {
   },
   getAllActive() {
     return db.prepare("SELECT * FROM mutes WHERE expires_at > unixepoch()").all() as { ip: string; auth: string; name: string; muted_by: string; reason: string; expires_at: number }[];
-  },
-};
-
-export const clipsDb = {
-  insert(roomName: string, playerName: string, duration: number, comment: string, requestedAt?: number) {
-    return db.prepare("INSERT INTO clips (room_name, player_name, duration, comment, requested_at) VALUES (?, ?, ?, ?, ?)").run(roomName, playerName, duration, comment, requestedAt ?? null);
-  },
-  updateStatus(id: number, status: string, filePath?: string) {
-    if (filePath) {
-      db.prepare("UPDATE clips SET status = ?, file_path = ? WHERE id = ?").run(status, filePath, id);
-    } else {
-      db.prepare("UPDATE clips SET status = ? WHERE id = ?").run(status, id);
-    }
-  },
-  getNextPending(roomName?: string) {
-    if (roomName) {
-      return db.prepare("SELECT * FROM clips WHERE status = 'pending' AND room_name = ? ORDER BY id ASC LIMIT 1").get(roomName) as { id: number; room_name: string; player_name: string; duration: number; comment: string; requested_at: number | null } | undefined;
-    }
-    return db.prepare("SELECT * FROM clips WHERE status = 'pending' ORDER BY id ASC LIMIT 1").get() as { id: number; room_name: string; player_name: string; duration: number; comment: string; requested_at: number | null } | undefined;
-  },
-  countPending(roomName?: string) {
-    if (roomName) {
-      return (db.prepare("SELECT COUNT(*) AS total FROM clips WHERE status = 'pending' AND room_name = ?").get(roomName) as { total: number }).total;
-    }
-    return (db.prepare("SELECT COUNT(*) AS total FROM clips WHERE status = 'pending'").get() as { total: number }).total;
   },
 };
 

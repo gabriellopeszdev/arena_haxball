@@ -25,7 +25,7 @@ Arena Vincere centraliza a operação de uma ou mais salas HaxBall com:
 - webhooks para entrada, saída, mensagens, bans e gravações;
 - replays enviados ao TheHax;
 - GIFs dos últimos segundos da partida;
-- banco SQLite local para cargos, bans, mutes e fila de clips;
+- banco SQLite local para cargos, bans e mutes;
 - hot reload para módulos e comandos.
 
 ---
@@ -235,8 +235,7 @@ O SQLite armazena:
 
 - cargos persistentes;
 - bans;
-- mutes;
-- fila e status de clips.
+- mutes.
 
 Arquivo padrão:
 

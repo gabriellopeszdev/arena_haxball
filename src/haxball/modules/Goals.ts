@@ -6,7 +6,6 @@ import { client } from "../../discord/Client";
 import { getBotName, getBotURL } from "../../discord/EmbedFactory";
 import { getWebhookUrl } from "../../config/env";
 import { clipQueue } from "../../clip/Queue";
-import { clipsDb } from "../../database/Database";
 import { sendWebhookJson, webhookJsonPayload } from "../../utils/discordWebhook";
 import fs from "node:fs";
 import path from "node:path";
@@ -161,7 +160,7 @@ export class GoalsModule {
       const specPlayersSnapshot = Array.from(this.room.players.spectators().values()).map((p) => `🟢 ${p.name}`);
       const stadiumSnapshot = (this.room.state as any).currentStadiumName || currentStadiumName;
       const fileName = this.createReplayFileName();
-      const pendingClips = clipsDb.countPending(this.room.name);
+      const pendingClips = clipQueue.countPending(this.room.name);
       const shouldSaveReplay = goalsSnapshot.length > 0 && gameSeconds > MIN_REPLAY_SECONDS && gameSeconds < MAX_REPLAY_SECONDS;
       let replayPath: string | undefined;
 
