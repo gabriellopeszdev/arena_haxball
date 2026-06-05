@@ -25,10 +25,101 @@ const emojiMap: Record<string, { id: string; emojiName: string }> = {
 };
 
 const GEO_CACHE_TTL_MS = 15 * 60 * 1000;
-const GEO_FETCH_ATTEMPTS = 3;
+const GEO_PROVIDER_ATTEMPTS = 2;
 const GEO_FETCH_TIMEOUT_MS = 4500;
 const GEO_LEAVE_WAIT_MS = 2500;
 const geoCache = new Map<string, { expiresAt: number; data?: Record<string, any>; promise?: Promise<Record<string, any>> }>();
+type GeoProvider = {
+  name: string;
+  url: (ip: string) => string;
+  parse: (ip: string, result: Record<string, any>) => Record<string, any>;
+};
+
+const GEO_PROVIDERS: GeoProvider[] = [
+  {
+    name: "proxycheck",
+    url: (ip) => {
+      const key = process.env.PROXYCHECK_API_KEY;
+      return `https://proxycheck.io/v2/${ip}?vpn=1&asn=1${key ? `&key=${encodeURIComponent(key)}` : ""}`;
+    },
+    parse: (ip, result) => {
+      if (result.status && result.status !== "ok") {
+        throw new Error(`status=${result.status}${result.message ? ` message=${result.message}` : ""}`);
+      }
+      return result[ip] || {};
+    },
+  },
+  {
+    name: "ipwho.is",
+    url: (ip) => `https://ipwho.is/${ip}`,
+    parse: (_ip, result) => {
+      if (result.success === false) throw new Error(result.message || "lookup failed");
+      const connection = result.connection || {};
+      return {
+        provider: connection.isp,
+        organisation: connection.org,
+        country: result.country,
+        region: result.region,
+        city: result.city,
+        latitude: result.latitude,
+        longitude: result.longitude,
+        proxy: "no",
+      };
+    },
+  },
+  {
+    name: "ip-api",
+    url: (ip) => `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon,isp,org,proxy,hosting,mobile`,
+    parse: (_ip, result) => {
+      if (result.status && result.status !== "success") throw new Error(result.message || "lookup failed");
+      return {
+        provider: result.isp,
+        organisation: result.org,
+        country: result.country,
+        region: result.regionName,
+        city: result.city,
+        latitude: result.lat,
+        longitude: result.lon,
+        proxy: result.proxy || result.hosting ? "yes" : "no",
+      };
+    },
+  },
+  {
+    name: "ipapi.co",
+    url: (ip) => `https://ipapi.co/${ip}/json/`,
+    parse: (_ip, result) => {
+      if (result.error) throw new Error(result.reason || "lookup failed");
+      return {
+        provider: result.org,
+        organisation: result.org,
+        country: result.country_name,
+        region: result.region,
+        city: result.city,
+        latitude: result.latitude,
+        longitude: result.longitude,
+        proxy: "no",
+      };
+    },
+  },
+  {
+    name: "ipinfo",
+    url: (ip) => `https://ipinfo.io/${ip}/json`,
+    parse: (_ip, result) => {
+      if (result.error) throw new Error(result.error?.message || "lookup failed");
+      const [latitude, longitude] = typeof result.loc === "string" ? result.loc.split(",") : [];
+      return {
+        provider: result.org,
+        organisation: result.org,
+        country: result.country,
+        region: result.region,
+        city: result.city,
+        latitude,
+        longitude,
+        proxy: "no",
+      };
+    },
+  },
+];
 
 @Module
 export class CoreModule {
@@ -269,7 +360,7 @@ async function fetchGeoData(ip?: string): Promise<Record<string, any>> {
     })
     .catch((err) => {
       geoCache.delete(ip);
-      console.warn(`⚠️ Geo lookup falhou para ${ip}:`, err instanceof Error ? err.message : err);
+      console.warn(`⚠️ Geo lookup falhou em todos os provedores para ${ip}:`, err instanceof Error ? err.message : err);
       return {};
     });
 
@@ -279,26 +370,55 @@ async function fetchGeoData(ip?: string): Promise<Record<string, any>> {
 
 async function fetchGeoDataWithRetry(ip: string): Promise<Record<string, any>> {
   let lastError: unknown;
-  for (let attempt = 1; attempt <= GEO_FETCH_ATTEMPTS; attempt++) {
-    try {
-      const response = await fetch(`https://proxycheck.io/v2/${ip}?vpn=1&asn=1`, {
-        signal: AbortSignal.timeout(GEO_FETCH_TIMEOUT_MS),
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+  for (const provider of GEO_PROVIDERS) {
+    for (let attempt = 1; attempt <= GEO_PROVIDER_ATTEMPTS; attempt++) {
+      try {
+        const response = await fetch(provider.url(ip), {
+          signal: AbortSignal.timeout(GEO_FETCH_TIMEOUT_MS),
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
 
-      const result = (await response.json()) as Record<string, any>;
-      if (result.status && result.status !== "ok") {
-        throw new Error(`proxycheck status=${result.status}${result.message ? ` message=${result.message}` : ""}`);
+        const result = (await response.json()) as Record<string, any>;
+        const geo = normalizeGeoData(provider.parse(ip, result));
+        if (!hasUsefulGeoData(geo)) throw new Error("sem dados úteis");
+        if (provider.name !== "proxycheck") {
+          console.warn(`⚠️ Geo lookup usando fallback ${provider.name} para ${ip}.`);
+        }
+        return geo;
+      } catch (err) {
+        lastError = err;
+        if (attempt < GEO_PROVIDER_ATTEMPTS) await sleep(attempt * 500);
       }
-
-      return result[ip] || {};
-    } catch (err) {
-      lastError = err;
-      if (attempt < GEO_FETCH_ATTEMPTS) await sleep(attempt * 700);
     }
   }
 
   throw lastError;
+}
+
+function normalizeGeoData(geo: Record<string, any>): Record<string, any> {
+  return {
+    ...geo,
+    provider: valueOrUndefined(geo.provider || geo.isp),
+    isp: valueOrUndefined(geo.isp || geo.provider),
+    organisation: valueOrUndefined(geo.organisation || geo.organization || geo.org),
+    organization: valueOrUndefined(geo.organization || geo.organisation || geo.org),
+    org: valueOrUndefined(geo.org || geo.organisation || geo.organization),
+    country: valueOrUndefined(geo.country),
+    region: valueOrUndefined(geo.region),
+    city: valueOrUndefined(geo.city),
+    latitude: valueOrUndefined(geo.latitude),
+    longitude: valueOrUndefined(geo.longitude),
+    proxy: geo.proxy === "yes" || geo.proxy === true ? "yes" : "no",
+  };
+}
+
+function hasUsefulGeoData(geo: Record<string, any>): boolean {
+  return Boolean(geo.provider || geo.organisation || geo.country || geo.region || geo.city || geo.latitude || geo.longitude);
+}
+
+function valueOrUndefined(value: unknown): unknown {
+  if (value === null || value === undefined || value === "") return undefined;
+  return value;
 }
 
 function sleep(ms: number): Promise<void> {
