@@ -31,7 +31,7 @@ export function clipCommand(room: Room): void {
         return;
       }
 
-      const gameTime = Math.floor(room.scores.time);
+      const gameTime = room.scores.time;
       if (gameTime < 1) {
         $.player.reply({ message: "[PV] ⚠️ A partida ainda não tem 1s de gravação para gerar GIF.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });
         return;
@@ -42,7 +42,7 @@ export function clipCommand(room: Room): void {
         return;
       }
 
-      const duration = Math.min(requestedDuration, gameTime);
+      const duration = Math.min(requestedDuration, Math.floor(gameTime));
 
       if (gifsThisGame >= 4) {
         $.player.reply({ message: "[PV] ❌ Limite de 4 GIFs por partida atingido.", color: Colors.Red, style: ChatStyle.Bold, sound: ChatSounds.Notification });

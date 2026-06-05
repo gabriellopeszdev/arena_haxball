@@ -19,6 +19,7 @@ type PendingClip = {
 
 const DISCORD_FILE_LIMIT_BYTES = 10 * 1024 * 1024;
 const DISCORD_SEND_ATTEMPTS = 3;
+const CLIP_POST_ROLL_SECONDS = 1.25;
 
 export class ClipQueue {
   private processing = false;
@@ -56,7 +57,8 @@ export class ClipQueue {
       try {
         clipsDb.updateStatus(clip.id, "processing");
         const renderer = new ClipRenderer();
-        const filePath = await renderer.render(clip.duration, clip.requested_at ?? undefined, replayFilePath);
+        const clipEnd = getClipEndTime(clip.requested_at);
+        const filePath = await renderer.render(clip.duration, clipEnd, replayFilePath);
 
         await this.sendToDiscord(clip, filePath, replayUrl);
         fs.rmSync(filePath, { force: true });
@@ -137,9 +139,14 @@ function formatBytes(bytes: number): string {
 }
 
 function formatClipInterval(duration: number, requestedAt: number | null): string {
-  const end = Math.max(0, Math.floor(requestedAt ?? 0));
+  const end = Math.max(0, Math.floor(getClipEndTime(requestedAt) ?? 0));
   const start = Math.max(0, end - Math.max(0, Math.floor(duration)));
   return `[${formatClock(start)} - ${formatClock(end)}]`;
+}
+
+function getClipEndTime(requestedAt: number | null): number | undefined {
+  if (requestedAt == null) return undefined;
+  return requestedAt + CLIP_POST_ROLL_SECONDS;
 }
 
 function formatClock(totalSeconds: number): string {
