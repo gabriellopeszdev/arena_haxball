@@ -1,8 +1,8 @@
 <div align="center">
 
-# Arena Vincere
+# 🏟️ Arena Vincere
 
-Sistema de salas HaxBall com bot Discord, cargos persistentes, automações de moderação, replay upload e geração de GIFs.
+**Sistema profissional de salas HaxBall com bot Discord, cargos persistentes, moderação automatizada, replay upload e clipes em GIF.**
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
@@ -10,50 +10,85 @@ Sistema de salas HaxBall com bot Discord, cargos persistentes, automações de m
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white)
 
-**HaxBall + Discord + SQLite + clipes automáticos**
+**HaxBall** → **Discord** → **SQLite** → **TheHax** → **GIFs automáticos**
 
 </div>
 
 ---
 
-## Visão Geral
+## 📚 Sumário
 
-Arena Vincere centraliza a operação de uma ou mais salas HaxBall com:
-
-- comandos in-game com cargos persistentes;
-- comandos slash no Discord;
-- webhooks para entrada, saída, mensagens, bans e gravações;
-- replays enviados ao TheHax;
-- GIFs dos últimos segundos da partida;
-- banco SQLite local para cargos, bans e mutes;
-- hot reload para módulos e comandos.
+- [Visão Geral](#-visão-geral)
+- [Principais Recursos](#-principais-recursos)
+- [Hierarquia de Cargos](#-hierarquia-de-cargos)
+- [Comandos In-Game](#-comandos-in-game)
+- [Sistema de GIFs](#-sistema-de-gifs)
+- [Comandos Discord](#-comandos-discord)
+- [Configuração](#-configuração)
+- [Instalação](#-instalação)
+- [Execução](#-execução)
+- [Scripts Operacionais](#-scripts-operacionais)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Banco de Dados](#-banco-de-dados)
+- [Observações Operacionais](#-observações-operacionais)
 
 ---
 
-## Cargos
+## ✨ Visão Geral
 
-Hierarquia dos cargos do sistema:
+Arena Vincere centraliza a operação de uma ou mais salas HaxBall com integração completa ao Discord. O projeto foi desenhado para ambientes competitivos, com permissões por cargo, logs detalhados, webhooks por evento, gravação de partidas e geração automatizada de GIFs dos melhores momentos.
+
+> [!NOTE]
+> O projeto separa o `player.admin` nativo do HaxBall dos cargos persistentes do sistema. Isso evita que um admin temporário da sala receba permissões indevidas.
+
+---
+
+## 🚀 Principais Recursos
+
+| Área | Recurso |
+|:--|:--|
+| 🎮 Salas | Multi-salas HaxBall com configuração por `.env` |
+| 🛡️ Permissões | Cargos persistentes por `auth`/IP com hierarquia própria |
+| 🤖 Discord | Slash commands, embeds, autocomplete e webhooks |
+| 📹 Replays | Upload automático de súmulas para TheHax |
+| 🎬 GIFs | Clipes dos últimos segundos da partida enviados ao Discord |
+| 🧾 Logs | Entrada, saída, mensagens, bans, kicks e eventos do sistema |
+| 🗃️ Persistência | SQLite local para cargos, bans e mutes |
+| 🔁 Hot Reload | Reload de módulos, comandos, cogs, clips e helpers sem reiniciar |
+| 🌍 Geo/IP | Consulta de IP com proxycheck e fallbacks automáticos |
+
+---
+
+## 🏆 Hierarquia de Cargos
 
 ```text
 👮‍♂️ Capitão > 💂 Sub-capitão > ⚽ Jogador > 👨‍💼 Administrador > 👑 Admin da sala > Membro comum
 ```
 
-Notas importantes:
+| Cargo | Descrição |
+|:--|:--|
+| `👮‍♂️ Capitão` | Maior cargo operacional do sistema |
+| `💂 Sub-capitão` | Cargo intermediário com acesso amplo |
+| `⚽ Jogador` | Cargo autorizado para comandos de sala |
+| `👨‍💼 Administrador` | Cargo persistente menor que jogador |
+| `👑 Admin da sala` | `player.admin` nativo do HaxBall |
+| `Membro comum` | Jogador sem cargo persistente |
 
-- `👑 Admin da sala` é o `player.admin` nativo do HaxBall.
-- `👨‍💼 Administrador` é cargo do sistema, obtido via `!cargo`.
-- `player.admin` sozinho não é o cargo `👨‍💼 Administrador`.
-- Cargos persistem no SQLite por auth/IP.
+> [!IMPORTANT]
+> `player.admin` não é o mesmo que `👨‍💼 Administrador`. O admin nativo da sala não recebe automaticamente permissões de cargo do sistema.
+
+> [!NOTE]
+> Cargos persistem no SQLite por `auth`/IP e são obtidos via `!cargo <senha>`.
 
 ---
 
-## Comandos In-Game
+## 🎮 Comandos In-Game
 
 | Comando | Descrição | Acesso |
 |:--|:--|:--|
 | `!adm` | Vira admin da sala quando não há admin presente | 👤 Todos |
 | `!cargo <senha>` | Define cargo persistente por senha | 👤 Todos |
-| `!rr` / `!reset` | Reinicia a partida | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!rr` / `!reset` | Reinicia a partida | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!fechar` / `!senha` | Fecha a sala com senha | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!abrir` | Remove a senha da sala | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!clearbans` | Limpa bans do HaxBall e banco | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
@@ -61,44 +96,57 @@ Notas importantes:
 | `!kickall` / `!kickred` / `!kickblue` / `!kickspec` | Kicka grupos de jogadores | 👮‍♂️ Cap / 💂 Sub |
 | `!mute` / `!unmute` | Muta ou desmuta jogador | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!camp` / `!firmo` | Ativa campeonato e confirma presença | 👮‍♂️ Cap / 💂 Sub / ⚽ Jog |
-| `!swap` | Troca times entre red, blue e spec | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!swap` | Troca times entre red, blue e spec | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!radius` | Altera o raio de um jogador | 💂 Sub / 👮‍♂️ Cap |
 | `!puxarbola` / `!pararbola` / `!tp` | Controle avançado da bola | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!chaton` / `!chatoff` | Liga/desliga chat de jogadores | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!specon` / `!specoff` | Liga/desliga chat de espectadores | ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
-| `!uniform` | Altera uniforme do time | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!uniform` | Altera uniforme do time | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!avatar` | Altera avatar de jogador | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!pv` / `!t` | Mensagem privada ou chat de time | 👤 Todos |
 | `!afk` / `!afks` | Marca AFK ou lista AFKs | 👤 Todos |
 | `!bb` / `!leave` | Sai da sala | 👤 Todos |
 | `!help` | Mostra comandos disponíveis | 👤 Todos |
 | `!gif` / `!clip` / `!gravar` / `!replay` | Gera GIF dos últimos segundos | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
-| `!x3` / `!x4` / `!x3fbf` / `!x4fbf` / `!lvk` / `!rs` / `!penal` | Troca o mapa | 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
+| `!x3` / `!x4` / `!x3fbf` / `!x4fbf` / `!lvk` / `!rs` / `!penal` | Troca o mapa | 👑 Admin / 👨‍💼 Adm / ⚽ Jog / 💂 Sub / 👮‍♂️ Cap |
 | `!hackban` | Bane jogador por ID | 👮‍♂️ Cap |
 | `!hackclearbans` | Limpa bans do banco | 👮‍♂️ Cap |
 | `!eval` | Executa JavaScript | 👮‍♂️ Cap |
 
+> [!WARNING]
+> Comandos sensíveis como `!cargo` e `!senha` têm credenciais mascaradas nos logs.
+
 ---
 
-## Sistema de GIFs
+## 🎬 Sistema de GIFs
 
-O comando `!gif` gera um GIF dos últimos segundos da partida.
+O comando `!gif` gera um GIF dos últimos segundos da partida e envia automaticamente no Discord via `GIFS_WEBHOOK`.
 
-Regras:
+### Regras
 
-- acesso apenas para `👮‍♂️ Capitão`, `💂 Sub-capitão`, `⚽ Jogador` e `👨‍💼 Administrador`;
-- duração permitida: `1` a `10` segundos;
-- sem duração informada, o padrão é `5s`;
-- se a partida tiver menos tempo que o pedido, o GIF usa apenas o tempo disponível;
-- máximo de `4` GIFs por partida;
-- o GIF é enviado no Discord via `GIFS_WEBHOOK`;
-- depois de enviado com sucesso, o arquivo local é apagado;
-- se o envio falhar, o arquivo local permanece salvo em `clips/`.
-- o replay temporário `.hbr2` usado para renderizar clips é apagado após todos os clips da partida serem enviados.
+| Regra | Valor |
+|:--|:--|
+| Acesso | `👮‍♂️ Capitão`, `💂 Sub-capitão`, `⚽ Jogador`, `👨‍💼 Administrador` |
+| Duração permitida | `1` a `10` segundos |
+| Duração padrão | `5s` |
+| Limite por partida | `4` GIFs |
+| Envio | Discord via `GIFS_WEBHOOK` |
+| Pós-envio | GIF local apagado após upload bem-sucedido |
+| Falha no envio | Arquivo local permanece em `clips/` |
 
-Replays completos/súmulas só são enviados quando a partida tem gol, mais de `30s` de tempo jogado e menos de `30min`.
+> [!NOTE]
+> Se a partida tiver menos tempo que o pedido, o GIF usa apenas o tempo disponível.
 
-Exemplos:
+> [!IMPORTANT]
+> O replay temporário `.hbr2` usado para renderizar os clipes é apagado após todos os clips da partida serem enviados.
+
+Replays completos e súmulas só são enviados quando a partida possui:
+
+- pelo menos um gol;
+- mais de `30s` de tempo jogado;
+- menos de `30min` de duração.
+
+### Exemplos
 
 ```text
 !gif
@@ -107,13 +155,19 @@ Exemplos:
 !replay 3 defesa final
 ```
 
-O embed enviado no Discord inclui sala, duração, solicitante, comentário e o GIF anexado.
+O embed enviado no Discord inclui:
+
+- sala;
+- duração;
+- solicitante;
+- comentário;
+- GIF anexado.
 
 ---
 
-## Discord
+## 🤖 Comandos Discord
 
-Os comandos slash controlam a sala pelo Discord.
+Os comandos slash controlam a sala diretamente pelo Discord.
 
 | Comando | Função |
 |:--|:--|
@@ -137,19 +191,19 @@ Os comandos slash controlam a sala pelo Discord.
 
 ### Autocomplete
 
-O campo `sala` recebe as salas ativas automaticamente.
+O campo `sala` recebe automaticamente as salas ativas.
 
-Nos comandos com campo `player`, depois de escolher a sala, o Discord sugere os jogadores daquela sala no formato:
+Nos comandos com campo `player`, após selecionar a sala, o Discord sugere os jogadores daquela sala no formato:
 
 ```text
 [id] nome
 ```
 
-Assim você escolhe o jogador direto na lista, sem precisar usar `/players` antes.
+Assim você escolhe o jogador diretamente na lista, sem precisar usar `/players` antes.
 
 ---
 
-## Configuração
+## ⚙️ Configuração
 
 Crie o `.env` a partir do exemplo:
 
@@ -157,7 +211,7 @@ Crie o `.env` a partir do exemplo:
 cp .env.example .env
 ```
 
-Variáveis principais:
+### Variáveis principais
 
 ```env
 TOKEN_BOT=
@@ -189,23 +243,31 @@ PROXYCHECK_API_KEY=
 CHROMIUM_PATH=
 ```
 
+> [!WARNING]
+> Webhooks, tokens e API keys são credenciais. Não publique valores reais em commits, issues, prints ou logs públicos.
+
 ---
 
-## Instalação
+## 📦 Instalação
 
 ```bash
 npm install
 ```
 
+> [!NOTE]
+> O `npm install` executa automaticamente o `postinstall`, responsável por aplicar patches em dependências necessárias para multi-salas e isolamento de handlers.
+
 ---
 
-## Execução
+## ▶️ Execução
+
+Iniciar o sistema:
 
 ```bash
 npm run start
 ```
 
-Build:
+Build TypeScript:
 
 ```bash
 npm run build
@@ -213,7 +275,7 @@ npm run build
 
 ---
 
-## Scripts Operacionais
+## 🛠️ Scripts Operacionais
 
 ### Patch do HaxBall
 
@@ -257,7 +319,8 @@ $env:VPS_HOST="IP_OU_DOMINIO_DA_VPS"
 $env:VPS_KEY="C:\caminho\para\sua-chave.ppk"
 ```
 
-`VPS_KEY` é opcional se o SSH já encontrar a chave sozinho. Chaves `.ppk` usam `pscp/plink`; chaves OpenSSH usam `scp/ssh`.
+> [!NOTE]
+> `VPS_KEY` é opcional se o SSH já encontrar a chave sozinho. Chaves `.ppk` usam `pscp/plink`; chaves OpenSSH usam `scp/ssh`.
 
 Enviar somente o código:
 
@@ -280,7 +343,7 @@ npm run start
 
 ---
 
-## Estrutura
+## 🧱 Estrutura do Projeto
 
 ```text
 src/
@@ -297,7 +360,7 @@ clips/         Replays e GIFs temporários
 
 ---
 
-## Banco de Dados
+## 🗃️ Banco de Dados
 
 O SQLite armazena:
 
@@ -311,11 +374,24 @@ Arquivo padrão:
 data.db
 ```
 
+> [!IMPORTANT]
+> A fila de clips fica em memória. O banco não armazena histórico de GIFs enviados.
+
 ---
 
-## Observações Operacionais
+## 📌 Observações Operacionais
 
 - Reinicie o bot após alterar `.env`.
 - Webhooks são credenciais; não publique URLs reais.
 - `clips/` é diretório operacional e não deve ser versionado.
 - Use `npm run build` antes de subir alterações.
+
+---
+
+<div align="center">
+
+**Arena Vincere**
+
+Operação HaxBall com automação, controle e rastreabilidade.
+
+</div>
