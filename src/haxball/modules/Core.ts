@@ -24,6 +24,12 @@ const emojiMap: Record<string, { id: string; emojiName: string }> = {
   Proxy: { id: "1508652213151727696", emojiName: "Proxy" },
 };
 
+const GEO_CACHE_TTL_MS = 15 * 60 * 1000;
+const GEO_FETCH_ATTEMPTS = 3;
+const GEO_FETCH_TIMEOUT_MS = 4500;
+const GEO_LEAVE_WAIT_MS = 2500;
+const geoCache = new Map<string, { expiresAt: number; data?: Record<string, any>; promise?: Promise<Record<string, any>> }>();
+
 @Module
 export class CoreModule {
   private entryWebhook?: WebhookClient;
@@ -107,12 +113,9 @@ export class CoreModule {
       }
     }
 
-    let geo: Record<string, any> = {};
-    try {
-      const response = await fetch(`https://proxycheck.io/v2/${player.ip}?vpn=1&asn=1`);
-      const result = (await response.json()) as Record<string, any>;
-      geo = result[player.ip] || {};
-    } catch {}
+    const geoPromise = fetchGeoData(player.ip);
+    player.settings.geoDataPromise = geoPromise;
+    const geo = await geoPromise;
 
     if (geo.proxy === "yes") {
       player.reply({
@@ -174,7 +177,7 @@ export class CoreModule {
   async onPlayerLeave(player: Player): Promise<void> {
     if (this.exitWebhook) {
       try {
-        const geo = (player.settings.geoData || {}) as Record<string, any>;
+        const geo = await this.getPlayerGeoData(player);
         const provedora = geo.provider || geo.isp || "—";
         const organizacao = geo.organisation || geo.organization || geo.org || "—";
 
@@ -202,6 +205,18 @@ export class CoreModule {
         });
       } catch {}
     }
+  }
+
+  private async getPlayerGeoData(player: Player): Promise<Record<string, any>> {
+    if (player.settings.geoData) return player.settings.geoData as Record<string, any>;
+    if (player.settings.geoDataPromise) {
+      const geo = await withTimeout(player.settings.geoDataPromise as Promise<Record<string, any>>, GEO_LEAVE_WAIT_MS, {});
+      player.settings.geoData = geo;
+      return geo;
+    }
+    const geo = await fetchGeoData(player.ip);
+    player.settings.geoData = geo;
+    return geo;
   }
 
   @Event
@@ -235,4 +250,72 @@ export class CoreModule {
       return false;
     }
   }
+}
+
+async function fetchGeoData(ip?: string): Promise<Record<string, any>> {
+  if (!ip) return {};
+
+  const now = Date.now();
+  const cached = geoCache.get(ip);
+  if (cached && cached.expiresAt > now) {
+    if (cached.data) return cached.data;
+    if (cached.promise) return cached.promise;
+  }
+
+  const promise = fetchGeoDataWithRetry(ip)
+    .then((data) => {
+      geoCache.set(ip, { expiresAt: Date.now() + GEO_CACHE_TTL_MS, data });
+      return data;
+    })
+    .catch((err) => {
+      geoCache.delete(ip);
+      console.warn(`⚠️ Geo lookup falhou para ${ip}:`, err instanceof Error ? err.message : err);
+      return {};
+    });
+
+  geoCache.set(ip, { expiresAt: now + GEO_CACHE_TTL_MS, promise });
+  return promise;
+}
+
+async function fetchGeoDataWithRetry(ip: string): Promise<Record<string, any>> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= GEO_FETCH_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(`https://proxycheck.io/v2/${ip}?vpn=1&asn=1`, {
+        signal: AbortSignal.timeout(GEO_FETCH_TIMEOUT_MS),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+
+      const result = (await response.json()) as Record<string, any>;
+      if (result.status && result.status !== "ok") {
+        throw new Error(`proxycheck status=${result.status}${result.message ? ` message=${result.message}` : ""}`);
+      }
+
+      return result[ip] || {};
+    } catch (err) {
+      lastError = err;
+      if (attempt < GEO_FETCH_ATTEMPTS) await sleep(attempt * 700);
+    }
+  }
+
+  throw lastError;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms);
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        resolve(fallback);
+      });
+  });
 }
