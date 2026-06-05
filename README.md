@@ -212,6 +212,73 @@ npm run build
 
 ---
 
+## Scripts Operacionais
+
+### Patch do HaxBall
+
+O projeto aplica patches em dependências instaladas para manter:
+
+- multi-salas na `haxball.js`;
+- handlers isolados por sala no `haxball-extended-room`.
+
+O patch roda automaticamente no `npm install` via `postinstall`.
+
+Para reaplicar manualmente:
+
+```bash
+npm run postinstall
+```
+
+ou:
+
+```bash
+node scripts/patch-haxball.js
+```
+
+Use isso depois de reinstalar `node_modules`, atualizar dependências ou suspeitar de erro como `Can't init twice`.
+
+### Sync com VPS
+
+O sync envia o código local para `/home/<VPS_USER>/vincere`, preservando arquivos operacionais da VPS:
+
+- `.env`;
+- `data.db*`;
+- `node_modules/`;
+- `clips/`;
+- `.git/`;
+- `README.md`.
+
+Configure no PowerShell:
+
+```powershell
+$env:VPS_USER="ubuntu"
+$env:VPS_HOST="IP_OU_DOMINIO_DA_VPS"
+$env:VPS_KEY="C:\caminho\para\sua-chave.ppk"
+```
+
+`VPS_KEY` é opcional se o SSH já encontrar a chave sozinho. Chaves `.ppk` usam `pscp/plink`; chaves OpenSSH usam `scp/ssh`.
+
+Enviar somente o código:
+
+```powershell
+npm.cmd run sync
+```
+
+Enviar código e rodar `npm install` na VPS:
+
+```powershell
+npm.cmd run sync:full
+```
+
+Se a VPS não tiver `pm2`, o script apenas avisa. Nesse caso, reinicie manualmente na sessão `tmux`:
+
+```bash
+tmux attach -t Vincere
+npm run start
+```
+
+---
+
 ## Estrutura
 
 ```text
