@@ -2,7 +2,7 @@ import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } f
 import { getRoom } from "../../room/RoomManager";
 import { playerAutocomplete } from "../autocomplete";
 import { EmbedFactory } from "../EmbedFactory";
-import { sanitizeDiscordContent } from "../../utils/discordWebhook";
+import { formatDiscordPlayer } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("time")
@@ -24,7 +24,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const emoji = lado === "red" ? "🔴" : lado === "blue" ? "🔵" : "🟢";
   const player = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
-  if (player.team === team) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` já está no time ${emoji}.`, user)], flags: MessageFlags.Ephemeral }); return; }
+  if (player.team === team) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${formatDiscordPlayer(player.id, player.name)} já está no time ${emoji}.`, user)], flags: MessageFlags.Ephemeral }); return; }
   player.team = team;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` movido para ${emoji}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ ${formatDiscordPlayer(player.id, player.name)} movido para ${emoji}.`, user)] });
 }

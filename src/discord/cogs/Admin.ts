@@ -3,7 +3,7 @@ import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, ty
 import { getRoom } from "../../room/RoomManager";
 import type { Player } from "haxball-extended-room";
 import { playerAutocomplete } from "../autocomplete";
-import { sanitizeDiscordContent } from "../../utils/discordWebhook";
+import { formatDiscordPlayer } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("admin")
@@ -23,8 +23,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const status = interaction.options.getBoolean("status", true);
   const player: Player | undefined = room.players[playerId];
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
-  if (player.admin === status) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` já ${status ? "é admin" : "é player"}.`, user)], flags: MessageFlags.Ephemeral }); return; }
-  if (["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"].includes(player.settings.role)) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` é \`${player.settings.role}\`.`, user)], flags: MessageFlags.Ephemeral }); return; }
+  if (player.admin === status) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${formatDiscordPlayer(player.id, player.name)} já ${status ? "é admin" : "é player"}.`, user)], flags: MessageFlags.Ephemeral }); return; }
+  if (["👨‍💼 administrador", "👮‍♂️ capitão", "💂 sub-capitão", "⚽ jogador"].includes(player.settings.role)) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed(`❌ ${formatDiscordPlayer(player.id, player.name)} é \`${player.settings.role}\`.`, user)], flags: MessageFlags.Ephemeral }); return; }
   player.admin = status;
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Admin de \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` alterado para \`${status}\`.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`✅ Admin de ${formatDiscordPlayer(player.id, player.name)} alterado para \`${status}\`.`, user)] });
 }

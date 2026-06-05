@@ -3,7 +3,7 @@ import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } f
 import { getRoom } from "../../room/RoomManager";
 import { bansDb } from "../../database/Database";
 import { playerAutocomplete } from "../autocomplete";
-import { sanitizeDiscordContent } from "../../utils/discordWebhook";
+import { formatDiscordPlayer } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("banir")
@@ -25,5 +25,5 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   player.ban(reason);
   bansDb.insert(player.ip ?? "", player.auth ?? "", player.name ?? "", interaction.user.username, reason ?? "");
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🚫 \`[${player.id}] **${sanitizeDiscordContent(player.name)}**\` foi banido. Motivo: \`${reason}\``, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🚫 ${formatDiscordPlayer(player.id, player.name)} foi banido. Motivo: \`${reason}\``, user)] });
 }

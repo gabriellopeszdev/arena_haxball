@@ -1,7 +1,7 @@
 import { EmbedFactory } from "../EmbedFactory";
 import { type ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { getRoom } from "../../room/RoomManager";
-import { sanitizeDiscordContent } from "../../utils/discordWebhook";
+import { formatDiscordPlayer } from "../../utils/discordWebhook";
 import { playerAutocomplete } from "../autocomplete";
 
 export const data = new SlashCommandBuilder()
@@ -24,5 +24,5 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   if (!player) { await interaction.reply({ embeds: [EmbedFactory.createErrorEmbed("❌ Jogador não encontrado.", user)], flags: MessageFlags.Ephemeral }); return; }
   const teamEmoji = player.team === 1 ? "🔴" : player.team === 2 ? "🔵" : "🟢";
   player.kick(reason);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`👢 ${teamEmoji} \`[${player.id}]\` **${player.name}** foi kickado${reason ? ` (\`${reason}\`)` : ""}.`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`👢 ${teamEmoji} ${formatDiscordPlayer(player.id, player.name)} foi kickado${reason ? ` (\`${reason}\`)` : ""}.`, user)] });
 }

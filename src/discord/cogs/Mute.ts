@@ -3,7 +3,7 @@ import { mutesDb } from "../../database/Database";
 import { getRoom } from "../../room/RoomManager";
 import { playerAutocomplete } from "../autocomplete";
 import { EmbedFactory } from "../EmbedFactory";
-import { sanitizeDiscordContent } from "../../utils/discordWebhook";
+import { formatDiscordPlayer } from "../../utils/discordWebhook";
 
 export const data = new SlashCommandBuilder()
   .setName("mutar")
@@ -28,5 +28,5 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const expiresAt = Math.floor(Date.now() / 1000) + minutes * 60;
   mutesDb.insert(target.ip ?? "", target.auth ?? "", target.name ?? "", interaction.user.username, expiresAt, reason ?? "");
   target.reply({ message: `🔇 Você foi mutado por ${minutes}min${reason ? ` (\`${reason}\`)` : ""}.`, color: 0xFFA500 } as any);
-  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔇 \`[${target.id}] **${sanitizeDiscordContent(target.name)}**\` mutado por \`${minutes}min\`.${reason ? ` Motivo: \`${reason}\`` : ""}`, user)] });
+  await interaction.reply({ embeds: [EmbedFactory.createSuccessEmbed(`🔇 ${formatDiscordPlayer(target.id, target.name)} mutado por \`${minutes}min\`.${reason ? ` Motivo: \`${reason}\`` : ""}`, user)] });
 }

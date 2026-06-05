@@ -11,6 +11,10 @@ export function sanitizeDiscordContent(value: string): string {
     .replace(/([*_~`|])/g, "\\$1");
 }
 
+export function formatDiscordPlayer(id: number, name: string, badge = ""): string {
+  return `\`[${id}]\` ${badge ? `${badge} ` : ""}**${sanitizeDiscordContent(name)}**`;
+}
+
 export function webhookJsonPayload(payload: JsonPayload): JsonPayload {
   return {
     ...payload,
