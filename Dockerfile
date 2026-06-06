@@ -51,8 +51,9 @@ COPY package*.json ./
 COPY scripts ./scripts
 RUN npm ci --omit=dev
 
-# Copia build compilado
+# Copia build compilado e mapas
 COPY --from=builder /app/dist ./dist
+COPY maps ./maps
 
 # Volumes para dados persistentes
 VOLUME ["/app/clips", "/app/data.db"]
