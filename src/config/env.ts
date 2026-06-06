@@ -30,6 +30,9 @@ async function getOrPromptToken(roomNumber: number): Promise<string> {
   const envToken = process.env[`ROOM${roomNumber}_TOKEN`];
   if (envToken && !isPlaceholder(envToken)) return envToken;
   if (promptedTokens[roomNumber]) return promptedTokens[roomNumber];
+  if (!process.stdin.isTTY) {
+    throw new Error(`❌ ROOM${roomNumber}_TOKEN não definido no .env`);
+  }
   promptedTokens[roomNumber] = await promptForToken(roomNumber);
   return promptedTokens[roomNumber];
 }
@@ -37,6 +40,9 @@ async function getOrPromptToken(roomNumber: number): Promise<string> {
 async function promptRoomVisibility(roomNumber: number): Promise<boolean> {
   const envPublic = process.env[`ROOM${roomNumber}_PUBLIC`];
   if (envPublic !== undefined) return envPublic === "true";
+
+  // Em ambiente não-interativo (Docker) assume pública por padrão
+  if (!process.stdin.isTTY) return true;
 
   console.log(`\n╔══════════════════════════════════════╗`);
   console.log(`║   🌐 Sala ${roomNumber} — Visibilidade      ║`);
