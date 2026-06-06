@@ -60,4 +60,4 @@ VOLUME ["/app/clips", "/app/data.db"]
 ENV NODE_ENV=production
 ENV CHROMIUM_PATH=/usr/bin/chromium
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]
