@@ -3,6 +3,7 @@ FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package*.json ./
+COPY scripts ./scripts
 RUN npm ci
 
 COPY . .
@@ -47,14 +48,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY package*.json ./
+COPY scripts ./scripts
 RUN npm ci --omit=dev
 
-# Copia build compilado e scripts necessários
+# Copia build compilado
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/scripts ./scripts
-
-# Re-aplica patch do haxball nos módulos de produção
-RUN node scripts/patch-haxball.js
 
 # Volumes para dados persistentes
 VOLUME ["/app/clips", "/app/data.db"]
