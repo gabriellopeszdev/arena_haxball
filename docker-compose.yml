@@ -1,0 +1,13 @@
+services:
+  arena:
+    build: .
+    container_name: arena_haxball
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - CHROMIUM_PATH=/usr/bin/chromium
+    volumes:
+      - ./data.db:/app/data.db
+      - ./clips:/app/clips
+    # Puppeteer precisa de /dev/shm maior para o Chromium não crashar
+    shm_size: 256mb
