@@ -6,8 +6,10 @@ services:
     env_file: .env
     environment:
       - CHROMIUM_PATH=/usr/bin/chromium
+      - NODE_OPTIONS=--max-old-space-size=512
     volumes:
       - ./data.db:/app/data.db
       - ./clips:/app/clips
-    # Puppeteer precisa de /dev/shm maior para o Chromium não crashar
     shm_size: 256mb
+    # Prioridade de CPU maior que outros containers (padrão = 1024)
+    cpu_shares: 2048
