@@ -6,7 +6,7 @@ services:
     env_file: .env
     environment:
       - CHROMIUM_PATH=/usr/bin/chromium
-      - NODE_OPTIONS=--max-old-space-size=512
+      - NODE_OPTIONS=--max-old-space-size=4096
     volumes:
       - ./data.db:/app/data.db
       - ./clips:/app/clips
